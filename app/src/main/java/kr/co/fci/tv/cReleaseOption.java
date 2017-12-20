@@ -4,7 +4,7 @@ package kr.co.fci.tv;
  * Created by eddy.lee on 2016-05-27.
  */
 public class cReleaseOption {
-        public final static String CUSTOMER= "FCI COMMON_C-NOVO";
+        public final static String CUSTOMER= "FCI COMMON";
         public final static int JAPAN = 0;
         public final static int BRAZIL = 1;
         public final static int PHILIPPINES = 2;
@@ -46,8 +46,10 @@ public class cReleaseOption {
         //for xhdpi (Motolora, Techain)
         public final static int CHANNLE_CHANGE_PROC_SHIFT_X = 0;
         public final static int CHANNLE_CHANGE_PROC_SHIFT_Y = 0;
+        //ADD_GINGA_NCL[[
         public final static int TOAST_SHIFT_X = 0; // HW_NaviKey=>0, SW_NaviKey=>50
         public final static int TOAST_SHIFT_Y = 0;
+		//]]ADD_GINGA_NCL
 
 
         public final static boolean FCI_SOLUTION_LOG_ON = true;
@@ -66,7 +68,7 @@ public class cReleaseOption {
         
         public final static boolean RECORD_FUNCTION_USE = true;   // This option include recording and recorded file with playback
 
-        public final static boolean SETTING_LOCALE_USE = true;
+        public final static boolean SETTING_LOCALE_USE = false;
         public final static boolean SETTING_RESTORE_USE = true;
         public final static boolean SETTING_PASSWORD_USE = true;
         public final static boolean SETTING_PARENTAL_USE = true;    // This option include parental switch and set age menu

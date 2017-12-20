@@ -98,7 +98,8 @@ public class EPGActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-       /* if (buildOption.USE_ANALYTICS_FUNCTION) {
+        /*
+        if (buildOption.USE_ANALYTICS_FUNCTION) {
             GoogleAnalytics.getInstance(this).reportActivityStart(this);
         }*/
     }
@@ -159,7 +160,8 @@ public class EPGActivity extends Activity {
 
         epgContext = this;
 
-        /*if (buildOption.USE_ANALYTICS_FUNCTION) {
+        /*
+        if (buildOption.USE_ANALYTICS_FUNCTION) {
             // google analytics
             Tracker mTracker = ((AnalyticsApplication)getApplication()).getTracker(AnalyticsApplication.TrackerName.APP_TRACKER);
             mTracker.setScreenName("EPG");
@@ -171,15 +173,15 @@ public class EPGActivity extends Activity {
     protected void onResume() {
         super.onResume();
         CommonStaticData.epgActivityShow = true;
-   }
+    }
 
     @Override
     protected void onStop() {
         super.onStop();
-       /* if (buildOption.USE_ANALYTICS_FUNCTION) {
+        /*
+        if (buildOption.USE_ANALYTICS_FUNCTION) {
             GoogleAnalytics.getInstance(this).reportActivityStop(this);
         }*/
-
     }
 
     private void init() {
@@ -366,25 +368,23 @@ public class EPGActivity extends Activity {
                         curTsDate = (monthStr+" "+curDay+", "+curYear+", "+dispCurHour+":"+curPrecede+curMin+" "+curAMPM);
                         //curTsDate = (monthStr+" "+curDay+", "+curYear+", "+curHour+":"+curPrecede+curMin);
                         curSysDate = sdf.format((cal.getTime()));
-                    /*if (curTsDate != null) {
-                        tv_curDate.setText(curTsDate);
-                    } else {
-                        tv_curDate.setText(String.format(curSysDate));
-                    }*/
+                        /*
+                        if (curTsDate != null) {
+                            tv_curDate.setText(curTsDate);
+                        } else {
+                            tv_curDate.setText(String.format(curSysDate));
+                        }*/
                     }
-
 
                     if (curYear==0 || curMonth==0 || curDay==0) {
                         tv_curDate.setText(curSysDate);
                     } else {
                         tv_curDate.setText(curTsDate);
                     }
-
                 }
 
                 @Override
                 public void onFinish() {
-
                 }
             };
             newTimer.start();
@@ -420,7 +420,6 @@ public class EPGActivity extends Activity {
 
         MainActivity.getInstance().postEvent(TVEVENT.E_EPG_UPDATE, EPG_UPDATE_PERIOD, EPG_UPDATE_TYPE_PERIODIC);  // 15 sec
         MainActivity.getInstance().postEvent(TVEVENT.E_EPGTITLE_UPDATE, 0);  //live
-
     }
 
     //live
@@ -488,6 +487,8 @@ public class EPGActivity extends Activity {
     public void UpdateEPGList(int _epgType) {
 
         // live add
+        mCursor = MainActivity.getCursor();
+        //
         int mScrollY = 0;
         int pos = EPGListView.getFirstVisiblePosition();
         View v = EPGListView.getChildAt(0);
@@ -508,7 +509,7 @@ public class EPGActivity extends Activity {
             tv_phyChNo.setVisibility(View.GONE);
         }
 
-        if (mCursor.getCount() > 0) {
+        if (mCursor != null && mCursor.getCount() > 0) {
             int freq = Integer.parseInt(mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_FREQ));
             TVlog.i(TAG, " >>>>> current freq = " + freq);
 
@@ -546,18 +547,19 @@ public class EPGActivity extends Activity {
 
         int date[] = FCI_TVi.GetTSNetTime();
         mCurWeekDay = MainActivity.DayFun(date[0], date[1], date[2]);
-        /*if (EPGSimpleArrayAdapter.getInstance() != null) {
+        /*
+        if (EPGSimpleArrayAdapter.getInstance() != null) {
             mCurWeekDay = EPGSimpleArrayAdapter.getInstance().mCurWeekDay_EPG;
         }*/
 
-        int EPGCount = FCI_TVi.GetEPGCount(mCurWeekDay, mChannelIndex);
+        int EPGCount = FCI_TVi.GetEPGCount(mCurWeekDay, CommonStaticData.lastCH);
 
-        if(EPGCount==0)
+        if (EPGCount==0)
             noepg_text.setVisibility(View.VISIBLE);
         else    // justin no epg text clear
             noepg_text.setVisibility(View.INVISIBLE);
 
-        if((EPGCount != mLastEPGCount) || (mCountNoTitle > 0) || (_epgType != EPG_UPDATE_TYPE_PERIODIC)) {
+        if ((EPGCount != mLastEPGCount) || (mCountNoTitle > 0) || (_epgType != EPG_UPDATE_TYPE_PERIODIC)) {
             //TVlog.e(TAG, "::epg update start==> counNoTitle=" + mCountNoTitle + ", epgCount=" + EPGCount + ", lastEPGcount=" + mLastEPGCount+", _epgType="+_epgType);
             mGroupList.clear();
             mChildList.clear();
@@ -567,7 +569,6 @@ public class EPGActivity extends Activity {
             mCountNoTitle = 0;
 
             for (int EPGIndex = 0; EPGIndex < EPGCount; EPGIndex++) {
-
                 String epgts = FCI_TVi.GetEPGTS(mCurWeekDay, EPGIndex);
                 String[] epgts_split = epgts.split("  ");
 
@@ -661,9 +662,11 @@ public class EPGActivity extends Activity {
         list = new ArrayList<String>(mGroupList_hash);
         Collections.sort(list);
 
-            /*EPGListView.setAdapter(new EPGSimpleArrayAdapter(this, mGroupList, mChildList));
-            EPGListView.deferNotifyDataSetChanged();
-            mLastEPGCount = EPGCount;*/
+        /*
+        EPGListView.setAdapter(new EPGSimpleArrayAdapter(this, mGroupList, mChildList));
+        EPGListView.deferNotifyDataSetChanged();
+        mLastEPGCount = EPGCount;
+        */
 
         scrollButton = (ScrollView) findViewById(R.id.scrollButton);
 
@@ -698,31 +701,44 @@ public class EPGActivity extends Activity {
                 mButton[i].setPadding(10,20,10,20);
                 mButton[i].setLayoutParams(pm);
                 ll_dateBtn.addView(mButton[i]);
+                //live remove
+                //TVlog.i(TAG, " >>>>> current mButton.getId() = "+mButton[curSelectedIndex].getId());
 
+                if (i == curSelectedIndex && mButton[curSelectedIndex] != null) {
+                    mButton[curSelectedIndex].setBackgroundResource(R.drawable.btn_selected);
+                    EPGListView.requestFocusFromTouch();
+                    if (epgSimpleArrayAdapter != null) {
+                        epgSimpleArrayAdapter.notifyDataSetChanged();
+                    }
+                    EPGListView.setSelection(curSelectedIndex);
+                } else {
+                    mButton[i].setBackgroundResource(R.drawable.btn_unselected);
+                }
+                /*
                 if (mButton[curSelectedIndex] != null) {
-                    mButton[curSelectedIndex].setSelected(true);
+                    //mButton[curSelectedIndex].setSelected(true);
+                    mButton[curSelectedIndex].setBackgroundResource(R.drawable.btn_selected);
                     EPGListView.requestFocusFromTouch();
                     if (epgSimpleArrayAdapter != null) {
                         epgSimpleArrayAdapter.notifyDataSetChanged();
                     }
                     EPGListView.setSelection(curSelectedIndex);
 
-                }
+                }*/
                 //prevSelectedIndex = mButton[0].getId();
 
                 mButton[i].setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         curSelectedIndex = v.getId();
+                        mButton[curSelectedIndex].setBackgroundResource(R.drawable.btn_selected);
+                        mButton[prevSelectedIndex].setBackgroundResource(R.drawable.btn_unselected);
                         TVlog.i(TAG, " >>>>> previous mButton.getId() = "+mButton[prevSelectedIndex].getId());
-                        mButton[prevSelectedIndex].setSelected(false);
-                        mButton[curSelectedIndex].setSelected(true);
                         TVlog.i(TAG, " >>>>> current mButton.getId() = "+mButton[curSelectedIndex].getId());
                         prevSelectedIndex = mButton[curSelectedIndex].getId();
                         EPGListView.requestFocusFromTouch();
                         epgSimpleArrayAdapter.notifyDataSetChanged();
                         EPGListView.setSelection((position.get(mButton[curSelectedIndex].getId())));
-
                     }
                 });
             }
@@ -734,8 +750,9 @@ public class EPGActivity extends Activity {
 
         //live add
         EPGListView.setSelectionFromTop(pos, mScrollY);
-        /*if (mButton.length > curSelectedIndex) {
-        EPGListView.setSelection((position.get(mButton[curSelectedIndex].getId())));
+        /*
+        if (mButton.length > curSelectedIndex) {
+            EPGListView.setSelection((position.get(mButton[curSelectedIndex].getId())));
         }*/
         EPGListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener()
         {
@@ -815,3 +832,4 @@ public class EPGActivity extends Activity {
     }
 
 }
+

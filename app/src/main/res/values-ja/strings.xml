@@ -417,4 +417,6 @@
 
     <string name="no_channel_msg">登録されたチャンネルがありません。\nサーチを実行してください。</string>
 
+    <string name="audio_only_channel">音声のみのチャンネル！</string>
+
 </resources>

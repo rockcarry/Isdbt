@@ -99,15 +99,15 @@ public class IntroActivity extends Activity {
                 buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                 buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
                 buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-        if(!isScreenOn){
-           CommonStaticData.countIntro = 0;
-            SharedPreferences.Editor editor = CommonStaticData.settings.edit();
-            editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);       // justin check
-            editor.commit();
-            if(MainActivity.getInstance() != null) {
-                MainActivity.getInstance().TVTerminate();
+            if(!isScreenOn){
+                CommonStaticData.countIntro = 0;
+                SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+                editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);       // justin check
+                editor.commit();
+                if(MainActivity.getInstance() != null) {
+                    MainActivity.getInstance().TVTerminate();
+                }
             }
-        }
 }
     }
 
@@ -155,7 +155,7 @@ public class IntroActivity extends Activity {
         decorView.setSystemUiVisibility(uiOptions);
         //TVlog.i(TAG, "== setSystemUiVisibility hideController ==");
 
-      //  super.onCreate(savedInstanceState);
+        //  super.onCreate(savedInstanceState);
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                 buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                 buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
@@ -222,57 +222,57 @@ public class IntroActivity extends Activity {
                 else {
                     finish();
                 }
-              //  SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+                //  SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                 CommonStaticData.countIntro = 1;
-              //  editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);       // justin check
-              //  editor.commit();
+                //  editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);       // justin check
+                //  editor.commit();
                 // usbdongle]]
 
             } else {
-            setContentView(R.layout.activity_intro);
-            intro_bg = (FrameLayout) findViewById(R.id.intro_bg);
+                setContentView(R.layout.activity_intro);
+                intro_bg = (FrameLayout) findViewById(R.id.intro_bg);
 
-            imageView = (ImageView) findViewById(R.id.cherry_logo);
-            imgLogo = (ImageView)findViewById(R.id.fci_logo);
+                imageView = (ImageView) findViewById(R.id.cherry_logo);
+                imgLogo = (ImageView)findViewById(R.id.fci_logo);
 
-            if(isRunAnimation == 1) {
-
-
-                intro_bg.setBackground(getResources().getDrawable(R.color.cherry_red));
-
-                imageView.setVisibility(View.VISIBLE);
-                imgLogo.setVisibility(View.INVISIBLE);
-
-                frameAnimation = (AnimationDrawable) imageView.getDrawable();
-                frameAnimation.start();
-
-                if (buildOption.GUI_STYLE == 2 && buildOption.CUSTOMER.contains("IRobot")) {
-                    postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,2000);
-                } else {
-                    postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,4000);
-                }
+                if(isRunAnimation == 1) {
 
 
-            } else {
-                intro_bg.setBackground(getResources().getDrawable(R.color.white));
+                    intro_bg.setBackground(getResources().getDrawable(R.color.cherry_red));
 
-                imageView.setVisibility(View.INVISIBLE);
-                imgLogo.setVisibility(View.VISIBLE);
+                    imageView.setVisibility(View.VISIBLE);
+                    imgLogo.setVisibility(View.INVISIBLE);
 
-                ani = createAnimation(context);
+                    frameAnimation = (AnimationDrawable) imageView.getDrawable();
+                    frameAnimation.start();
 
-                ani.setAnimationListener(new Animation.AnimationListener(){
-
-                    public void onAnimationEnd(Animation animation) {
-
-                        postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,1000);
+                    if (buildOption.GUI_STYLE == 2 && buildOption.CUSTOMER.contains("IRobot")) {
+                        postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,2000);
+                    } else {
+                        postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,4000);
                     }
-                    public void onAnimationRepeat(Animation animation) {;}
-                    public void onAnimationStart(Animation animation) {;}
 
-                });
 
-            }
+                } else {
+                    intro_bg.setBackground(getResources().getDrawable(R.color.white));
+
+                    imageView.setVisibility(View.INVISIBLE);
+                    imgLogo.setVisibility(View.VISIBLE);
+
+                    ani = createAnimation(context);
+
+                    ani.setAnimationListener(new Animation.AnimationListener(){
+
+                        public void onAnimationEnd(Animation animation) {
+
+                            postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,1000);
+                        }
+                        public void onAnimationRepeat(Animation animation) {;}
+                        public void onAnimationStart(Animation animation) {;}
+
+                    });
+
+                }
             }
         } else {
             if (buildOption.CUSTOMER.contains("Myphone") || buildOption.CUSTOMER.contains("K-FUNG")) {
@@ -292,10 +292,10 @@ public class IntroActivity extends Activity {
                     else {
                         finish();
                     }
-                //    SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+                    //    SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                     CommonStaticData.countIntro = 1;
-                 //   editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);
-                 //   editor.commit();
+                    //   editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);
+                    //   editor.commit();
                     // usbdongle]]
                 }
                 else {
@@ -309,27 +309,27 @@ public class IntroActivity extends Activity {
                         buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
                     if (CommonStaticData.countIntro == 0) {
-                setContentView(R.layout.activity_intro);
-                intro_bg = (FrameLayout) findViewById(R.id.intro_bg);
+                        setContentView(R.layout.activity_intro);
+                        intro_bg = (FrameLayout) findViewById(R.id.intro_bg);
 
-                imageView = (ImageView) findViewById(R.id.cherry_logo);
-                imgLogo = (ImageView)findViewById(R.id.fci_logo);
+                        imageView = (ImageView) findViewById(R.id.cherry_logo);
+                        imgLogo = (ImageView)findViewById(R.id.fci_logo);
 
-                intro_bg.setBackground(getResources().getDrawable(R.color.white));
+                        intro_bg.setBackground(getResources().getDrawable(R.color.white));
 
-                imageView.setVisibility(View.INVISIBLE);
-                imgLogo.setVisibility(View.VISIBLE);
+                        imageView.setVisibility(View.INVISIBLE);
+                        imgLogo.setVisibility(View.VISIBLE);
 
-                ani = createAnimation(context);
+                        ani = createAnimation(context);
 
-                ani.setAnimationListener(new Animation.AnimationListener(){
+                        ani.setAnimationListener(new Animation.AnimationListener(){
 
-                    public void onAnimationEnd(Animation animation) {
+                            public void onAnimationEnd(Animation animation) {
 
-                        postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,1000);
-                    }
-                    public void onAnimationRepeat(Animation animation) {;}
-                    public void onAnimationStart(Animation animation) {;}
+                                postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,1000);
+                            }
+                            public void onAnimationRepeat(Animation animation) {;}
+                            public void onAnimationStart(Animation animation) {;}
 
                         });
                     }
@@ -340,10 +340,10 @@ public class IntroActivity extends Activity {
                     else {
                         finish();
                     }
-                 //   SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+                    //   SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                     CommonStaticData.countIntro = 1;
-                   // editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);
-                   // editor.commit();
+                    // editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);
+                    // editor.commit();
                     // usbdongle]]
                 } else {
                     setContentView(R.layout.activity_intro);
@@ -364,7 +364,7 @@ public class IntroActivity extends Activity {
                         public void onAnimationEnd(Animation animation) {
 
                             postEvent(TVEVENT.E_INTRO_MAIN_ACVITIVY_CALL,1000);
-        }
+                        }
                         public void onAnimationRepeat(Animation animation) {;}
                         public void onAnimationStart(Animation animation) {;}
 

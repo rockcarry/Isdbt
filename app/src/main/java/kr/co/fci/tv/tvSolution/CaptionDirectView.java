@@ -25,9 +25,11 @@ import android.widget.TextView;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
+import kr.co.fci.tv.FloatingWindow;
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.TVEVENT;
+import kr.co.fci.tv.chat.ChatMainActivity;
 
 /**
  * Created by elliot.oh on 2016-01-21.
@@ -89,6 +91,10 @@ public class CaptionDirectView extends View {
     private final int DISP_FORMAT_HOR_720_480 = 9;
     private final int DISP_FORMAT_VER_720_480 = 10;
     private final int CAPTION_DEFAULT_HEIGHT_UNIT_LEN = 48;//FONT_36_DOTS + FONT_36_DOTS/2
+    // live add
+    private final int CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1 = 36;//FONT_24_DOTS + FONT_24_DOTS/2
+    private final int CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2 = 24;//FONT_16_DOTS + FONT_16_DOTS/2
+    //
     private final int CAPTION_APS_PREDEFINED_HEIGHT_UNIT_LEN = 60;
     private final int MAX_DRCS_UNIT_LEN = 512+12;
 
@@ -263,8 +269,19 @@ public class CaptionDirectView extends View {
         int verSDF = capInfo[16];
         int lenCap = capInfo[17];
 
-        int posX = apsX + sdpX;
-        int posY = apsY + sdpY;
+        int posX = 0;
+        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+            posX = (apsX*2) + sdpX;
+        } else {
+            posX = apsX + sdpX;
+        }
+        int posY = 0;
+        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                posY = (apsY/2) + sdpY;
+        } else {
+            posY = apsY + sdpY;
+        }
+
 
         float sizeText = FONT_36_DOTS;
         int colorDrawing = 0;
@@ -296,12 +313,22 @@ public class CaptionDirectView extends View {
                 if (mTypeCaption == TYPE_CAPTION_SUPERIMPOSE) {
                     caption.putString("superimpose_info", "japan_superimpose");
                     caption.putString("clear", "");
-                    ((MainActivity) mContext).sendEvent(TVEVENT.E_SUPERIMPOSE_NOTIFY, 0, 0, caption);
+                    if (MainActivity.isMainActivity) {
+                        ((MainActivity) mContext).sendEvent(TVEVENT.E_SUPERIMPOSE_NOTIFY, 0, 0, caption);
+                    } else if (FloatingWindow.isFloating) {
+                        if (FloatingWindow.getInstance() != null) {
+                            FloatingWindow.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_NOTIFY_FLOATING, 0, 0, caption);
+                        }
+                    }
                 }
                 else {
                     caption.putString("caption_info", "japan_caption");
                     caption.putString("clear", "");
-                    ((MainActivity) mContext).sendEvent(TVEVENT.E_CAPTION_NOTIFY, 0, 0, caption);
+                    if (MainActivity.isMainActivity) {
+                        ((MainActivity) mContext).sendEvent(TVEVENT.E_CAPTION_NOTIFY, 0, 0, caption);
+                    } else if (FloatingWindow.isFloating) {
+                        FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY_FLOATING, 0, 0, caption);
+                    }
                 }
             }
             else if (isClear == 1) {
@@ -320,9 +347,28 @@ public class CaptionDirectView extends View {
             Log.e(TAG, "font size="+charSize+", size type="+fontSize+", font color="+fontColor+", bg color="+colorBackground);
 */
             mSegmentType = segType;
+            //live
+            if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                if (mSegmentType != TYPE_ONESEG) {
+                    mSegmentType = TYPE_ONESEG;
+                }
+            }
+            //
 
             if ((mTypeCaption==TYPE_CAPTION_SUBTITLE) && (mSegmentType==TYPE_ONESEG)) {
+                if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                    if (MainActivity.isMainActivity) {
+                        capDefaultTopMargin = mCapViewHeight - (CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1 * 3); //up to 3 rows
+                    } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                        capDefaultTopMargin = mCapViewHeight - (CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2 * 3); //up to 3 rows
+                    }
+                } else {
+                    if (MainActivity.isMainActivity) {
                 capDefaultTopMargin = mCapViewHeight - (CAPTION_DEFAULT_HEIGHT_UNIT_LEN * 3); //up to 3 rows
+                    } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                        capDefaultTopMargin = mCapViewHeight - (CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1 * 3); //up to 3 rows
+                    }
+            }
             }
             else {
                 if (mCapViewHeight >= CAP_DISPLAY_HEIGHT_540) {
@@ -333,8 +379,7 @@ public class CaptionDirectView extends View {
                     if (dispFormat == DISP_FORMAT_HOR_720_480) {
                         capDefaultTopMargin = capDefaultTopMargin + (CAP_DISPLAY_HEIGHT_540 - CAP_DISPLAY_HEIGHT_480) / 2;
                     }
-                }
-                else {
+                } else {
                     capDefaultTopMargin = 0;
 
                     if ((dispFormat == DISP_FORMAT_HOR_720_480) && (mCapViewHeight > CAP_DISPLAY_HEIGHT_480)) {
@@ -378,11 +423,9 @@ public class CaptionDirectView extends View {
                 }
                 if (dispFormat == DISP_FORMAT_HOR_960_540) {
                     posX = (int) ((float) posX * ((float)mCapViewWidth / (float)CAP_DISPLAY_WIDTH_960));
-                }
-                else if (dispFormat == DISP_FORMAT_HOR_720_480) {
+                } else if (dispFormat == DISP_FORMAT_HOR_720_480) {
                     posX = (int) ((float) posX * ((float)mCapViewWidth / (float)CAP_DISPLAY_WIDTH_720));
-                }
-                else { // DISP_FORMAT_VER_960_540, DISP_FORMAT_VER_720_480
+                } else { // DISP_FORMAT_VER_960_540, DISP_FORMAT_VER_720_480
 
                 }
             }
@@ -391,8 +434,22 @@ public class CaptionDirectView extends View {
             switch (charSize) {
                 case FONT_36_DOTS:
                 default:
-                    sizeText = FONT_36_DOTS;
-                    break;
+                    if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                        if (MainActivity.isMainActivity) {
+                            sizeText = FONT_24_DOTS;
+                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                            //sizeText = sizeText / 2;
+                            sizeText = FONT_16_DOTS;
+                        }
+                    } else {
+                        if (MainActivity.isMainActivity) {
+                            sizeText = FONT_36_DOTS;
+                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                            //sizeText = sizeText / 2;
+                            sizeText = FONT_24_DOTS;
+                        }
+                    }
+                        break;
 
                 case FONT_16_DOTS:
                 case FONT_20_DOTS:
@@ -498,10 +555,32 @@ public class CaptionDirectView extends View {
                 if (tmpStr.length() > 0) {
                     //calibrating Y coordination
                     if (mSegmentType == TYPE_ONESEG) {
+                        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                            if (MainActivity.isMainActivity) {
+                                if ((posY > prev_posY_Caption) && (mCapViewHeight >= posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1)) {
+                                    prev_posY_Caption = posY;
+                                    prev_posX_Caption = 0;
+                                }
+                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                if ((posY > prev_posY_Caption) && (mCapViewHeight >= posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2)) {
+                                    prev_posY_Caption = posY;
+                                    prev_posX_Caption = 0;
+                                }
+                            }
+                        } else {
+                            if (MainActivity.isMainActivity) {
                         if ((posY > prev_posY_Caption) && (mCapViewHeight >= posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN)) {
-                            prev_posY_Caption = posY;
+                                prev_posY_Caption = posY;
                             prev_posX_Caption = 0;
                         }
+                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                if ((posY > prev_posY_Caption) && (mCapViewHeight >= posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1)) {
+                                    prev_posY_Caption = posY;
+                                    prev_posX_Caption = 0;
+                                }
+                            }
+                    }
+
                     }
 
                     if (fontType == FONT_TYPE_DRCS_PATTERN) {
@@ -534,10 +613,32 @@ public class CaptionDirectView extends View {
 
                                 //calibrating coordination
                                 if (mSegmentType == TYPE_ONESEG) {
+                                    if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                        if (MainActivity.isMainActivity) {
+                                            if (prev_posX_Caption + sizeText >= mCapViewWidth) {
+                                                prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                                prev_posX_Caption = 0;
+                                            }
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            if (prev_posX_Caption + sizeText >= mCapViewWidth) {
+                                                prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                                prev_posX_Caption = 0;
+                                            }
+                                        }
+                                    } else {
+                                        if (MainActivity.isMainActivity) {
                                     if (prev_posX_Caption + sizeText >= mCapViewWidth) {
                                         prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
                                         prev_posX_Caption = 0;
                                     }
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            if (prev_posX_Caption + sizeText >= mCapViewWidth) {
+                                                prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                                prev_posX_Caption = 0;
+                                            }
+                                        }
+
+                                }
                                 }
 
                                 paintPosX = prev_posX_Caption;
@@ -624,14 +725,27 @@ public class CaptionDirectView extends View {
                     }
                     else if (fontType == FONT_TYPE_STRING_GENERIC){
                         StringBuffer sameLineString = new StringBuffer();
-                        int textX, textY;
+                        int textX, textY = 0;
                         if (mSegmentType == TYPE_ONESEG) {
                             for (int i = 0; i < tmpStr.length(); i++) {
                                 if (prev_posX_Caption + sizeText >= mCapViewWidth) {
                                     if (sameLineString != null && mCountOfTextView < MAX_TEXT_VIEW_NUM) {
                                         String dispString = sameLineString.toString();
                                         textX = prev_posX_Caption - dispString.length() * (int) sizeText;
+                                        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                            if (MainActivity.isMainActivity) {
+                                                textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                                textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                            }
+                                        } else {
+                                            if (MainActivity.isMainActivity) {
                                         textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                                textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                            }
+                                        }
+
                                         sendActionMsg(ACTION_TYPE_SET_TEXT, textX, textY, sizeText, fontSizeType, dispString, mCountOfTextView, colorDrawing, colorBackground, flashing, timeDelay, dispFormat);
                                         //Log.e(TAG, "[TIME][1111] index="+mCountOfTextView+", time delay=" + timeDelay);
                                         mCountOfTextView++;
@@ -639,7 +753,20 @@ public class CaptionDirectView extends View {
                                         sameLineString = new StringBuffer();
                                     }
                                     prev_posX_Caption = 0;
+                                    if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                        if (MainActivity.isMainActivity) {
+                                            prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                        }
+                                    } else {
+                                        if (MainActivity.isMainActivity) {
                                     prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            prev_posY_Caption += CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                        }
+                                }
+
                                 }
                                 String oneString = String.valueOf(tmpStr.charAt(i));
                                 sameLineString.append(oneString);
@@ -651,7 +778,20 @@ public class CaptionDirectView extends View {
                                     if (sameLineString != null && mCountOfTextView < MAX_TEXT_VIEW_NUM) {
                                         String dispString = sameLineString.toString();
                                         textX = prev_posX_Caption - dispString.length() * (int) sizeText;
+                                        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                            if (MainActivity.isMainActivity) {
+                                                textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                                textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                            }
+                                        } else {
+                                            if (MainActivity.isMainActivity) {
                                         textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                                textY = prev_posY_Caption + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                            }
+                                        }
+
                                         sendActionMsg(ACTION_TYPE_SET_TEXT, textX, textY, sizeText, fontSizeType, dispString, mCountOfTextView, colorDrawing, colorBackground, flashing, timeDelay, dispFormat);
                                         mCountOfTextView++;
                                     }
@@ -682,16 +822,56 @@ public class CaptionDirectView extends View {
                                     }
                                 }
                                 if (dispFormat==DISP_FORMAT_HOR_960_540 || dispFormat==DISP_FORMAT_HOR_720_480) {
+                                    if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                        if (MainActivity.isMainActivity) {
+                                            textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                        }
+                                    } else {
+                                        if (MainActivity.isMainActivity) {
                                     textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                        }
+                                }
+
                                 }
                                 else { //DISP_FORMAT_VER_960_540, DISP_FORMAT_VER_720_480
+                                    if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                        if (MainActivity.isMainActivity) {
+                                            textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                        }
+                                    } else {
+                                        if (MainActivity.isMainActivity) {
                                     textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                            textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                        }
+                                }
+
                                 }
                                 if (prev_posY_Caption != 0 && posY != prev_posY_Caption && posY < (prev_posY_Caption + prevFontSizeHeight)) {
                                     //Log.e(TAG, ">>> pos exception >>> prev Y bottom="+(prev_posY_Caption+prevFontSizeHeight)+", new Y="+posY+", prev font height="+prevFontSizeHeight);
                                 }
                                 int orgTextWidth = (int)(textX + tmpStr.length()*sizeText);
-                                int tempFontHeight = CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                int tempFontHeight = 0;
+                                if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                    if (MainActivity.isMainActivity) {
+                                        tempFontHeight = CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                    } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                        tempFontHeight = CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                    }
+                                } else {
+                                    if (MainActivity.isMainActivity) {
+                                    tempFontHeight = CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                    } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                        tempFontHeight = CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                    }
+                                }
+
                                 if (fontSizeType == FONT_SIZE_MIDDLE) {
                                     tempFontHeight = (int) (sizeText * 2 + (sizeText * 2) / 3);
                                 }
@@ -708,7 +888,20 @@ public class CaptionDirectView extends View {
                                         if (realCapWidth <= (textX + sizeText)) {
                                             textX = apsX + sdpX;
                                             posY += tempFontHeight;
+                                            if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                                                if (MainActivity.isMainActivity) {
+                                                    textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                                } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                                    textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                                                }
+                                            } else {
+                                                if (MainActivity.isMainActivity) {
                                             textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                                                } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                                    textY = posY + capDefaultTopMargin + CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                                                }
+                                            }
+
                                             sendActionMsg(ACTION_TYPE_SET_TEXT, textX, textY, sizeText, fontSizeType, Character.toString(tmpStr.charAt(i)), mCountOfTextView, colorDrawing, colorBackground, flashing, timeDelay, dispFormat);
                                             //Log.e(TAG, "out of range >>> textX="+textX+", textY="+textY);
                                         }
@@ -1025,6 +1218,14 @@ public class CaptionDirectView extends View {
                     textX = data.getInt(ACTION_PARAM_TEXT_START_X);
                     textY = data.getInt(ACTION_PARAM_TEXT_START_Y);
                     sizeTextPx = data.getFloat(ACTION_PARAM_TEXT_SIZE);
+                    //live
+                    /*if (FloatingWindow.isFloating) {
+                        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                            sizeTextPx = (data.getFloat(ACTION_PARAM_TEXT_SIZE))*0.5f;
+                        } else {
+                            sizeTextPx = (data.getFloat(ACTION_PARAM_TEXT_SIZE))*0.8f;
+                        }
+                    }*/
                     fontSizeType = data.getInt(ACTION_PARAM_TEXT_FONT_SIZE_TYPE);
                     dispString = data.getString(ACTION_PARAM_TEXT_STRING);
                     color = data.getInt(ACTION_PARAM_TEXT_COLOR);
@@ -1037,7 +1238,19 @@ public class CaptionDirectView extends View {
                     params=(ViewGroup.MarginLayoutParams) mTextView[index].getLayoutParams();
                     if ((mSegmentType==TYPE_ONESEG) || (dispFormat==DISP_FORMAT_HOR_960_540) || (dispFormat== DISP_FORMAT_HOR_720_480)) {
                         params.leftMargin = capDefaultLeftMargin + textX;
+                        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                            if (MainActivity.isMainActivity) {
+                                params.topMargin = textY - CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                params.topMargin = textY - CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2;
+                            }
+                        } else {
+                            if (MainActivity.isMainActivity) {
                         params.topMargin = textY - CAPTION_DEFAULT_HEIGHT_UNIT_LEN;
+                            } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                                params.topMargin = textY - CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1;
+                            }
+                        }
 
                         params.width = (int) sizeTextPx * dispString.length();
                         params.height = params.WRAP_CONTENT;
@@ -1188,10 +1401,25 @@ public class CaptionDirectView extends View {
                 case ACTION_TYPE_BACKGROUND_VISIBLE:
                     mOnesegBackView.setBackgroundColor(Color.BLACK & BCKGND_OPACITY_10); //10% opacity
                     params=(ViewGroup.MarginLayoutParams) mOnesegBackView.getLayoutParams();
-                    params.topMargin = mCapViewHeight - CAPTION_DEFAULT_HEIGHT_UNIT_LEN*3;
                     params.leftMargin = 0;
                     params.width = mParentLayout.getWidth();
+                    if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+                        if (MainActivity.isMainActivity) {
+                            params.topMargin = mCapViewHeight - CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1*3;
+                            params.height = CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1 * 3;
+                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                            params.topMargin = mCapViewHeight - CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2*3;
+                            params.height = CAPTION_DEFAULT_HEIGHT_UNIT_LEN_2 * 3;
+                        }
+                    } else {
+                        if (MainActivity.isMainActivity) {
+                        params.topMargin = mCapViewHeight - CAPTION_DEFAULT_HEIGHT_UNIT_LEN*3;
                     params.height = CAPTION_DEFAULT_HEIGHT_UNIT_LEN * 3;
+                        } else if (FloatingWindow.isFloating || ChatMainActivity.isChat) {
+                            params.topMargin = mCapViewHeight - CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1*3;
+                            params.height = CAPTION_DEFAULT_HEIGHT_UNIT_LEN_1 * 3;
+                        }
+                    }
 
                     mOnesegBackView.setLayoutParams(params);
                     mOnesegBackView.setVisibility(View.VISIBLE);

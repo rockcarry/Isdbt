@@ -77,7 +77,7 @@ public class OpenActivity extends Activity {
         title_open.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
+            		CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 finish();
                 Intent intent = new Intent(kr.co.fci.tv.activity.OpenActivity.this, AboutActivity.class);
                 startActivity(intent);
@@ -88,7 +88,7 @@ public class OpenActivity extends Activity {
         btn_back_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
+            		CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 finish();
                 Intent intent = new Intent(kr.co.fci.tv.activity.OpenActivity.this, AboutActivity.class);
                 startActivity(intent);
@@ -157,7 +157,7 @@ public class OpenActivity extends Activity {
         button_extra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
+            		CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 finish();
             }
         });
@@ -167,7 +167,7 @@ public class OpenActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
+            	CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 Intent homeIntent = new Intent(this, AboutActivity.class);
                 homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(homeIntent);
@@ -176,7 +176,7 @@ public class OpenActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
+      @Override
     public void onBackPressed() {
         CommonStaticData.openActivityShow = false;   // justin add for dongle detached
         finish();
@@ -212,48 +212,48 @@ public class OpenActivity extends Activity {
                 new MaterialDialog.Builder(kr.co.fci.tv.activity.OpenActivity.this)
                         .theme(Theme.LIGHT)
                         .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                        .title(R.string.libupnp1_title)
+                            .title(R.string.libupnp1_title)
                         .titleColor(getResources().getColor(R.color.black))
-                        .content(R.string.libupnp1)
-                        .negativeText(R.string.ok)
+                            .content(R.string.libupnp1)
+                            .negativeText(R.string.ok)
                         .negativeColor(getResources().getColor(R.color.blue3))
-                        .show();
+                            .show();
                 break;
 
             case DIALOG_GEEXBOX:
                 new MaterialDialog.Builder(kr.co.fci.tv.activity.OpenActivity.this)
                         .theme(Theme.LIGHT)
                         .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                        .title(R.string.geexbox_title)
+                            .title(R.string.geexbox_title)
                         .titleColor(getResources().getColor(R.color.black))
-                        .content(R.string.geexbox)
-                        .negativeText(R.string.ok)
+                            .content(R.string.geexbox)
+                            .negativeText(R.string.ok)
                         .negativeColor(getResources().getColor(R.color.blue3))
-                        .show();
+                            .show();
                 break;
 
             case DIALOG_SSL:
                 new MaterialDialog.Builder(kr.co.fci.tv.activity.OpenActivity.this)
                         .theme(Theme.LIGHT)
                         .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                        .title(R.string.ssl_title)
+                            .title(R.string.ssl_title)
                         .titleColor(getResources().getColor(R.color.black))
-                        .content(R.string.ssl)
-                        .negativeText(R.string.ok)
+                            .content(R.string.ssl)
+                            .negativeText(R.string.ok)
                         .negativeColor(getResources().getColor(R.color.blue3))
-                        .show();
+                            .show();
                 break;
 
             case DIALOG_LIBUPNP:
                 new MaterialDialog.Builder(kr.co.fci.tv.activity.OpenActivity.this)
                         .theme(Theme.LIGHT)
                         .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                        .title(R.string.libupnp_title)
+                            .title(R.string.libupnp_title)
                         .titleColor(getResources().getColor(R.color.black))
-                        .content(R.string.libupnp)
-                        .negativeText(R.string.ok)
+                            .content(R.string.libupnp)
+                            .negativeText(R.string.ok)
                         .negativeColor(getResources().getColor(R.color.blue3))
-                        .show();
+                            .show();
                 break;
 
             case DIALOG_FFMPEG:
@@ -261,17 +261,17 @@ public class OpenActivity extends Activity {
                 ffmpegDialog = new MaterialDialog.Builder(kr.co.fci.tv.activity.OpenActivity.this)
                         .theme(Theme.LIGHT)
                         .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                        .title(R.string.ffmpeg_title)
+                            .title(R.string.ffmpeg_title)
                         .titleColor(getResources().getColor(R.color.black))
-                        .content(R.string.ffmpeg)
+                            .content(R.string.ffmpeg)
                         .contentColor(getResources().getColor(R.color.black))
-                        .negativeText(R.string.ok)
+                            .negativeText(R.string.ok)
                         .negativeColor(getResources().getColor(R.color.blue3))
-                        .show();
-                View decorView = ffmpegDialog.getWindow().getDecorView();
-                int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE;    // justin
-                decorView.setSystemUiVisibility(uiOptions);
-            }
+                            .show();
+                    View decorView = ffmpegDialog.getWindow().getDecorView();
+                    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE;    // justin
+                    decorView.setSystemUiVisibility(uiOptions);
+                }
             break;
 
             case DIALOG_LIBUSB:

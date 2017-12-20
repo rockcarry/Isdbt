@@ -33,6 +33,32 @@
             android:background="@android:color/black" />
 
         <LinearLayout
+            android:id="@+id/ll_black"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:background="@color/black">
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_audioOnlyChannel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:background="@color/window_transparent_color">
+            <ImageView
+                android:id="@+id/iv_audioOnlyChannel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_speaker_bg" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/audio_only_channel" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/ll_uiLocked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -157,7 +183,6 @@
                 android:id="@+id/ll_multiWindow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
                 android:background="@drawable/circle_roundlayout"
                 android:gravity="center_vertical|center_horizontal"
                 android:orientation="horizontal"
@@ -233,6 +258,26 @@
                         android:textColor="@color/white"
                         android:textSize="15dp"
                         android:visibility="visible" />
+                    <RelativeLayout
+                        android:id="@+id/rl_ChType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="5dp">
+                        <ImageView
+                            android:id="@+id/iv_ChType"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"/>
+                        <ImageView
+                            android:id="@+id/iv_ChFree"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/tv_free"
+                            android:visibility="gone" />
+                    </RelativeLayout>
+
                     <TextView
                         android:id="@+id/tv_remote_no"
                         android:layout_width="wrap_content"
@@ -724,8 +769,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_alignBottom="@+id/ccLayout"
-            android:layout_alignTop="@+id/earphoneLayout">
+            android:layout_above="@+id/controllerLayout"
+            android:layout_below="@+id/status_bar">
 
             <LinearLayout
                 android:id="@+id/channelLayout"

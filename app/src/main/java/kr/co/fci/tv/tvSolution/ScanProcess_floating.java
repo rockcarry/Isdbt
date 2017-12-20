@@ -6,9 +6,8 @@ import android.widget.Toast;
 
 import kr.co.fci.tv.FloatingWindow;
 import kr.co.fci.tv.R;
+import kr.co.fci.tv.buildOption;
 import kr.co.fci.tv.util.TVlog;
-
-import static kr.co.fci.tv.tvSolution.ScanProcess.SHOW_PRGRESS_ON;
 
 /**
  * Created by live.kim on 2017-09-18.
@@ -18,9 +17,9 @@ public class ScanProcess_floating {
 
     //static MaterialDialog scandialog_floating;
     private static Context mContext;
-    public final static int SHOW_PROGRESS_ON= 1;
-    public final static int SHOW_PROGRESS_OFF = 2;
-    public final static int SHOW_PROGRESS_CLEAR = 3;
+    public final static int SHOW_PROGRESS_ON_FLOATING= 1;
+    public final static int SHOW_PROGRESS_OFF_FLOATING = 2;
+    public final static int SHOW_PROGRESS_CLEAR_FLOATING = 3;
     private static int preProgress_floating=0;
     public static boolean ScanOn_floating = false;
 
@@ -36,7 +35,7 @@ public class ScanProcess_floating {
     public static void showProgress_floating(int _progress, int _found, float freqKHz, int _option)
     {
         if (ScanOn_floating) {
-            if (_option == SHOW_PRGRESS_ON) {
+            if (_option == SHOW_PROGRESS_ON_FLOATING) {
 
                 if(FloatingWindow.getInstance().floating_ll_scan_progress.getVisibility() == View.INVISIBLE)
                 {
@@ -55,7 +54,7 @@ public class ScanProcess_floating {
                 //scandialog.setContent(_found + " " + mContext.getString(R.string.channel_found) + " (" + freqKHz / 1000 + mContext.getString(R.string.mega_hertz) + ")" + TVBridge.getCurScannedServiceName());
                 preProgress_floating = _progress;
                 //scandialog.show();
-            } else if (_option == SHOW_PROGRESS_OFF) {
+            } else if (_option == SHOW_PROGRESS_OFF_FLOATING) {
                 /*CustomToast toast = new CustomToast(mContext);
                 toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);*/
                 FloatingWindow.getInstance().mHandler_floating.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)));
@@ -91,6 +90,21 @@ public class ScanProcess_floating {
         preProgress_floating = 0;
         ScanOn_floating = true;
         mContext = _context;
+
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            FloatingWindow.getInstance().floating_scan_found.setText(0 + " " + mContext.getString(R.string.channel_found) + "\n (" + (float)(473143)/1000 + mContext.getString(R.string.mega_hertz) + ")");
+        } else {
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                // for Sri Lanka
+                FloatingWindow.getInstance().floating_scan_found.setText(0 + " " + mContext.getString(R.string.channel_found) + "\n (" + (float)(474000)/1000 + mContext.getString(R.string.mega_hertz) + ")");
+            } else {
+                FloatingWindow.getInstance().floating_scan_found.setText(0 + " " + mContext.getString(R.string.channel_found) + "\n (" + (float)(473143)/1000 + mContext.getString(R.string.mega_hertz) + ")");
+            }
+        }
 
         /*scandialog_floating = new MaterialDialog.Builder(_context)
                 .theme(Theme.LIGHT)

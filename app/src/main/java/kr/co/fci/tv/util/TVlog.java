@@ -10,7 +10,7 @@ import android.util.Log;
  */
 final public class TVlog {
 
-    static String TAG = "FCI TV APP :: ";
+    static String TAG = "FCITVAPP :: ";
     private static int level =TVlog.INFO;
 
     private final static int NOLOG =0;

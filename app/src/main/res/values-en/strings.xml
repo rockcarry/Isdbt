@@ -413,6 +413,8 @@
     <string name="autoSearch_msg">Searching</string>
     <string name="return__">Return</string>
 
-    <string name="no_channel_msg">You do not have any channels registered.\nPlease run search.</string>
+    <string name="no_channel_msg">There are no registered channels.\nPlease run search.</string>
+
+    <string name="audio_only_channel">Audio only channel!</string>
 
 </resources>

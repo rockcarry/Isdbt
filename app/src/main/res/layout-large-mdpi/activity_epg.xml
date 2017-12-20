@@ -153,7 +153,7 @@
         <ImageView
             android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:background="@color/white"/>
+            android:background="@color/black"/>
 
         <RelativeLayout
             android:id="@+id/centerlayout"

@@ -413,6 +413,8 @@
     <string name="autoSearch_msg">සෙවීම්</string>
     <string name="return__">ආපසු</string>
 
-    <string name="no_channel_msg">ඔබට නාලිකා ලියාපදිංචිය නොලැබේ.\nකරුණාකර සෙවුම් කරන්න.</string>
+    <string name="no_channel_msg">ලියාපදිංචි නාලිකා නොමැත.\nකරුණාකර සෙවුම් කරන්න.</string>
+
+    <string name="audio_only_channel">ශ්රව්ය පමණක් නාලිකාව!</string>
 
 </resources>

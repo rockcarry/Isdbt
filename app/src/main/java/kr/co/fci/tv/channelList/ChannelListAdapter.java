@@ -37,6 +37,9 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
     private Context context;
     public List<Channel> channels;
 
+    private Typeface mFont_channelList = MainActivity.getInstance().mFont;
+    private  Typeface tf_channelList = MainActivity.getInstance().tf;
+
     SharedPreference sharedPreference;
     Cursor mCursor;
     Boolean favorEnable;
@@ -49,7 +52,6 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
     {
         return instance;
     }
-
 
     //public ChannelListAdapter(Context context, Cursor mCursor, List<Channel> channels) {
     public ChannelListAdapter(Context context, Cursor mCursor, List<Channel> channels, List<Channel> favChannels) {
@@ -124,7 +126,9 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
             holder.ll_imgbtn_favorite = (LinearLayout) convertView.findViewById(R.id.ll_imgbtn_favorite);
 
             holder.phyChNo = (TextView) convertView.findViewById(R.id.txt_ch_no);
-            holder.phyChNo.setTypeface(MainActivity.getInstance().tf);
+            if (tf_channelList != null) {
+                holder.phyChNo.setTypeface(tf_channelList);
+            }
             holder.phyChNo.setTextSize(18);
 
             if (buildOption.VIEW_PHY_CH) {
@@ -205,7 +209,9 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
             //use free font
-            holder.channelNameTxt.setTypeface(MainActivity.getInstance().mFont);
+            if (mFont_channelList != null) {
+                holder.channelNameTxt.setTypeface(mFont_channelList);
+            }
         }
         //
 
@@ -296,7 +302,7 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
         }
 
         /* current channel marking in channel list */
-        if (channel.getindex() == CommonStaticData.lastCH) {
+        if (channel.getindex() == MainActivity.getInstance().mChannelIndex) {
             holder.ch_layout_item.setBackgroundResource(roundlayout_selected);
             holder.phyChNo.setTextColor(getContext().getResources().getColorStateList(R.color.blue3));
             //holder.phyChNo.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);

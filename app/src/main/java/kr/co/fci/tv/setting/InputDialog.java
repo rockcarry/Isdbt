@@ -515,7 +515,7 @@ public class InputDialog {
                     sleepNotifyDialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
                             .iconRes(R.drawable.ic_schedule_grey600_48dp)
-                            .title(R.string.battery_alarm)
+                            .title(R.string.sleep_alarm)
                             .titleColor(inputDialog_mContext.getResources().getColor(R.color.black))
                             .content(cs)
                             .contentColor(inputDialog_mContext.getResources().getColor(R.color.black))
@@ -666,7 +666,10 @@ public class InputDialog {
                                     if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
                                         MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
                                     }
-                                    MainActivity.ll_noSignal.setVisibility(View.VISIBLE);
+                                    if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
+                                        MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
+                                    }
+                                    MainActivity.ll_noChannel.setVisibility(View.VISIBLE);
                                 }
                             })
                             .positiveText(R.string.ok)

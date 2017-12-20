@@ -33,9 +33,13 @@ import java.util.ArrayList;
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.TVEVENT;
+import kr.co.fci.tv.buildOption;
 import kr.co.fci.tv.saves.CommonStaticData;
 import kr.co.fci.tv.saves.SharedPreference;
+import kr.co.fci.tv.tvSolution.FCI_TVi;
 import kr.co.fci.tv.tvSolution.TVBridge;
+
+import static kr.co.fci.tv.TVEVENT.E_CAPTION_CLEAR_NOTIFY;
 
 public class FavoriteListFragment extends Fragment {
 
@@ -55,7 +59,13 @@ public class FavoriteListFragment extends Fragment {
     Activity activity;
     ChannelListAdapter channelListAdapter;
 
-    Cursor mCursor = null;
+    public static Cursor mCursor = null;
+
+    public static FavoriteListFragment instance;
+    public static FavoriteListFragment getInstance()
+    {
+        return instance;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -193,25 +203,76 @@ public class FavoriteListFragment extends Fragment {
 
                 favoriteList.setOnItemClickListener(new OnItemClickListener() {
                     public void onItemClick(AdapterView<?> parent, View arg1, int position, long arg3) {
+
                         fav_id = favorites.get(position).getindex();
 
-                        // live add
-                        if (MainActivity.getInstance().sv != null) {
-                            MainActivity.getInstance().sv.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        /*int[] cur_info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                        int isPaired = 0;
+                        int pairedIndex = cur_info[0];
+                        int mainIndex = cur_info[3];
+                        int isAudioOnly = cur_info[5];
+
+                        int[] last_info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                        int last_mainIndex = last_info[3];
+
+                        if (pairedIndex == fav_id) {
+                            isPaired = 1;
                         }
-                        if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
-                            MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
+                        else {
+                            isPaired = 0;
                         }
+
+                        if (isAudioOnly == 1) {
+                            CommonStaticData.isAudioChannel = true;
+                        } else {
+                            CommonStaticData.isAudioChannel = false;
+                        }*/
+
+                        /*if (mainIndex != last_mainIndex) {
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
+                        }*/
+
+                            MainActivity.getInstance().sendEvent(E_CAPTION_CLEAR_NOTIFY);
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
+
+                        /*if (isPaired == 0 && CommonStaticData.lastCH != fav_id) {
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
+                            MainActivity.getInstance().sendEvent(E_CAPTION_CLEAR_NOTIFY);
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
+                        }*/
+
+                        if (CommonStaticData.lastCH != fav_id) {
+                            // live add
+                            if (MainActivity.getInstance().sv != null && MainActivity.getInstance().sv.isShown()) {
+                                MainActivity.getInstance().sv.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+                            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                                    MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                }
+                            } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                    (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                                    MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                }
+                            }
+                            if (MainActivity.getInstance().ll_noChannel.getVisibility() == View.VISIBLE) {
+                                MainActivity.getInstance().ll_noChannel.setVisibility(View.INVISIBLE);
+                            }
+                            if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
+                                MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
+                            }
                             /*if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
                                 MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
                             }*/
 
-                        if (MainActivity.ll_age_limit.getVisibility() == View.VISIBLE) {
-                            MainActivity.ll_age_limit.setVisibility(View.INVISIBLE);
+                            if (MainActivity.ll_age_limit.getVisibility() == View.VISIBLE) {
+                                MainActivity.ll_age_limit.setVisibility(View.INVISIBLE);
+                            }
+                            TVBridge.serviceID_start(fav_id);
                         }
-
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-                        TVBridge.serviceID_start(fav_id);
 
                         int pos = favoriteList.getFirstVisiblePosition();
                         favoriteList.setAdapter(channelListAdapter);  //text color change when item is clicked in favorites list

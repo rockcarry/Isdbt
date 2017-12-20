@@ -413,6 +413,8 @@
     <string name="autoSearch_msg">buscando</string>
     <string name="return__">Regreso</string>
 
-    <string name="no_channel_msg">No tiene ningún canal registrado.\nEjecute la búsqueda.</string>
+    <string name="no_channel_msg">No hay canales registrados.\nEjecute la búsqueda.</string>
+
+    <string name="audio_only_channel">Canal de solo audio!</string>
 
 </resources>

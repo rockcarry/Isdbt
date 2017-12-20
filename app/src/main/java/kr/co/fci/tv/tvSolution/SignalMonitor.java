@@ -3,10 +3,12 @@ package kr.co.fci.tv.tvSolution;
 import android.database.Cursor;
 import android.widget.ImageView;
 
+import kr.co.fci.tv.FloatingWindow;
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.TVEVENT;
 import kr.co.fci.tv.buildOption;
+import kr.co.fci.tv.chat.ChatMainActivity;
 import kr.co.fci.tv.saves.CommonStaticData;
 import kr.co.fci.tv.setting.DebugMode;
 import kr.co.fci.tv.util.TVlog;
@@ -56,6 +58,14 @@ public class SignalMonitor {
         mCursor = MainActivity.getCursor();
 
         //in case of exception
+        if (mCursor == null) {
+            return -1;
+        }
+
+        if (mCursor.isClosed()) {
+            return -1;
+        }
+
         if (mCursor != null && (mCursor.getPosition() < 0 || mCursor.getPosition() >= mCursor.getCount()) ) {
             return -1;
         }
@@ -86,50 +96,62 @@ public class SignalMonitor {
 
             // live add
             if (MainActivity.getInstance() != null) {
-            if (MainActivity.getInstance().strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
-                TVlog.e("Air SQ", ">>>>> ISDBT Oneseg ?????? ");
-            } else {
-                if (MainActivity.getInstance().is_inserted_card==2) {
-                    if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false) {
-                        //if(currentSignalVal[0]<250 && currentCN>17){
-                        //if (currentSignalVal[2] < 250 && currentPER < 100) {
-                        if (fullSegBER < 250 && fullSegPER < 100) {
-                            moveFullTh++;
-                            TVlog.e("Air SQ", ">>>>> 1seg moveFullTh = "+moveFullTh);
-                        } else {
-                            moveFullTh = 0;
-                        }
-                        // live add condition
-                        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                            if(moveFullTh == 5) {
-                                TVlog.e("Air SQ", ">>>>> CHANNEL_SWITCHING to Fullseg ");
-                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
-                                moveFullTh = 0;
-                            }
-                        }
-                    }
+                if (MainActivity.getInstance().strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
+                    TVlog.e("Air SQ", ">>>>> ISDBT Oneseg ?????? ");
                 } else {
-                    if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false && (MainActivity.getInstance().is_inserted_card==1)) {
-                        //if(currentSignalVal[0]<250 && currentCN>17){
-                        //if (currentSignalVal[2] < 250 && currentPER < 100) {
-                        if (fullSegBER < 250 && fullSegPER < 100) {
-                            moveFullTh++;
-                            TVlog.e("Air SQ", ">>>>> 1seg moveFullTh = "+moveFullTh);
-                        } else {
-                            moveFullTh = 0;
-                        }
-                        // live add condition
-                        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                            if(moveFullTh == 5) {
-                                TVlog.e("Air SQ", ">>>>> CHANNEL_SWITCHING to Fullseg ");
-                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                    if (MainActivity.getInstance().is_inserted_card==2) {
+                        if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false && CommonStaticData.handoverMode==0) {
+                            //if(currentSignalVal[0]<250 && currentCN>17){
+                            //if (currentSignalVal[2] < 250 && currentPER < 100) {
+                            if (fullSegBER < 250 && fullSegPER < 100) {
+                                moveFullTh++;
+                                TVlog.e("Air SQ", ">>>>> 1seg moveFullTh = "+moveFullTh);
+                            } else {
                                 moveFullTh = 0;
+                            }
+                            // live add condition
+                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                                if(moveFullTh == 5) {
+                                    TVlog.e("Air SQ", ">>>>> CHANNEL_SWITCHING to Fullseg ");
+                                    if (MainActivity.isMainActivity) {
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                    } else if (FloatingWindow.isFloating) {
+                                        FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_FLOATING, 1, 0, null);
+                                    } else if (ChatMainActivity.isChat) {
+                                        ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_CHAT, 1, 0, null);
+                                    }
+                                    moveFullTh = 0;
+                                }
+                            }
+                        }
+                    } else {
+                        if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false && (MainActivity.getInstance().is_inserted_card==1) && CommonStaticData.handoverMode==0) {
+                            //if(currentSignalVal[0]<250 && currentCN>17){
+                            //if (currentSignalVal[2] < 250 && currentPER < 100) {
+                            if (fullSegBER < 250 && fullSegPER < 100) {
+                                moveFullTh++;
+                                TVlog.e("Air SQ", ">>>>> 1seg moveFullTh = "+moveFullTh);
+                            } else {
+                                moveFullTh = 0;
+                            }
+                            // live add condition
+                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                                if(moveFullTh == 5) {
+                                    TVlog.e("Air SQ", ">>>>> CHANNEL_SWITCHING to Fullseg ");
+                                    if (MainActivity.isMainActivity) {
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                    } else if (FloatingWindow.isFloating) {
+                                        FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_FLOATING, 1, 0, null);
+                                    } else if (ChatMainActivity.isChat) {
+                                        FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_CHAT, 1, 0, null);
+                                    }
+                                    moveFullTh = 0;
+                                }
                             }
                         }
                     }
-                }
 
-            }
+                }
             }
 
             // [[ eddy 160708
@@ -181,30 +203,30 @@ public class SignalMonitor {
                     curAntLevel = 5;
                 }
             } else {*/
-                if (oneSegBER >= 10000 && oneSegRSSI < -100) {
-                    //oneSegBER = 500;
-                    oneSegBER = 600;
-                }
+            if (oneSegBER >= 10000 && oneSegRSSI < -100) {
+                //oneSegBER = 500;
+                oneSegBER = 600;
+            }
 
-                if(oneSegBER >= 550) {//  || oneSegPER >=5000) {
-                    curAntLevel = 0;
-                }
-                else if((oneSegBER < 550 && oneSegBER >= 450 ) ) { //||  (oneSegPER < 5000 && oneSegPER >= 1000 ) ){
-                    curAntLevel = 1;
-                }
-                else if((oneSegBER < 450 && oneSegBER >= 350) ) { //||  (oneSegPER < 1000 && oneSegPER >= 100 ) ){
-                    curAntLevel = 2;
-                }
-                else if(oneSegBER < 350 && oneSegBER >= 250 ) {
-                    curAntLevel = 3;
-                }
-                else if(oneSegBER < 250 && oneSegBER >= 150  ){
-                    curAntLevel = 4;
-                }
-                else if(oneSegBER < 150 )
-                {
-                    curAntLevel = 5;
-                }
+            if(oneSegBER >= 550) {//  || oneSegPER >=5000) {
+                curAntLevel = 0;
+            }
+            else if((oneSegBER < 550 && oneSegBER >= 450 ) ) { //||  (oneSegPER < 5000 && oneSegPER >= 1000 ) ){
+                curAntLevel = 1;
+            }
+            else if((oneSegBER < 450 && oneSegBER >= 350) ) { //||  (oneSegPER < 1000 && oneSegPER >= 100 ) ){
+                curAntLevel = 2;
+            }
+            else if(oneSegBER < 350 && oneSegBER >= 250 ) {
+                curAntLevel = 3;
+            }
+            else if(oneSegBER < 250 && oneSegBER >= 150  ){
+                curAntLevel = 4;
+            }
+            else if(oneSegBER < 150 )
+            {
+                curAntLevel = 5;
+            }
             //}
 
             if (curAntLevel == 0) {
@@ -297,7 +319,7 @@ public class SignalMonitor {
             oneSegPER = currentSignalVal[3];
             fullSegRSSI = currentSignalVal[4];
             if (MainActivity.getInstance().is_inserted_card == 2) {
-                if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false) {
+                if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false && CommonStaticData.handoverMode==0) {
 
                     //if(currentSignalVal[0]>400 && currentCN<17){
                     //if (currentSignalVal[0] > 350 && currentPER >= 1000) {
@@ -311,13 +333,19 @@ public class SignalMonitor {
                     if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
                         if (moveOneTh == 2) {
                             TVlog.e("Air SQ", ">>>>> CHANNEL_SWITCHING to 1seg ");
-                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                            if (MainActivity.isMainActivity) {
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                            } else if (FloatingWindow.isFloating) {
+                                FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_FLOATING, 0, 0, null);
+                            } else if (ChatMainActivity.isChat) {
+                                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_CHAT, 0, 0, null);
+                            }
                             moveOneTh = 0;
                         }
                     }
                 }
             } else {
-                if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false && MainActivity.getInstance().is_inserted_card==1) {
+                if(CommonStaticData.receivemode==2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow==false && MainActivity.getInstance().is_inserted_card==1 && CommonStaticData.handoverMode==0) {
 
                     //if(currentSignalVal[0]>400 && currentCN<17){
                     //if (currentSignalVal[0] > 350 && currentPER >= 1000) {
@@ -331,7 +359,13 @@ public class SignalMonitor {
                     if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
                         if (moveOneTh == 2) {
                             TVlog.e("Air SQ", ">>>>> CHANNEL_SWITCHING to 1seg ");
-                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                            if (MainActivity.isMainActivity) {
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                            } else if (FloatingWindow.isFloating) {
+                                FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_FLOATING, 0, 0, null);
+                            } else if (ChatMainActivity.isChat) {
+                                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING_CHAT, 0, 0, null);
+                            }
                             moveOneTh = 0;
                         }
                     }
@@ -490,19 +524,19 @@ public class SignalMonitor {
                 MainActivity.getInstance().sendEvent(TVEVENT.E_DEBUG_SCREEN_DISPLAY, 0, 0, senddata);
             } else {
                 AntLevel = curAntLevelF;
-            String senddata = "CN = " + fullSegCN + " Ant = " + AntLevel + "\n" +
-                    "BER = " + fullSegBER + "\n" +
-                    "PER = " + fullSegPER + "\n" +
-                    "RSSI = " + fullSegRSSI + "\n" +
-                    LNA + "\n" +
-                    RFVGA + "\n" +
-                    CSF + "\n" +
-                    CCI + "\n" +
-                    cacPgd + "\n" +
-                    mrdPgd + " " + xxif + " " + Cacpgdist;
+                String senddata = "CN = " + fullSegCN + " Ant = " + AntLevel + "\n" +
+                        "BER = " + fullSegBER + "\n" +
+                        "PER = " + fullSegPER + "\n" +
+                        "RSSI = " + fullSegRSSI + "\n" +
+                        LNA + "\n" +
+                        RFVGA + "\n" +
+                        CSF + "\n" +
+                        CCI + "\n" +
+                        cacPgd + "\n" +
+                        mrdPgd + " " + xxif + " " + Cacpgdist;
 
-            MainActivity.getInstance().sendEvent(TVEVENT.E_DEBUG_SCREEN_DISPLAY, 0, 0, senddata);
-        }
+                MainActivity.getInstance().sendEvent(TVEVENT.E_DEBUG_SCREEN_DISPLAY, 0, 0, senddata);
+            }
         }
         // ]] eddy 160708
 

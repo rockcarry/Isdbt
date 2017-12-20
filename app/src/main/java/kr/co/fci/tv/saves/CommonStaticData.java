@@ -1,6 +1,6 @@
 /********************************************************************************************************************/
 /**
- *  @skip   $Id: CommonStaticData.java 1850 2017-09-27 00:05:55Z live.kim $
+ *  @skip   $Id: CommonStaticData.java 1969 2017-12-06 07:56:53Z live.kim $
  *  @file   CommonStaticData.java
  *  @brief  Common Static Data define.
  *  @date   2015/05/21 FCI elliot create.
@@ -259,9 +259,9 @@ public class CommonStaticData {
     public static int solutionMode = 1 ;    // TCL Brazil Philippine system switching 20161117
     public static int autoSearch = 0;  //Auto
 
-    public static String areaSet = "0";
-    public static String prefectureSet = "0/0";
-    public static String localitySet = "0/0/0";
+    public static String areaSet = "1";
+    public static String prefectureSet = "1/5";
+    public static String localitySet = "1/5/0";
 
     public static int[] onesegCh;
     public static int[] fullsegCh;
@@ -282,5 +282,8 @@ public class CommonStaticData {
 
     public static boolean returnMainFromChat = false;
     public static boolean returnMainFromFloating = false;
+
+    public static boolean isAudioChannel = false;
+    public static boolean fromFindFail = false;
 
 }

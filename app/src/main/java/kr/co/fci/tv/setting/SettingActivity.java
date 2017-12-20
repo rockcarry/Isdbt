@@ -30,9 +30,11 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
+import com.fci.tv.FCI_TV;
 
 import java.util.Locale;
 
+import kr.co.fci.tv.FloatingWindow;
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.TVEVENT;
@@ -582,7 +584,8 @@ public class SettingActivity extends Activity {
         svcmodeswitch = (LinearLayout) findViewById(R.id.svcmodeswitch);
         if (MainActivity.getInstance().strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
             svcmodeswitch.setVisibility(View.GONE);
-        } else if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN) {
+        } else if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
             svcmodeswitch.setVisibility(View.VISIBLE);
         } else {
             svcmodeswitch.setVisibility(View.GONE);
@@ -1062,7 +1065,11 @@ public class SettingActivity extends Activity {
                         switchCaption.getTrackDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                         CommonStaticData.captionSwitch = true;
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY);
+                        if (MainActivity.isMainActivity) {
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY);
+                        } else if (FloatingWindow.isFloating) {
+                            FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY_FLOATING);
+                        }
                         button_captionselect.setTextColor(getResources().getColorStateList(R.color.blue3));
                         button_captionselect.setTypeface(null, Typeface.BOLD);
                         //button_captionselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);
@@ -1072,7 +1079,11 @@ public class SettingActivity extends Activity {
                         switchCaption.getTrackDrawable().setColorFilter(getResources().getColor(R.color.light_gray), PorterDuff.Mode.MULTIPLY);
                         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                         CommonStaticData.captionSwitch = false;
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY);
+                        if (MainActivity.isMainActivity) {
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY);
+                        } else if (FloatingWindow.isFloating) {
+                            FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
+                        }
                         button_captionselect.setTextColor(Color.GRAY);
                         button_captionselect.setTypeface(null, Typeface.NORMAL);
                         //button_captionselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.TRANSPARENT);
@@ -1450,7 +1461,11 @@ public class SettingActivity extends Activity {
                 switchCaption.setEnabled(true);
                 switchCaption.getThumbDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                 switchCaption.getTrackDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
-                MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY);
+                if (MainActivity.isMainActivity) {
+                    MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY);
+                } else if (FloatingWindow.isFloating) {
+                    FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY_FLOATING);
+                }
                 button_captionselect.setTextColor(getResources().getColorStateList(R.color.blue3));
                 button_captionselect.setTypeface(null, Typeface.BOLD);
                 //button_captionselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);
@@ -1579,21 +1594,28 @@ public class SettingActivity extends Activity {
             if (button_autoSearch != null) {
                 button_autoSearch.setText(arr_autosearch_jp[CommonStaticData.autoSearch]);
             }
+        } else {
+            CommonStaticData.autoSearch = CommonStaticData.settings.getInt(CommonStaticData.autoSearchSwitchKey, 1);
         }
 
         // live add
         if (MainActivity.getInstance().strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
             CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 0);; // 1seg
         } else {
-            CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 2);     // 1seg=0, fullseg=1, auto=2, off=3
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 2);  // auto
+            } else {
+                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 3);  // off
+            }
         }
         button_svcmodeswitch.setText(arr_svcmodeswitch_jp[CommonStaticData.receivemode]);
         //
 
-        CommonStaticData.areaSet = CommonStaticData.settings.getString(CommonStaticData.areaKey, "0");
+        CommonStaticData.areaSet = CommonStaticData.settings.getString(CommonStaticData.areaKey, "1");
         button_area.setText(arr_area[Integer.parseInt(CommonStaticData.areaSet)]);
 
-        CommonStaticData.prefectureSet = CommonStaticData.settings.getString(CommonStaticData.prefectureKey, "0/0");
+        CommonStaticData.prefectureSet = CommonStaticData.settings.getString(CommonStaticData.prefectureKey, "1/5");
         String[] splitPrefecture =(CommonStaticData.prefectureSet).split("/");
         if ((splitPrefecture[0]).equalsIgnoreCase("0")) {
             button_prefecture.setText(arr_prefecture_0[Integer.parseInt(splitPrefecture[1])]);
@@ -1613,7 +1635,7 @@ public class SettingActivity extends Activity {
             button_prefecture.setText(arr_prefecture_7[Integer.parseInt(splitPrefecture[1])]);
         }
 
-        CommonStaticData.localitySet = CommonStaticData.settings.getString(CommonStaticData.localityKey, "0/0/0");
+        CommonStaticData.localitySet = CommonStaticData.settings.getString(CommonStaticData.localityKey, "1/5/0");
         String[] splitLocality = (CommonStaticData.localitySet).split("/");
         if ((splitLocality[0]+splitLocality[1]).equalsIgnoreCase("00")) {
             button_locality.setText(arr_locality_00[Integer.parseInt(splitLocality[2])]);
@@ -1833,9 +1855,9 @@ public class SettingActivity extends Activity {
         editor.putInt(CommonStaticData.scaleSwitchKey, CommonStaticData.scaleSet);
         editor.putInt(CommonStaticData.brightnessKey, CommonStaticData.brightness);
         editor.putInt(CommonStaticData.transparentKey, CommonStaticData.transparent);
-        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
-                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
             editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
             editor.putInt(CommonStaticData.autoSearchSwitchKey, CommonStaticData.autoSearch);
         }
@@ -2031,15 +2053,62 @@ public class SettingActivity extends Activity {
                         .itemsCallbackSingleChoice(CommonStaticData.receivemode, new MaterialDialog.ListCallbackSingleChoice() {
                             @Override
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                                int isChanged = 0;
+                                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                                int isPaired = 0;
+                                int pairedIndex = info[0];
+                                int segInfo = info[1];
+                                if (pairedIndex >= 0) {
+                                    isPaired = 1;
+                                }
                                 dialog_svcmodeswitch_selected = which;
                                 button_svcmodeswitch.setText(arr_svcmodeswitch_jp[dialog_svcmodeswitch_selected]);
-                                CommonStaticData.receivemode = dialog_svcmodeswitch_selected;    // justin db save
+                                if (CommonStaticData.receivemode != dialog_svcmodeswitch_selected) {
+                                    CommonStaticData.receivemode = dialog_svcmodeswitch_selected;    // justin db save
+                                    isChanged = 1;
+                                }
                                 //FCI_TVi.set(CommonStaticData.svcmodeSwitchSet);
                                 if (dialog_svcmodeswitch_selected == 1) { // fullseg
-                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                    if (isChanged == 1) {
+                                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                    }
                                 } else if (dialog_svcmodeswitch_selected == 0) {  // 1seg
-                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                                    if (isChanged == 1) {
+                                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                                    }
                                 }
+                                //dualdecode[[
+                                else if (dialog_svcmodeswitch_selected == 2) { //auto
+                                    if (isChanged == 1) {
+                                        if (isPaired == 1) {
+                                            if (segInfo == 1) { //F-seg
+                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
+                                            }
+                                            else { //O-seg
+                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
+                                            }
+                                        }
+                                        else {
+                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
+                                        }
+                                    }
+                                }
+                                else if (dialog_svcmodeswitch_selected == 3) { //off
+                                    if (isChanged == 1) {
+                                        if (isPaired == 1) {
+                                            if (segInfo == 1) { //F-seg
+                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
+                                            }
+                                            else {
+                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
+                                            }
+                                        }
+                                        else {
+                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
+                                        }
+                                    }
+                                }
+                                //]]dualdecode
                                 try {
                                     removeDialog(DIALOG_SVCMODE_SWITCH_JP);
                                 } catch (IllegalArgumentException e) {
@@ -4712,13 +4781,32 @@ public class SettingActivity extends Activity {
                             @Override
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 dialog_audiotrack_selected = which;
+                                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                                int isPaired = 0;
+                                int pairedIndex = info[0];
+                                int segInfo = info[1];
+                                if (pairedIndex >= 0) {
+                                    isPaired = 1;
+                                }
                                 if (FCI_TVi.GetAudioNum() < dialog_audiotrack_selected) {
 
                                 } else {
                                     button_audiotrack.setText(arr_audiotrack[dialog_audiotrack_selected]);
                                     CommonStaticData.audiotrackSet = dialog_audiotrack_selected;    // justin db save
                                     FCI_TVi.AVStop();
-                                    FCI_TVi.AVStart(CommonStaticData.lastCH);
+                                    //dualdecode[[
+                                    if (isPaired == 1) {
+                                        if (segInfo == 1) { //F-seg
+                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
+                                        }
+                                        else {
+                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
+                                        }
+                                    }
+                                    else {
+                                        FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
+                                    }
+                                    //]]dualdecode
                                     FCI_TVi.SelectAudioLanguage(CommonStaticData.audiotrackSet);
                                     if (CommonStaticData.videotrackSet < FCI_TVi.GetVideoNum()) {
                                         FCI_TVi.SelectVideoTrack(CommonStaticData.videotrackSet);
@@ -4759,7 +4847,26 @@ public class SettingActivity extends Activity {
                                     button_videotrack.setText(arr_videotrack[dialog_videotrack_selected]);
                                     CommonStaticData.videotrackSet = dialog_videotrack_selected;    // justin db save
                                     FCI_TVi.AVStop();
-                                    FCI_TVi.AVStart(CommonStaticData.lastCH);
+                                    //dualdecode[[
+                                    int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                                    int isPaired = 0;
+                                    int pairedIndex = info[0];
+                                    int segInfo = info[1];
+                                    if (pairedIndex >= 0) {
+                                        isPaired = 1;
+                                    }
+                                    if (isPaired == 1) {
+                                        if (segInfo == 1) { //F-seg
+                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
+                                        }
+                                        else { //O-seg
+                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
+                                        }
+                                    }
+                                    else {
+                                        FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
+                                    }
+                                    //]]dualdecode
                                     if (CommonStaticData.audiotrackSet < FCI_TVi.GetAudioNum()) {
                                         FCI_TVi.SelectAudioLanguage(CommonStaticData.audiotrackSet);
                                     }
@@ -5108,7 +5215,11 @@ public class SettingActivity extends Activity {
                             public void onPositive(MaterialDialog dialog) {
                                 super.onPositive(dialog);
                                 settingRestore();
-                                MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY);
+                                if (MainActivity.isMainActivity) {
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY);
+                                } else if (FloatingWindow.isFloating) {
+                                    FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
+                                }
                                 MainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
                                 MainActivity.getInstance().removeEvent(TVEVENT.E_BATTERY_LIMITED_CHECK);
                                 MainActivity.getInstance().removeEvent(TVEVENT.E_SLEEP_TIMER);
@@ -5311,7 +5422,12 @@ public class SettingActivity extends Activity {
         if (MainActivity.getInstance().strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
             editor.putInt(CommonStaticData.receivemodeSwitchKey, 0);
         } else {
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
             editor.putInt(CommonStaticData.receivemodeSwitchKey, 2);
+            } else {
+                editor.putInt(CommonStaticData.receivemodeSwitchKey, 3);
+            }
         }
         //
 
@@ -5319,6 +5435,8 @@ public class SettingActivity extends Activity {
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
             editor.putInt(CommonStaticData.autoSearchSwitchKey, 0);
+        } else {
+            editor.putInt(CommonStaticData.autoSearchSwitchKey, 1);
         }
 
         editor.putString(CommonStaticData.areaKey, "1");

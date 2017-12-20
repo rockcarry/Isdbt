@@ -44,6 +44,8 @@ public class ChannelMainActivity extends FragmentActivity {
     public static Context channelListContext;
     public static Activity CActivity;
 
+    public static boolean isChannelSelect = true;
+
     //Runnable mRunnable;
     //Handler mHandler;
 
@@ -136,6 +138,7 @@ public class ChannelMainActivity extends FragmentActivity {
         final FrameLayout mContent = (FrameLayout) findViewById(R.id.content_frame);
 
         TVlog.i(TAG, "== onCreate ==");
+        MainActivity.getInstance().isChannelListViewOn = true;
         CommonStaticData.channelMainActivityShow = true;   // justin add for dongle detached
 
         button_channels = (Button) findViewById(R.id.button_channels);
@@ -143,17 +146,28 @@ public class ChannelMainActivity extends FragmentActivity {
         button_favorites = (Button) findViewById(R.id.button_favorites);
         ind_favorites = (Button) findViewById(R.id.ind_favorites);
 
-        button_channels.setBackgroundResource(R.drawable.tab_bg_selected);
-        button_channels.setTextColor(getResources().getColor(R.color.white));
-        ind_channels.setBackgroundColor(Color.WHITE);
-        button_favorites.setBackgroundResource(R.drawable.tab_bg_unselected);
-        button_favorites.setTextColor(getResources().getColor(R.color.dark_gray));
-        ind_favorites.setBackgroundColor(getResources().getColor(R.color.blue5));
+        if (isChannelSelect == true) {
+            button_channels.setBackgroundResource(R.drawable.tab_bg_selected);
+            button_channels.setTextColor(getResources().getColor(R.color.white));
+            ind_channels.setBackgroundColor(Color.WHITE);
+            button_favorites.setBackgroundResource(R.drawable.tab_bg_unselected);
+            button_favorites.setTextColor(getResources().getColor(R.color.dark_gray));
+            ind_favorites.setBackgroundColor(getResources().getColor(R.color.blue5));
+        } else {
+            button_channels.setBackgroundResource(R.drawable.tab_bg_unselected);
+            button_channels.setTextColor(getResources().getColor(R.color.dark_gray));
+            ind_channels.setBackgroundColor(getResources().getColor(R.color.blue5));
+            button_favorites.setBackgroundResource(R.drawable.tab_bg_selected);
+            button_favorites.setTextColor(getResources().getColor(R.color.white));
+            ind_favorites.setBackgroundColor(Color.WHITE);
+        }
+
 
 
         button_channels.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isChannelSelect = true;
                 if (CommonStaticData.chListFragment == null) {
                     CommonStaticData.chListFragment = new ChannelListFragment();
                 }
@@ -164,7 +178,6 @@ public class ChannelMainActivity extends FragmentActivity {
                 button_favorites.setBackgroundResource(R.drawable.tab_bg_unselected);
                 ind_channels.setBackgroundColor(Color.WHITE);
                 ind_favorites.setBackgroundColor(getResources().getColor(R.color.blue5));
-
             }
         });
 
@@ -172,6 +185,7 @@ public class ChannelMainActivity extends FragmentActivity {
         button_favorites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isChannelSelect = false;
                 if (CommonStaticData.favListFragment == null) {
                     CommonStaticData.favListFragment = new FavoriteListFragment();
                 }
@@ -182,7 +196,6 @@ public class ChannelMainActivity extends FragmentActivity {
                 button_favorites.setBackgroundResource(R.drawable.tab_bg_selected);
                 ind_channels.setBackgroundColor(getResources().getColor(R.color.blue5));
                 ind_favorites.setBackgroundColor(Color.WHITE);
-
             }
         });
 
@@ -192,8 +205,8 @@ public class ChannelMainActivity extends FragmentActivity {
                 @Override
                 public void onClick(View v) {
                     MainActivity.getInstance().isChannelListViewOn = false;
+                    CommonStaticData.channelMainActivityShow = false;
                     finish();
-
                 }
             });
         }else{
@@ -228,8 +241,13 @@ public class ChannelMainActivity extends FragmentActivity {
                 contentFragment = CommonStaticData.chListFragment;
             }
         } else {
-            CommonStaticData.chListFragment = new ChannelListFragment();
-            switchContent(CommonStaticData.chListFragment, ChannelListFragment.ARG_ITEM_ID);
+            if (isChannelSelect == true) {
+                CommonStaticData.chListFragment = new ChannelListFragment();
+                switchContent(CommonStaticData.chListFragment, ChannelListFragment.ARG_ITEM_ID);
+            } else {
+                CommonStaticData.favListFragment = new FavoriteListFragment();
+                switchContent(CommonStaticData.favListFragment, FavoriteListFragment.ARG_ITEM_ID);
+            }
         }
 
         channelListContext = this;
@@ -238,7 +256,7 @@ public class ChannelMainActivity extends FragmentActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
 
         TVlog.i(TAG, "== onResume ==");
         CommonStaticData.channelMainActivityShow = true;   // justin add for dongle detached
@@ -248,11 +266,13 @@ public class ChannelMainActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        TVlog.i(TAG, "== onDestroy ==");
         MainActivity.isMainActivity = true;
+        MainActivity.getInstance().isChannelListViewOn = false;
         CommonStaticData.channelMainActivityShow = false;   // justin add for dongle detached
         CommonStaticData.chListFragment = null;
         CommonStaticData.favListFragment = null;
+        super.onDestroy();
     }
 
     @Override

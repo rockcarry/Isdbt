@@ -18,6 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fci.tv.FCI_TV;
+
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.buildOption;
 import kr.co.fci.tv.saves.CommonStaticData;
@@ -162,8 +164,14 @@ public class AboutActivity extends Activity {
                         //memoryPath = Environment.getDataDirectory().getPath();
                         memoryPath = Environment.getExternalStorageDirectory().getPath();
                         StatFs stat = new StatFs(memoryPath);
-                        long blockSize = stat.getBlockSizeLong();
-                        long availableBlocks = stat.getAvailableBlocksLong();
+                        long blockSize = 0;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                            blockSize = stat.getBlockSizeLong();
+                        }
+                        long availableBlocks = 0;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                            availableBlocks = stat.getAvailableBlocksLong();
+                        }
 
                         freeSize = availableBlocks * blockSize;
 

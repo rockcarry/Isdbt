@@ -24,7 +24,7 @@ public class ScanProcess {
 
     MaterialDialog scandialog;
     private static Context mContext;
-    public final static int SHOW_PRGRESS_ON = 1;
+    public final static int SHOW_PROGRESS_ON = 1;
     public final static int SHOW_PRORESS_OFF = 2;
     public final static int SHOW_PROGRESS_CLEAR = 3;
     private int preProgress=0;
@@ -42,7 +42,7 @@ public class ScanProcess {
     public void showProgress(int _progress,int _found, float freqKHz, int _option)
     {
         if (ScanOn) {
-            if (_option == SHOW_PRGRESS_ON) {
+            if (_option == SHOW_PROGRESS_ON) {
 
                 if(scandialog.isCancelled())
                 {

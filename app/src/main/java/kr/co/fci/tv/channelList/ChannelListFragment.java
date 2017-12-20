@@ -50,13 +50,13 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
     Context mContext;
 
     Activity activity;
-    private ListView channelListView;
-    private List<Channel> channels = null;
-    private ChannelListAdapter channelListAdapter;
+    public ListView channelListView;
+    public List<Channel> channels = null;
+    public ChannelListAdapter channelListAdapter;
 
     SharedPreference sharedPreference;
     private Uri mUri;
-    private Cursor mCursor = null;
+    public static Cursor mCursor_chList = null;
     private final static int MAX_FAV_ITEM = 200;
 
     int id;
@@ -78,6 +78,14 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
     private float mLastMotionX = 0;
     ////
 
+    public static ChannelListFragment instance;
+    public static ChannelListFragment getInstance()
+    {
+        return instance;
+    }
+    public static Cursor getCursor( ){
+        return mCursor_chList;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,7 +102,7 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
 
         setChannels();
 
-        channelListAdapter = new ChannelListAdapter(activity, mCursor, channels, null);
+        channelListAdapter = new ChannelListAdapter(activity, mCursor_chList, channels, null);
         channelListView.setAdapter(channelListAdapter);
         channelListView.setOnTouchListener(mTouchListener);
         channelListView.setOnItemClickListener(this);
@@ -287,24 +295,24 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
 
         }
 
-        mCursor = MainActivity.getCursor();
-        if (mCursor != null && mCursor.getCount() > 0) {
-            mCursor.moveToFirst();
+        mCursor_chList = MainActivity.getCursor();
+        if (mCursor_chList != null && mCursor_chList.getCount() > 0) {
+            mCursor_chList.moveToFirst();
             channels = new ArrayList<Channel>();
 
-            for (int index = 0; index < mCursor.getCount() && index < CommonStaticData.scanCHnum; index++) {
-                names = mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
-                mChannelType =  mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
-                mFree = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
-                mRemoteKey = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
-                mSvcNumber = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
-                mFreqKHz = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREQ);
+            for (int index = 0; index < mCursor_chList.getCount() && index < CommonStaticData.scanCHnum; index++) {
+                names = mCursor_chList.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
+                mChannelType =  mCursor_chList.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                mFree = mCursor_chList.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
+                mRemoteKey = mCursor_chList.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
+                mSvcNumber = mCursor_chList.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                mFreqKHz = mCursor_chList.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREQ);
                 TVlog.i("Loading CHANNEL >>> ",index + " " + names + " " + mSvcNumber + " " + mChannelType + " " + mFreqKHz);
 
                 channels.add(new Channel(index, names, mChannelType, mFree, mRemoteKey, mSvcNumber, mFreqKHz));
-                mCursor.moveToPosition(index + 1);
+                mCursor_chList.moveToPosition(index + 1);
             }
-            mCursor.moveToPosition(CommonStaticData.lastCH);
+            mCursor_chList.moveToPosition(CommonStaticData.lastCH);
         }
     }
 
@@ -324,7 +332,7 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
                 channels.clear();
             }
             setChannels();
-            channelListAdapter = new ChannelListAdapter(activity, mCursor, channels, null);
+            channelListAdapter = new ChannelListAdapter(activity, mCursor_chList, channels, null);
             channelListView.setAdapter(channelListAdapter);
             channelListAdapter.notifyDataSetChanged();
 
@@ -349,6 +357,7 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
                 }
             }
         }
+        timerDelayRunForScroll(100);
     }
 
     private void findViewsById(View view) {
@@ -359,35 +368,79 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        // live add
-
         MainActivity.isMainActivity = true;
 
-        if (MainActivity.getInstance().sv != null) {
-            MainActivity.getInstance().sv.setBackgroundColor(getResources().getColor(R.color.black));
+
+        /*int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+        int isPaired = 0;
+        int pairedIndex = info[0];
+        if (pairedIndex == position) {
+            isPaired = 1;
         }
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-            if (MainActivity.getInstance().svSub != null) {
-                MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.black));
+        else {
+            isPaired = 0;
+        }
+
+        int[] cur_info = FCI_TVi.GetPairNSegInfoOfCHIndex(position);
+        int mainIndex = cur_info[3];
+        int isAudioOnly = cur_info[5];
+        int[] last_info = FCI_TVi.GetPairNSegInfoOfCHIndex(MainActivity.getInstance().mChannelIndex);
+        int last_mainIndex = last_info[3];
+
+        if (isAudioOnly == 1) {
+            CommonStaticData.isAudioChannel = true;
+        } else {
+            CommonStaticData.isAudioChannel = false;
+        }*/
+
+        /*if (isPaired == 0 && CommonStaticData.lastCH != position) {
+            if (isAudioOnly != 1) {
+                CommonStaticData.isAudioChannel = false;
+            } else {
+                CommonStaticData.isAudioChannel = true;
             }
-        }
-        if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
-            MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
-        }
-        if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
-            MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
-        }
+            MainActivity.getInstance().sendEvent(E_CAPTION_CLEAR_NOTIFY);
+            MainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
+        }*/
+        MainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY);
+        MainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
 
-        if (MainActivity.ll_age_limit.getVisibility() == View.VISIBLE) {
-            MainActivity.ll_age_limit.setVisibility(View.INVISIBLE);
+        //int prevPosition = mCursor_chList.getPosition();
+        if (MainActivity.getInstance().mChannelIndex != position) {
+            if (MainActivity.getInstance().sv != null && MainActivity.getInstance().sv.isShown()) {
+                MainActivity.getInstance().sv.setBackgroundColor(getResources().getColor(R.color.black));
+            }
+            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                    MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                }
+            } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                    (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                    MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                }
+            }
+            if (MainActivity.getInstance().ll_noChannel.getVisibility() == View.VISIBLE) {
+                MainActivity.getInstance().ll_noChannel.setVisibility(View.INVISIBLE);
+            }
+            if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
+                MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
+            }
+            if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
+                MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
+            }
+
+            if (MainActivity.ll_age_limit.getVisibility() == View.VISIBLE) {
+                MainActivity.ll_age_limit.setVisibility(View.INVISIBLE);
+            }
+            TVBridge.serviceID_start(position);
+
         }
-
-        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-
-        TVBridge.serviceID_start(position);
         int pos = channelListView.getFirstVisiblePosition();
-        channelListView.setAdapter(channelListAdapter);  //text color change when item is clicked in channel list
         channelListView.setSelection(pos);  //selected item is located to top
+        channelListView.setAdapter(channelListAdapter);  //text color change when item is clicked in channel list
 
         // live add
         if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
@@ -396,7 +449,7 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
                 ChannelMainActivity.getInstance().sendEvent(TVEVENT.E_HIDE_CHANNELLIST);
             }
         }
-
+        timerDelayRunForScroll(200);
     }
 
     private  View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -485,8 +538,8 @@ public class ChannelListFragment extends Fragment implements AdapterView.OnItemC
 
     @Override
     public void onResume() {
-        if (mCursor != null) {
-            int pos = mCursor.getPosition();
+        if (mCursor_chList != null) {
+            int pos = mCursor_chList.getPosition();
             channelListView.setAdapter(channelListAdapter);  //text color change when item is clicked in channel list
             channelListView.setSelection(pos);  //selected item is located to top
         }

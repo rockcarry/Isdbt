@@ -15,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.fci.tv.FCI_TV;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.Collator;
@@ -114,8 +116,20 @@ public class RecordedFileListActivity extends Activity {
                 case E_RECORDED_FILE_MOVIEPLAYER:
                 {
 
-                    if (MainActivity.getInstance().sv != null) {
+                    if (MainActivity.getInstance().sv != null && MainActivity.getInstance().sv.isShown()) {
                     MainActivity.getInstance().sv.setBackgroundColor(getResources().getColor(R.color.transparent));  // live add
+                    }
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                            MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                            MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
                     }
 
                     int recordedFileIndex =(int) msg.arg1;
@@ -319,7 +333,7 @@ public class RecordedFileListActivity extends Activity {
                  fileSizeMB = (int)(fileSize/1024/1024);
             }
 
-            TVlog.i("TAG", " Push recorded files  = " + i + " name =" + recordedList[i].getName() + " fileDate = " + fileDate + " fileSize = " + fileSizeMB);
+            TVlog.i(TAG, " Push recorded files  = " + i + " name =" + recordedList[i].getName() + " fileDate = " + fileDate + " fileSize = " + fileSizeMB);
 
             recordedFiles.add(new RecordedFile(filePath, fileName, fileDate, fileSizeMB));
             //TVlog.i("TAG", " thumbNailPath   = " + thumbNailPath);

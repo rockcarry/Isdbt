@@ -258,7 +258,7 @@ public class PlayBackActivity extends Activity {
                     if (CommonStaticData.scanCHnum > 0) {
                         MainActivity.getInstance().changeChannelView.setVisibility(View.VISIBLE);
                         MainActivity.getInstance().channelChangeStartView(false);
-                        TVBridge.serviceID_start(CommonStaticData.lastCH);  // live add
+                        TVBridge.serviceID_start(CommonStaticData.lastCH);
                         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                                 buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                                 buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
@@ -273,19 +273,35 @@ public class PlayBackActivity extends Activity {
                         }
 
                     } else {
-                        if (MainActivity.getInstance().sv != null) {
+                        if (MainActivity.getInstance().sv != null && MainActivity.getInstance().sv.isShown()) {
                             MainActivity.getInstance().sv.setBackgroundColor(getResources().getColor(R.color.black));
                         }
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                            if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                                MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                            }
+                        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                            if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                                MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                            }
+                        }
                         if (FCI_TVi.initiatedSol) {
-                            //if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.INVISIBLE) {
-                            MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
-                            MainActivity.getInstance().ll_noSignal.setVisibility(View.VISIBLE);
+                            MainActivity.getInstance().ll_noChannel.setVisibility(View.VISIBLE);
+                            MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
                             //}
 
                             if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
                                 MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
                             }
                         } else {
+                            MainActivity.getInstance().ll_noChannel.setVisibility(View.INVISIBLE);
+                            MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
+                            if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
+                                MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
+                            }
                             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                                     buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                                     buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
@@ -305,6 +321,17 @@ public class PlayBackActivity extends Activity {
                 case E_TSPLAYBACK_FIRSTVIDEO:
                 {
                     TVlog.i(TAG, " ------ E_TSPLAYBACK_FIRSTVIDEO  ---------- ");
+                    isFirstI=true;
+                    if(isPlaying==true) {
+                        postEvent(TVEVENT.E_TS_PLAYBACK_CURRENT_POS, 100);
+                        ViewSeekBar(true);
+                    }
+                }
+                break;
+
+                case E_TSPLAYBACK_FIRSTAUDIO:
+                {
+                    TVlog.i(TAG, " ------ E_TSPLAYBACK_FIRSTAUDIO  ---------- ");
                     isFirstI=true;
                     if(isPlaying==true) {
                         postEvent(TVEVENT.E_TS_PLAYBACK_CURRENT_POS, 100);
@@ -449,16 +476,34 @@ public class PlayBackActivity extends Activity {
             MainActivity.getInstance().changeChannelView.setVisibility(View.INVISIBLE);
 
             // live add
-            if (MainActivity.getInstance().sv != null) {
+            if (MainActivity.getInstance().sv != null && MainActivity.getInstance().sv.isShown()) {
                 MainActivity.getInstance().sv.setBackgroundColor(getResources().getColor(R.color.transparent));
             }
-            if (FCI_TVi.initiatedSol) {
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                    MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                }
+            } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                    (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                if (MainActivity.getInstance().svSub != null && MainActivity.getInstance().svSub.isShown()) {
+                    MainActivity.getInstance().svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                }
+            }
+
+            if (MainActivity.getInstance().ll_noChannel.getVisibility() == View.VISIBLE) {
+                MainActivity.getInstance().ll_noChannel.setVisibility(View.INVISIBLE);
+            }
                 if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
                     MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
                 }
                 if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
                     MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
                 }
+
+            if (FCI_TVi.initiatedSol) {
+
             } else {
                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
@@ -492,6 +537,9 @@ public class PlayBackActivity extends Activity {
         CommonStaticData.playBackActivityShow = true;   // justin add for dongle detached
 
         if (FCI_TVi.initiatedSol) {
+            if (MainActivity.getInstance().ll_noChannel.getVisibility() == View.VISIBLE) {
+                MainActivity.getInstance().ll_noChannel.setVisibility(View.INVISIBLE);
+            }
             if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
                 MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
             }
@@ -532,6 +580,10 @@ public class PlayBackActivity extends Activity {
         MainActivity.isPlayBackActivity = true;
 
         CommonStaticData.playBackActivityShow = true;   // justin add for dongle detached
+
+        if (MainActivity.getInstance().ll_noChannel.getVisibility() == View.VISIBLE) {
+            MainActivity.getInstance().ll_noChannel.setVisibility(View.INVISIBLE);
+        }
 
         if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
             MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);

@@ -60,6 +60,24 @@ public class buildOption {
     public final static int TOAST_SHIFT_X = cReleaseOption.TOAST_SHIFT_X;
     public final static int TOAST_SHIFT_Y = cReleaseOption.TOAST_SHIFT_Y;
 
+    //for mdpi (Apical)
+    /*NCL_NAVI_SHIFT_X = 450;*/
+
+    // for hdpi (TCL)
+    /*NCL_NAVI_SHIFT_X = 500;*/
+
+    //for xhdpi (Motolora, Techain)
+    public final static int NCL_NAVI_SHIFT_X = 740;
+
+    // for large-ldpi (Rishta)
+    /*public final static int NCL_NAVI_SHIFT_X = 460;*/
+
+    // for large-hdpi (Rishta, Techain)
+    /*public final static int NCL_NAVI_SHIFT_X = 740;*/
+
+    // for large-mdpi (WIT, YiHengKe)
+    /*public final static int NCL_NAVI_SHIFT_X = 740;*/
+
     // function
     public final static boolean ADD_LOUD_SPEAKER = cReleaseOption.ADD_LOUD_SPEAKER;
     public final static boolean INTRO_ANIMATION = cReleaseOption.INTRO_ANIMATION;  //true = PNG animation intro, false = One Pic intro

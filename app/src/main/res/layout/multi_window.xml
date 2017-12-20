@@ -2,11 +2,11 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
     xmlns:autofit="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/frameLayout"
+    android:id="@+id/frameLayout_floating"
     android:background="@color/black">
-
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -14,24 +14,57 @@
         android:id="@+id/surfaceFrame"
         android:foregroundGravity="center"
         android:layout_gravity="left|top">
-
+        <SurfaceView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:id="@+id/svSub_floating" />
         <SurfaceView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:id="@+id/sv_multiview" />
 
-        <!--<ImageView
+        <!--
+        <ImageView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/imageView_bg"
-            android:background="@android:color/black" />-->
+            android:background="@android:color/black" />
+        -->
 
         <ImageView
             android:id="@+id/floating_imageView_bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/black" />
+
+        <LinearLayout
+            android:id="@+id/floating_ll_black"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:background="@color/black">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/floating_ll_audioOnlyChannel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:background="@color/window_transparent_color">
+            <ImageView
+                android:id="@+id/iv_audioOnlyChannel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_speaker_bg" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/audio_only_channel" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/floating_ll_scan_progress"
@@ -74,12 +107,14 @@
                 android:maxLines="2"
                 android:textColor="@color/white"
                 autofit:minTextSize="10sp" />
-            <!--<TextView
+            <!--
+            <TextView
                 android:id="@+id/floating_scan_freq"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:textColor="@color/white" />-->
+                android:textColor="@color/white" />
+            -->
 
 
             <ProgressBar
@@ -101,7 +136,6 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/cancel" />
-
         </LinearLayout>
 
 
@@ -136,6 +170,24 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/floating_subTitleView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="40dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:layout_width="400dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/floating_superImposeView"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="40dp"
+            android:visibility="visible" />
 
     </FrameLayout>
 
@@ -244,6 +296,7 @@
             autofit:minTextSize="10sp" />
 
         <LinearLayout
+            android:id="@+id/floating_ll_age_limit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical|center_horizontal"
@@ -278,7 +331,8 @@
             android:id="@+id/ll_scramble_msg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical|center_horizontal"            android:orientation="vertical">
+            android:gravity="center_vertical|center_horizontal"
+            android:orientation="vertical" >
 
             <me.grantland.widget.AutofitTextView
                 android:id="@+id/tv_scramble_title"
@@ -337,13 +391,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:layout_weight="20"                android:orientation="vertical">
+                android:layout_weight="20"
+                android:orientation="vertical" >
 
                 <LinearLayout
                     android:id="@+id/ll_ch_info_floating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"                    android:orientation="horizontal">
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/tv_ch_no_floating"
@@ -352,6 +408,28 @@
                         android:textColor="@color/white"
                         android:textSize="15dp"
                         android:visibility="visible" />
+
+                    <RelativeLayout
+                        android:id="@+id/rl_ChType_floating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="5dp">
+
+                        <ImageView
+                            android:id="@+id/iv_ChType_floating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true" />
+
+                        <ImageView
+                            android:id="@+id/iv_ChFree_floating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/tv_free"
+                            android:visibility="gone" />
+                    </RelativeLayout>
 
                     <TextView
                         android:id="@+id/tv_remote_no_floating"
@@ -389,6 +467,7 @@
             android:layout_below="@+id/status_bar_floating"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:background="@color/transparent"
             android:orientation="vertical">
 
@@ -426,7 +505,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
-            android:layout_marginBottom="20dp"            android:background="@color/transparent"
+            android:layout_marginBottom="20dp"
+            android:background="@color/transparent"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -440,7 +520,7 @@
 
                 <ImageButton
                     android:id="@+id/iv_scan"
-                    android:layout_width="wrap_content"
+                    android:layout_width="66dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/circle_roundlayout"
                     android:padding="5dp"
@@ -458,7 +538,7 @@
 
                 <ImageButton
                     android:id="@+id/iv_max"
-                    android:layout_width="wrap_content"
+                    android:layout_width="66dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/circle_roundlayout"
                     android:padding="5dp"
@@ -476,14 +556,15 @@
 
                 <ImageButton
                     android:id="@+id/iv_close"
-                    android:layout_width="wrap_content"
+                    android:layout_width="66dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/circle_roundlayout"
                     android:padding="5dp"
                     android:src="@drawable/close" />
             </LinearLayout>
 
-            <!--<LinearLayout
+            <!--
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -499,7 +580,8 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/corner"
                     android:background="@color/transparent" />
-            </LinearLayout>-->
+            </LinearLayout>
+            -->
 
         </LinearLayout>
 

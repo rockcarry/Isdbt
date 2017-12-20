@@ -74,6 +74,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
+import com.fci.tv.FCI_TV;
 import com.lme.dtv.lmedtvsdk;
 
 import java.io.File;
@@ -122,12 +123,23 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Environment.getExternalStorageDirectory;
 import static kr.co.fci.tv.TVEVENT.E_CAPTION_CLEAR_NOTIFY;
 import static kr.co.fci.tv.TVEVENT.E_EWS_RECEIVED;
+import static kr.co.fci.tv.TVEVENT.E_RATING_MONITOR;
+import static kr.co.fci.tv.TVEVENT.E_SCAN_MONITOR;
+import static kr.co.fci.tv.TVEVENT.E_SCAN_START;
 import static kr.co.fci.tv.TVEVENT.E_SIGNAL_NOTI_MSG;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     private static String TAG = "FCITvApp ";
     private static String TAG_Debug = "Debugging ";
+
+    public static int lastIndex = -1;
+
+    public static LinearLayout ll_audioOnlyChannel;
+    public static LinearLayout ll_black;
+
+    int svcmodeswitch_selected = 2;
+    String[] arr_svcmodeswitch_jp;
 
     /*
     public static boolean badSignalFlag = false;
@@ -158,7 +170,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     static float density;
     static float densityDpi;
     public static String dpiName = "";
-    static String screenSize = "";
+    public static String screenSize="";
 
     // onoff flag
     private static boolean captureOn = true;
@@ -229,10 +241,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private LinearLayout ll_recTimeview;
     private TextView recTimeview;
     public static LinearLayout changeChannelView =null;
-    private ProgressBar progressingChange;
-    private TextView loadingChannel;
+    public static ProgressBar progressingChange;
+    public static TextView loadingChannel;
     private TextView loadingFilePlay;
-    private static ImageView channelChangeBG = null;
+    public static ImageView channelChangeBG = null;
 
     public static LinearLayout ll_mainAutoSearch;
     public static Button btn_return;
@@ -299,6 +311,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     ImageButton setB;
     ImageButton captureB;
 
+//  Button receiveModeB;
+
     //prevent double click
     private long mLastClickTimeCHMenu = 0;
     private long mLastClickTimeScan = 0;
@@ -308,6 +322,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private long mLastClickTimeRec = 0;
     private long mLastClickTimeRecF = 0;
     private long mLastClickTimeSet = 0;
+    private long mLastClickTimeReturn = 0;
+    private long mLastClickTimeChat = 0;
+    private long mLastClickTimeFloating = 0;
 
     private AudioOut audioOut;
     private PopupWindow settingWindow;
@@ -513,6 +530,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     static public boolean isMainActivity = false;
     static public boolean isPlayBackActivity = false;
     static public boolean isNoChannel = false;
+    static public boolean floatingFromMain = false;
 
     MaterialDialog bb_fail_dialog;
     static public boolean isBBFail = false;
@@ -530,9 +548,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     {
         return instance;
     }
-    public static Cursor getCursor( ){return mCursor;}
+
+    public static Cursor getCursor( ){
+        return mCursor;
+    }
+
+    public static void setCursor(Cursor _cursor){
+        if (_cursor != null) {
+            mCursor = _cursor;
+        }
+    }
 
     CustomToast scale_toast = null;
+
+    RelativeLayout rl_ChType;
+    ImageView iv_ChType;
+    ImageView iv_ChFree;
 
     public Handler TVUI_Handler = new Handler() {
 
@@ -695,8 +726,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     channelChangeStartView(false);
                 }
                 break;
-
+                case E_STOP_NOTIFY: {
+                    TVlog.i(TAG, ">>>>> E_STOP_NOTIFY");
+                    sv.setBackgroundColor(getResources().getColor(R.color.black));
+                    svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                }
+                break;
                 case E_FIRSTVIDEO: {
+                    TVlog.i(TAG, ">>>>> E_FIRSTVIDEO");
                     removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                     removeEvent(E_SIGNAL_NOTI_MSG);
                     removeEvent(TVEVENT.E_NOSIGNAL_SHOW);
@@ -706,8 +743,30 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     CommonStaticData.encryptFlag = false;
                     CommonStaticData.ageLimitFlag = false;
 
-                    if (sv != null) {
+                    if (sv != null && sv.isShown()) {
                         sv.setBackgroundColor(getResources().getColor(R.color.transparent));
+                    }
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (svSub != null && svSub.isShown()) {
+                            svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        if (svSub != null && svSub.isShown()) {
+                            svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+                    }
+
+                    if (CommonStaticData.isAudioChannel) {
+                        if (ll_black != null) {
+                            ll_black.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        if (ll_black != null) {
+                            ll_black.setVisibility(View.INVISIBLE);
+                        }
                     }
 
                     if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
@@ -739,9 +798,100 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         }
                     }
 
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_ONESEG
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE) {
+                        curr_rate = FCI_TVi.GetCurProgramRating();
+                        if ((curr_rate >= (CommonStaticData.PG_Rate + 1) && (CommonStaticData.PG_Rate != 0))
+                                && (CommonStaticData.passwordVerifyFlag == false)
+                                && (CommonStaticData.ratingsetSwitch == true)) {
+                            CommonStaticData.ageLimitFlag = true;
+                        } else {
+                            CommonStaticData.ageLimitFlag = false;
+                        }
+                        sendEvent(E_RATING_MONITOR);
+                    }
+
+                    InputDialog.nosignalNotiClear();
+                    SignalStatFlag = false;
+                    CommonStaticData.tuneTimeOver = false;
+                    channelChangeEndView(false);
+
+                    FCI_TVi.subSurfaceViewOnOff(FCI_TVi.getDualMode());
+
+                }
+                break;
+
+                case E_FIRSTAUDIO: {
+                    TVlog.i(TAG, " === E_FIRSTAUDIO ===");
+                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
+                    removeEvent(E_SIGNAL_NOTI_MSG);
+                    removeEvent(TVEVENT.E_NOSIGNAL_SHOW);
+                    removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER);
+
+                    CommonStaticData.badSignalFlag = false;
+                    CommonStaticData.encryptFlag = false;
+                    CommonStaticData.ageLimitFlag = false;
+
+                    if (sv != null && sv.isShown()) {
+                        sv.setBackgroundColor(getResources().getColor(R.color.transparent));
+                    }
                     if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                        if (svSub != null) {
+                        if (svSub != null && svSub.isShown()) {
                             svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        if (svSub != null && svSub.isShown()) {
+                            svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+                    }
+
+                    if (CommonStaticData.isAudioChannel) {
+                        if (ll_black != null) {
+                            ll_black.setVisibility(View.VISIBLE);
+                        }
+                        if (ll_audioOnlyChannel !=null) {
+                            ll_audioOnlyChannel.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        if (ll_black != null) {
+                            ll_black.setVisibility(View.INVISIBLE);
+                        }
+                        if (ll_audioOnlyChannel !=null) {
+                            ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                        }
+                    }
+
+                    if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
+                        ll_mainAutoSearch.setVisibility(View.INVISIBLE);
+                    }
+
+                    if (FCI_TVi.initiatedSol) {
+                        if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                            ll_noChannel.setVisibility(View.INVISIBLE);
+                        }
+                        if (ll_noSignal.getVisibility() == View.VISIBLE) {
+                            ll_noSignal.setVisibility(View.INVISIBLE);
+                        }
+                        if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
+                            ll_scramble_msg.setVisibility(View.INVISIBLE);
+                        }
+                    } else {
+                        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                            if (ll_file_play_mode_usb.getVisibility() == View.VISIBLE) {
+                                ll_file_play_mode_usb.setVisibility(View.INVISIBLE);
+                            }
+                        } else {
+                            if (ll_file_play_mode.getVisibility() == View.VISIBLE) {
+                                ll_file_play_mode.setVisibility(View.INVISIBLE);
+                            }
                         }
                     }
 
@@ -757,7 +907,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         } else {
                             CommonStaticData.ageLimitFlag = false;
                         }
-                        sendEvent(TVEVENT.E_RATING_MONITOR);
+                        sendEvent(E_RATING_MONITOR);
                     }
 
 
@@ -807,14 +957,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                            doScan.showProgress(progress, found, freqKHz + 8000, doScan.SHOW_PRGRESS_ON);
+                            doScan.showProgress(progress, found, freqKHz + 8000, doScan.SHOW_PROGRESS_ON);
                         } else {
-                            doScan.showProgress(progress, found, freqKHz + 6000, doScan.SHOW_PRGRESS_ON);
+                            doScan.showProgress(progress, found, freqKHz + 6000, doScan.SHOW_PROGRESS_ON);
                         }
                         CommonStaticData.scanCHnum = found;
                         mChannelIndex = 0;
                     } else if (progress >= 97 && progress < 100) {
-                        doScan.showProgress(progress, found, freqKHz, doScan.SHOW_PRGRESS_ON);
+                        doScan.showProgress(progress, found, freqKHz, doScan.SHOW_PROGRESS_ON);
                         CommonStaticData.scanCHnum = found;
                         mChannelIndex = 0;
                     } else {
@@ -825,6 +975,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_SCAN_CANCEL:
                     TVlog.i(TAG, "---------------- E_SCAN_CANCEL-------------------");
+                    CommonStaticData.scanningNow = false;  //live add
                     TVBridge.scanStop();
                     if (CommonStaticData.handoverMode == 1) {
                         sendEvent(TVEVENT.E_SCAN_COMPLETED);
@@ -853,11 +1004,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         //postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME);  //live remove
 
                         isNoChannel = false;
+                        ll_noChannel.setVisibility(View.INVISIBLE);
 
                         final int NEED_TO_CHANGE_CHANNEL_NO = 0;
                         final int NEED_TO_CHANGE_CHANNEL_FIRST_LOAD = 1;
                         final int NEED_TO_CHANGE_CHANNEL_CHANGE_INDEX = 2;
                         int statusOfNeedToChange = NEED_TO_CHANGE_CHANNEL_NO;
+
+                        if (mCursor != null && mCursor.isClosed() == false) {
+                            mCursor.close();
+                            mCursor = null;
+                            TVlog.e(TAG, "cursor closed!!! ????????????? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        }
                         mCursor = getContentResolver().query(mUri, CommonStaticData.PROJECTION, TVProgram.Programs.TYPE + "=?", CommonStaticData.selectionArgsTV, null);
                         if (mCursor.getCount() > 0 && (mCursor.getPosition() < mCursor.getCount())) {
                             if (mChannelIndex >= mCursor.getCount()) {
@@ -1015,6 +1173,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             //String channelName = channel.getName();
                             String channelName = mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
                             TVlog.i(TAG, " >>>>> channelName = "+ channelName);
+                            TVlog.i(TAG, " >>> CommonStaticData.lastCH = "+CommonStaticData.lastCH);
                             String[] split_channelName = channelName.split(" ");
 
                             // live modify 20170104
@@ -1028,6 +1187,40 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             }
                             currCH.setText(str);
                             //
+                            int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                            int free = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
+                            if (type == 0) { // if 1seg
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                    iv_ChType.setBackgroundResource(R.drawable.jp_1seg);
+                                    iv_ChFree.setVisibility(View.GONE);
+                                } else {
+                                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_1seg);
+                                    if (free == 0) {
+                                        iv_ChFree.setVisibility(View.VISIBLE);
+                                    } else {
+                                        iv_ChFree.setVisibility(View.GONE);
+                                    }
+                                }
+                            } else if (type == 1) { // if fullseg
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                    iv_ChType.setBackgroundResource(R.drawable.jp_fullseg);
+                                    iv_ChFree.setVisibility(View.GONE);
+                                } else {
+                                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_fullseg);
+                                    if (free == 0) {
+                                        iv_ChFree.setVisibility(View.VISIBLE);
+                                    } else {
+                                        iv_ChFree.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                            rl_ChType.setVisibility(View.VISIBLE);
 
                             // live add
                             updateCurEPGNameNDuration();
@@ -1038,7 +1231,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             mRemoteKey = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
                             mSvcNumber = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
 
-                            removeEvent(TVEVENT.E_SCAN_MONITOR);
+                            removeEvent(E_SCAN_MONITOR);
 
                             TVlog.i (TAG, " >>>>> Scrambled1 = "+String.valueOf(Scrambled));
 
@@ -1066,16 +1259,33 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     }
                                     if (buildOption.LOG_CAPTURE_MODE==3)
                                     {
-                                        TVBridge.serviceID_start(0);
+                                        TVBridge.dualAV_start(0, true);
                                         postEvent(TVEVENT.E_AUTO_CHANGE_CHANNEL_TEST, 20 * 1000);
                                     } else {
-                                        TVBridge.serviceID_start(mChannelIndex);
+                                        int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(mChannelIndex);
+                                        int isAudioOnly = info[5];
+                                        if (isAudioOnly == 1) {
+                                            CommonStaticData.isAudioChannel = true;
+                                            channelChangeEndView(false);
+                                            if (ll_black != null) {
+                                                ll_black.setVisibility(View.VISIBLE);
+                                            }
+                                            if (ll_audioOnlyChannel != null) {
+                                                ll_audioOnlyChannel.setVisibility(View.VISIBLE);
+                                            }
+                                        } else {
+                                            CommonStaticData.isAudioChannel = false;
+                                            if (ll_black != null) {
+                                                ll_black.setVisibility(View.INVISIBLE);
+                                            }
+                                            if (ll_audioOnlyChannel != null) {
+                                                ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                            }
+                                        }
+                                        TVBridge.dualAV_start(mChannelIndex, true);
                                     }
                                 } else {
-                                    changeChannelView.setVisibility(View.INVISIBLE);
-                                    channelChangeBG.setVisibility(View.INVISIBLE);
-                                    progressingChange.setVisibility(View.INVISIBLE);
-                                    loadingChannel.setVisibility(View.INVISIBLE);
+                                    channelChangeEndView(false);
                                 }
                             } else {
                                 TVlog.i(TAG, " =====  screen off =========");
@@ -1102,6 +1312,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 currRemoteNo.setText("- - -");
                                 currCH.setText(R.string.no_channel_title);
                             }
+
+                            if (rl_ChType != null) {
+                                rl_ChType.setVisibility(View.GONE);
+                            }
+
                             changeChannelView.setVisibility(View.INVISIBLE);
                             ll_noChannel.setVisibility(View.VISIBLE);
                             isNoChannel = true;
@@ -1241,18 +1456,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         currChNo.setText("CH - -");
                     }
                     currRemoteNo.setText("- - -");
+                    if (rl_ChType != null) {
+                        rl_ChType.setVisibility(View.GONE);
+                    }
                     currCH.setText(R.string.no_channel_title);
                     SettingActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_REMOVED);
                     break;
 
                 case E_SCAN_MONITOR:
                     if (CommonStaticData.scanCHnum != 0) {
-                        removeEvent(TVEVENT.E_SCAN_MONITOR);
+                        removeEvent(E_SCAN_MONITOR);
                     } else {
                         if (buildOption.ADD_TS_CAPTURE != true) {
                             new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
                         }
-                        postEvent(TVEVENT.E_SCAN_MONITOR, CONTROLLER_HIDE_TIME * 2);
+                        postEvent(E_SCAN_MONITOR, CONTROLLER_HIDE_TIME * 2);
                     }
                     break;
 
@@ -1263,12 +1481,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             && CommonStaticData.ageLimitFlag
                             && curr_rate >= (CommonStaticData.PG_Rate+1)
                             && (CommonStaticData.PG_Rate!=0)) {
-                        if (sv != null) {
+                        if (sv != null && sv.isShown()) {
                             sv.setBackgroundColor(getResources().getColor(R.color.black));
                         }
 
                         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                            if (svSub != null) {
+                            if (svSub != null && svSub.isShown()) {
+                                svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                            }
+                        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                            if (svSub != null && svSub.isShown()) {
                                 svSub.setBackgroundColor(getResources().getColor(R.color.black));
                             }
                         }
@@ -1324,12 +1549,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         TVlog.e("main_justin", " ====> screenbl_enabled stop !!!" );
                         FCI_TVi.setVolume(0.0f);
                     } else {
-                        if (sv != null) {
+                        if (sv != null && sv.isShown()) {
                             sv.setBackgroundColor(getResources().getColor(R.color.transparent));
                         }
 
                         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                            if (svSub != null) {
+                            if (svSub != null && svSub.isShown()) {
+                                svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+                        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                            if (svSub != null && svSub.isShown()) {
                                 svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
                             }
                         }
@@ -1362,6 +1594,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             checkDebugInfo();
                         }
 
+                        /*
                         if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_ONESEG
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
@@ -1377,7 +1610,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 CommonStaticData.ageLimitFlag = false;
                             }
                             sendEvent(TVEVENT.E_RATING_MONITOR);
-                        }
+                        }*/
+
                         removeEvent(TVEVENT.E_SIGNAL_MONITER);  //live add
                         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
@@ -1427,6 +1661,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 if (ll_noSignal.getVisibility() == View.VISIBLE) {
                                     ll_noSignal.setVisibility(View.INVISIBLE);
                                 }
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
@@ -1445,25 +1682,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 ll_mainAutoSearch.setVisibility(View.INVISIBLE);
                             }
                             if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
-                                //new InputDialog(instance, InputDialog.TYPE_SIGNALSTAT_NOTI, null, null, null);
-
-                                if (sv != null) {
+                                if (sv != null && sv.isShown()) {
                                     sv.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
                                 if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                                    if (svSub != null) {
+                                    if (svSub != null && svSub.isShown()) {
+                                        svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                                    }
+                                } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                        (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                    if (svSub != null && svSub.isShown()) {
                                         svSub.setBackgroundColor(getResources().getColor(R.color.black));
                                     }
                                 }
 
-                                //if (ll_scramble_msg.getVisibility() == View.INVISIBLE) {
                                 ll_scramble_msg.setVisibility(View.INVISIBLE);
                                 ll_noSignal.setVisibility(View.VISIBLE);
-                                //}
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
+
                                 signal_check_cnt = 0;
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
                                     if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
                                         postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
                                     }
@@ -1471,7 +1715,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             } else {
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
                                     if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
                                         postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
                                     } else {
@@ -1500,21 +1744,31 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 */
 
 
-                                if (sv != null) {
+                                if (sv != null && sv.isShown()) {
                                     sv.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
                                 if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                                    if (svSub != null) {
+                                    if (svSub != null && svSub.isShown()) {
+                                        svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                                    }
+                                } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                        (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                    if (svSub != null && svSub.isShown())  {
                                         svSub.setBackgroundColor(getResources().getColor(R.color.black));
                                     }
                                 }
-                                //if (ll_scramble_msg.getVisibility() == View.INVISIBLE) {
+
                                 ll_scramble_msg.setVisibility(View.INVISIBLE);
                                 ll_noSignal.setVisibility(View.VISIBLE);
-                                //}
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
+
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
                                     if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
                                         postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
                                     }
@@ -1523,7 +1777,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             else {
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
                                     if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
                                         postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
                                     }
@@ -1604,7 +1858,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             SettingActivity.getInstance().bcas_update();
                         }
 
-                        if (CommonStaticData.receivemode == 2) {
+                        if (CommonStaticData.receivemode == 2 && CommonStaticData.scanCHnum > 0 && CommonStaticData.scanningNow == false) {
                             MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
                             //CommonStaticData.receivemode = 0;
                         }
@@ -1626,6 +1880,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 case E_NOSIGNAL_SHOW:
                     if (CommonStaticData.scanningNow==false) {
                         TVlog.i("live", " === E_NOSIGNAL_SHOW ===");
+                        channelChangeEndView(false);
                         sendEvent(TVEVENT.E_BADSIGNAL_CHECK, 3, 0, null);
                     }
                     break;
@@ -1671,6 +1926,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             svSub.setY(rec.top);
                             svSub.setLayoutParams(lp);
                         }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        if (svSub != null) {
+                            svSub.setX(rec.left);
+                            svSub.setY(rec.top);
+                            svSub.setLayoutParams(lp);
+                        }
                     }
                 }
                 break;
@@ -1682,6 +1946,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     SetVideoScale(currentVideoMode);
                     TVlog.i(TAG, " Return A/V full mode");
                     if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (svSub != null) {
+                            svSub.setX(0);
+                            svSub.setY(0);
+                        }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
                         if (svSub != null) {
                             svSub.setX(0);
                             svSub.setY(0);
@@ -1796,7 +2068,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 case E_CONFIRMED_PASSWORD:
                 {
                     CommonStaticData.ageLimitFlag = false;
-                    sendEvent(TVEVENT.E_RATING_MONITOR);
+                    sendEvent(E_RATING_MONITOR);
                     //TVBridge.serviceID_start(mChannelIndex);
                 }
                 break;
@@ -1821,7 +2093,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     if (mCursor != null) {      // elliot
                         mCursor.moveToPosition(mChannelIndex);
                     }
-                    if (CommonStaticData.scanCHnum != 0) {
+                    if(CommonStaticData.scanCHnum > 0) {
                         if (mCursor != null) {
                             int freq = Integer.parseInt(mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_FREQ));
                             TVlog.i(TAG, " >>>>> current freq = " + freq);
@@ -1858,6 +2130,39 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             }
                             currCH.setText(str);
                             //
+                            int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                            int free = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
+                            if (type == 0) { // if 1seg
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                    iv_ChType.setBackgroundResource(R.drawable.jp_1seg);
+                                    iv_ChFree.setVisibility(View.GONE);
+                                } else {
+                                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_1seg);
+                                    if (free == 0) {
+                                        iv_ChFree.setVisibility(View.VISIBLE);
+                                    } else {
+                                        iv_ChFree.setVisibility(View.GONE);
+                                    }
+                                }
+                            } else if (type == 1) { // if fullseg
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                    iv_ChType.setBackgroundResource(R.drawable.jp_fullseg);
+                                    iv_ChFree.setVisibility(View.GONE);
+                                } else {
+                                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_fullseg);
+                                    if (free == 0) {
+                                        iv_ChFree.setVisibility(View.VISIBLE);
+                                    } else {
+                                        iv_ChFree.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
 
                             //currCH.setText(mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME));
                             AudioFormat = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_AUDFORM);
@@ -1865,6 +2170,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             Scrambled = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
                             mRemoteKey = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
                             mSvcNumber = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+
+                            if (isChannelListViewOn) {
+                                sendEvent(TVEVENT.E_CHLIST_UPDATE);
+                            } else if (CommonStaticData.epgActivityShow) {
+                                EPGActivity.getInstance().onBackPressed();
+                                Intent intentA = new Intent(MainActivity.this, EPGActivity.class);
+                                intentA.putExtra("curIndex", mChannelIndex);
+                                startActivity(intentA);
+                            }
 
                             TVlog.i (TAG, " >>>>> Scrambled2 = "+String.valueOf(Scrambled));
 
@@ -1933,15 +2247,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         TVlog.i(TAG, " >>>>> E_SCAN_HANDOVER_START ");
                         CommonStaticData.handoverMode = 1;
                         CommonStaticData.handoverIndex = mChannelIndex;
-                        if (CommonStaticData.channelMainActivityShow) {
+                        CommonStaticData.scanningNow = true;  //live add
+                        CommonStaticData.fromFindFail = false;  //live add
+
+                        if (ChannelMainActivity.CActivity != null) {
                             ChannelMainActivity channelMainActivity = (ChannelMainActivity) ChannelMainActivity.CActivity;
                             channelMainActivity.finish();
                         }
-                        if (CommonStaticData.epgActivityShow) {
+                        if (EPGActivity.EActivity != null) {
                             EPGActivity epgActivity = (EPGActivity) EPGActivity.EActivity;
                             epgActivity.finish();
                         }
-                        if (CommonStaticData.settingActivityShow) {
+                        if (SettingActivity.SActivity != null) {
                             SettingActivity settingActivity = (SettingActivity) SettingActivity.SActivity;
                             settingActivity.finish();
                         }
@@ -1955,15 +2272,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG);
                             removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                             removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
-    
+
                             //removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                             //removeEvent(E_SIGNAL_NOTI_MSG);
                             removeEvent(TVEVENT.E_NOSIGNAL_SHOW);
                             removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER);
+                            if (sv != null && sv.isShown()) {
+                                sv.setBackgroundColor(getResources().getColor(R.color.black));
+                            }
+                            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (svSub != null && svSub.isShown()) {
+                                    svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                                }
+                            } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                    (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                if (svSub != null && svSub.isShown()) {
+                                    svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                                }
+                            }
+                            channelChangeEndView(false);
                             ll_noSignal.setVisibility(View.INVISIBLE);
-                                hideController();
+                            ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                            hideController();
                             ll_mainAutoSearch.setVisibility(View.VISIBLE);
-    
+
                             //doScan = new ScanProcess(instance);
                             TVBridge.scan((byte) 0);
                             //doScan.showProgress(1, 0, 473143, doScan.SHOW_PRGRESS_ON);
@@ -1976,13 +2310,38 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             //removeEvent(E_SIGNAL_NOTI_MSG);
                             removeEvent(TVEVENT.E_NOSIGNAL_SHOW_FLOATING);
                             removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_FLOATING);
+                            if (FloatingWindow.sv_floatingView != null && FloatingWindow.sv_floatingView.isShown()) {
+                                FloatingWindow.sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                            }
+                            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (FloatingWindow.svSub_floatingView != null && FloatingWindow.svSub_floatingView.isShown()) {
+                                    FloatingWindow.svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                                }
+                            } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                    (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                if (FloatingWindow.svSub_floatingView != null && FloatingWindow.svSub_floatingView.isShown()) {
+                                    FloatingWindow.svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                                }
+                            }
                             FloatingWindow.getInstance().floating_noSignal.setVisibility(View.INVISIBLE);
                             FloatingWindow.getInstance().floating_programNotMsg.setVisibility(View.INVISIBLE);
+                            FloatingWindow.getInstance().floating_ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                             FloatingWindow.getInstance().ll_floatingAutoSearch.setVisibility(View.VISIBLE);
 
                             //doScan = new ScanProcess(instance);
-                            TVBridge.scan_floating((byte) 0);
+                            TVBridge.scan((byte) 0);
                             //doScan.showProgress(1, 0, 473143, doScan.SHOW_PRGRESS_ON);
+                        } else if (ChatMainActivity.isChat) {
+                            removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG_CHAT);
+                            removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
+                            removeEvent(TVEVENT.E_NOSIGNAL_SHOW_CHAT);
+                            removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_CHAT);
+                            ChatMainActivity.getInstance().chat_ll_noSignal.setVisibility(View.INVISIBLE);
+                            ChatMainActivity.getInstance().chat_ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                            ChatMainActivity.getInstance().ll_chatAutoSearch.setVisibility(View.VISIBLE);
+                            TVBridge.scan((byte) 0);
                         }
                     }
                     break;
@@ -2006,20 +2365,29 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         int index = (int) msg.arg1;
                         int total = (int) msg.arg2;
                         int updateMode = (int) msg.obj;
-                        TVlog.e(TAG, "E_SCAN_HANDOVER_SUCESS: index =  " + index + ", total = " + total + ", cursor count = " + mCursor.getCount() + ", update mode = " + updateMode);
-                        //CommonStaticData.scanCHnum = total;
-                        if (index == -1) {
-                            CommonStaticData.handoverIndex = -1;
-                        } else {
-                            CommonStaticData.handoverIndex = index;
-                        }
-                        if (total != mCursor.getCount() || updateMode > 0) {
-                            CommonStaticData.handoverMode = 2;  // list will be updated
-                            TVlog.e(TAG, "handoverMode to 2");
+                        if (mCursor != null) {
+                            TVlog.e(TAG, "E_SCAN_HANDOVER_SUCESS: index =  " + index + ", total = " + total + ", cursor count = " + mCursor.getCount() + ", update mode = " + updateMode);
+                            //CommonStaticData.scanCHnum = total;
+                            if (index == -1) {
+                                CommonStaticData.handoverIndex = -1;
+                            } else {
+                                CommonStaticData.handoverIndex = index;
+                                CommonStaticData.lastCH = index;  //live
+                            }
+                            if (total != mCursor.getCount() || updateMode > 0) {
+                                CommonStaticData.handoverMode = 2;  // list will be updated
+                                TVlog.e(TAG, "handoverMode to 2");
+                            }
                         }
 
                         if (CommonStaticData.handoverMode == 1) {
-                            sendEvent(TVEVENT.E_SCAN_COMPLETED);
+                            if (MainActivity.isMainActivity) {
+                                sendEvent(TVEVENT.E_SCAN_COMPLETED);
+                            } else if (ChatMainActivity.isChat) {
+                                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SCAN_COMPLETED_CHAT);
+                            } else if (FloatingWindow.isFloating) {
+                                FloatingWindow.getInstance().sendEvent(TVEVENT.E_SCAN_COMPLETED_FLOATING);
+                            }
                         }
 
                         //doScan.showProgress(100, 1, 0, doScan.SHOW_PRORESS_OFF);
@@ -2028,75 +2396,88 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_CHANNEL_SWITCHING:
                     int tomove = (int)msg.arg1;
-                    int moveSvId = 0;
-                    int remoteKey = 0;
-                    int findpos = 0;
-                    String tmpName, findName;
-                    String cmpName, cmpChName;
+                    int[] info;
+                    int pairIndex = -1;
+                    int isFullseg = -1;
+                    int findFail = 1;
+                    int orgPos = 0;
+                    int[] info1;
+                    int findpos1 = -1;
 
-                    switch (tomove) {
-                        case 0:     // move to 1seg   brzail 1seg seriveID + 0x18 = fullseg serviceID, Japan 1seg seriveID + 0x180 =  fullseg serviceID
-                            TVlog.i("Switching Test ", ">>>>> E_CHANNEL_SWITCHING to 1seg");
-                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {    // japan
-                                if (mCursor != null) {
-                                    moveSvId = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);// + 0x180;
-                                    remoteKey = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
-                                    if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0) {
-                                        for (findpos = 0; findpos < mCursor.getCount(); findpos++) {
-                                            mCursor.moveToPosition(findpos);
-                                            if ((mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER) >= moveSvId)
-                                                    && (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 0)
-                                                    && (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY) == remoteKey)) {
-                                                //  TVlog.i("switching"," >>>>> moveSvId is " + moveSvId);
-                                                mChannelIndex = findpos;
-                                                TVBridge.serviceID_start(mChannelIndex);
-                                                break;
-                                            }
-                                        }
+                    int channelMainIndex = -1;
+                    int oneSegIndex = -1;
 
-                                        if (findpos != mChannelIndex) {
-                                            mCursor.moveToPosition(mChannelIndex);      // no move channel and back to org pos.
-                                            CustomToast toast = new CustomToast(getApplicationContext());
-                                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
-                                            //viewToastMSG(getResources().getString(R.string.ch_change_fail), true);
-                                        }
-                                    }
+                    info = FCI_TVi.GetPairNSegInfoOfCHIndex(mChannelIndex);
+                    pairIndex = info[0];
+                    isFullseg = info[1];
+                    channelMainIndex = info[3];
+                    oneSegIndex = info[4];
+
+                    TVlog.i("live", " >>> cur Index = " + mChannelIndex  + ", isFullseg = " + isFullseg + ", pairIndex = " + pairIndex
+                            + ", channelMainIndex = " + channelMainIndex + ", oneSegIndex = " + oneSegIndex);
+                    if (mCursor != null) {
+                        if (mCursor.getCount() > pairIndex && pairIndex != -1) {
+                            orgPos = mCursor.getPosition();
+                            mCursor.moveToPosition(pairIndex);
+                            info = FCI_TVi.GetPairNSegInfoOfCHIndex(pairIndex);
+                            if (info[1] == tomove) {
+                                findFail = 0;
+                            } else {
+                                mCursor.moveToPosition(orgPos);
+                                if (isFullseg == tomove) {
+                                    //same index
+                                    break;
                                 }
+                                findFail = 1;
                             }
-
-                            break;
-                        case 1:     // move to Fullseg  brzail Fullseg seriveID - 0x18 = 1seg serviceID, Japan Fullseg seriveID - 0x180 =  1seg serviceID,
-                            TVlog.i("Switching Test ", ">>>>> E_CHANNEL_SWITCHING to fullseg");
-                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {    // japan
-                                if (mCursor != null) {
-                                    moveSvId = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);//-0x180;
-                                    remoteKey = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
-                                    if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 1) {
-                                        for (findpos = 0; findpos < mCursor.getCount(); findpos++) {
-                                            mCursor.moveToPosition(findpos);
-                                            if ((mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER) <= moveSvId)
-                                                    && (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 1)
-                                                    && (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY) == remoteKey)) {
-                                                // TVlog.i("switching"," >>>>> moveSvId is " + moveSvId);
-                                                mChannelIndex = findpos;
-                                                TVBridge.serviceID_start(mChannelIndex);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (findpos != mChannelIndex) {
-                                        mCursor.moveToPosition(mChannelIndex);   // no move channel and back to org pos.
-                                        //viewToastMSG(getResources().getString(R.string.ch_change_fail), true);
-                                        CustomToast toast = new CustomToast(getApplicationContext());
-                                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
-                                    }
-                                }
-                            }
-                            break;
+                        }
+                    } else {
+                        findFail = 1;
                     }
-                    //TVBridge.serviceID_start(mChannelIndex);
+                    TVlog.i("live", " >>> findFail = "+findFail);
+                    if (findFail == 1) {
+                        if (isFullseg == 1 && tomove == 0) {  //F-seg->O-seg
+                            lastIndex = mChannelIndex;
+                            mChannelIndex = oneSegIndex;
+                            TVlog.i("live", " changed to O-seg index 1 = " + mChannelIndex);
+                            CommonStaticData.fromFindFail = true;
+                            TVBridge.serviceID_start(mChannelIndex);
+                        } else if (isFullseg == 0 && tomove == 1){  //O-seg->F-seg
+                            TVlog.i("live", " >>> CommonStaticData.fromFindFail = "+CommonStaticData.fromFindFail);
+                            if (CommonStaticData.fromFindFail == true) {
+                                mChannelIndex = lastIndex;
+                                TVlog.i("live", " changed to F-seg index 2 = " + mChannelIndex);
+                                CommonStaticData.fromFindFail = false;
+                                TVBridge.serviceID_start(mChannelIndex);
+                            } else {
+                                mChannelIndex = pairIndex;
+                                TVlog.i("live", " changed to F-seg index 3 = " + mChannelIndex);
+                                CommonStaticData.fromFindFail = false;
+                                TVBridge.serviceID_start(mChannelIndex);
+                            }
+                        }
+                    } else {
+                        mChannelIndex = pairIndex;
+                        if (tomove == 0) { // to O-seg
+                            mChannelIndex = oneSegIndex;
+                            TVlog.i("live", "changed to 1-seg index 4 =" + mChannelIndex);
+                            CommonStaticData.fromFindFail = false;
+                            TVBridge.serviceID_start(mChannelIndex);
+                        } else if (tomove == 1) { // to F-seg
+                            TVlog.i("live", " >>> CommonStaticData.fromFindFail = "+CommonStaticData.fromFindFail);
+                            if (CommonStaticData.fromFindFail == true) {
+                                mChannelIndex = lastIndex;
+                                TVlog.i("live", " changed to F-seg index 5 = " + mChannelIndex);
+                                CommonStaticData.fromFindFail = false;
+                                TVBridge.serviceID_start(mChannelIndex);
+                            } else {
+                                mChannelIndex = pairIndex;
+                                TVlog.i("live", " changed to F-seg index 6 = " + mChannelIndex);
+                                CommonStaticData.fromFindFail = false;
+                                TVBridge.serviceID_start(mChannelIndex);
+                            }
+                        }
+                    }
                     break;
 
                 //ADD_GINGA_NCL[[
@@ -2319,20 +2700,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     //JAPAN_CAPTION[[
     public void sendSubtitleDirect(byte[] capData, int capLen, byte isClear, byte isEnd, int[] capInfo) {
-        if (mCaptionView != null && mCursor != null) {
-            mCaptionView.renderCaptionDirect(capData, capLen, isClear, isEnd, capInfo, mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV));
+        if (MainActivity.isMainActivity) {
+            if (mCaptionView != null && mCursor != null) {
+                mCaptionView.renderCaptionDirect(capData, capLen, isClear, isEnd, capInfo, mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV));
+            }
         }
     }
 
     public void sendSuperimposeDirect(byte[] supData, int supLen, byte isClear, byte isEnd, int[] supInfo) {
-        if (mSuperimposeView != null && mCursor != null) {
-            mSuperimposeView.renderCaptionDirect(supData, supLen, isClear, isEnd, supInfo, mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV));
+        if (MainActivity.isMainActivity) {
+            if (mSuperimposeView != null && mCursor != null) {
+                mSuperimposeView.renderCaptionDirect(supData, supLen, isClear, isEnd, supInfo, mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV));
+            }
         }
     }
     //]]JAPAN_CAPTION
 
     public void notifyFirstVideo() {
         sendEvent(TVEVENT.E_FIRSTVIDEO);
+    }
+
+    public void notifyFirstAudio() {
+        sendEvent(TVEVENT.E_FIRSTAUDIO);
     }
 
     @Override
@@ -2361,7 +2750,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         //]]usbdongle
 
         onStart_TV();
-        FCI_TVi.setSuface(holder.getSurface());
+
+        if (sv != null) {
+            FCI_TVi.setSuface(holder.getSurface());
+        }
 
 //      if (CommonStaticData.returnMainFromChat) {
 //          notifyFirstVideo();
@@ -2720,10 +3112,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             lp.height = (int) frameWidth * 9 / 16;
 
             int positionY = frameHeight-  lp.height;
-            if (  positionY>0) {
+            if (positionY > 0) {
                 sv.setX(positionY / 2);
                 if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                     if (svSub != null)
+                    {
+                        svSub.setX(positionY / 2);
+                    }
+                } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                        (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                    if (svSub!= null)
                     {
                         svSub.setX(positionY / 2);
                     }
@@ -2743,6 +3143,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 sv.setX(positionX / 2);
                 if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                     if (svSub != null)
+                    {
+                        svSub.setX(positionX / 2);
+                    }
+                } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                        (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                    if (svSub!= null)
                     {
                         svSub.setX(positionX / 2);
                     }
@@ -2768,6 +3176,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     svSub.setX(0);
                     svSub.setY(0);
                 }
+            } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                    (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                if (svSub!= null)
+                {
+                    svSub.setX(0);
+                    svSub.setY(0);
+                }
             }
 
             currentVideoMode = SCALEMODE_NORMAL;
@@ -2780,6 +3197,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             if (svSub != null)
+            {
+                svSub.setLayoutParams(lp);
+            }
+        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+            if (svSub!= null)
             {
                 svSub.setLayoutParams(lp);
             }
@@ -3121,6 +3546,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     public void TVTerminate()
     {
+        if (CommonStaticData.settingActivityShow == true) {
+            SettingActivity.getInstance().onBackPressed();
+        } else if (CommonStaticData.epgActivityShow == true) {
+            EPGActivity.getInstance().onBackPressed();
+        } else if (CommonStaticData.recordedFileActivityShow == true) {
+            RecordedFileListActivity.getInstance().onBackPressed();
+        } else if (CommonStaticData.playBackActivityShow == true) {
+            //PlayBackActivity.getInstance().onBackPressed();
+            PlayBackActivity.getInstance().closeActivity();
+        } else if (CommonStaticData.channelMainActivityShow == true) {
+            ChannelMainActivity.getInstance().onBackPressed();
+        } else if (CommonStaticData.openActivityShow == true) {
+            OpenActivity.getInstance().onBackPressed();
+        } else if (CommonStaticData.aboutActivityShow == true) {
+            AboutActivity.getInstance().onBackPressed();
+        }
         SolutionStop();
         TVlog.i(TAG, "==== call finish ======");
         finish();
@@ -3136,6 +3577,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         TVBridge.stop();
         InputDialog.nosignalNotiClear();
         recordingStop(true);
+
+        if (CommonStaticData.scanningNow) {
+            if (doScan != null) {
+                if (MainActivity.isMainActivity) {
+                    if (doScan != null) {
+                        doScan.showProgress(0, 0, 0, doScan.SHOW_PROGRESS_CLEAR);
+                    }
+                } else if (FloatingWindow.isFloating) {
+                    if (FloatingWindow.getInstance().doScan_floating != null) {
+                        FloatingWindow.getInstance().doScan_floating.showProgress_floating(0, 0, 0, FloatingWindow.getInstance().doScan_floating.SHOW_PROGRESS_CLEAR_FLOATING);
+                    }
+                } else if (ChatMainActivity.isChat) {
+                    if (ChatMainActivity.getInstance().doScan_chat != null) {
+                        ChatMainActivity.getInstance().doScan_chat.showProgress_chat(0, 0, 0, ChatMainActivity.getInstance().doScan_chat.SHOW_PROGRESS_CLEAR_CHAT);
+                    }
+                }
+            }
+        }
 
         TVON = false;
 
@@ -3305,7 +3764,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 // live chage toast message to dialog
                 CustomToast toast = new CustomToast(getApplicationContext());
                 toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_LONG);
+                ll_noChannel.setVisibility(View.INVISIBLE);
                 ll_noSignal.setVisibility(View.INVISIBLE);
+                ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                 ll_file_play_mode_usb.setVisibility(View.VISIBLE);
                 //
             }
@@ -3469,6 +3930,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
         status_bar.setVisibility(View.INVISIBLE);
         //}
+        CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = CommonStaticData.settings.edit();
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                 buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                 buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
@@ -3483,15 +3946,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 CommonStaticData.countIntro = 3;
                 //TVlog.i(TAG, "elliot 1112: "+CommonStaticData.countIntro);
             }
-            CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = CommonStaticData.settings.edit();
             editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);
-            //editor.putBoolean(CommonStaticData.parentalcontrolSwitchKey, CommonStaticData.ratingsetSwitch);
-            editor.putBoolean(CommonStaticData.passwordVerifyFlagKey, CommonStaticData.passwordVerifyFlag);
-            editor.putBoolean(CommonStaticData.mainPasswordVerifyFlagKey, CommonStaticData.mainPasswordVerifyFlag);
-            editor.putBoolean(CommonStaticData.ageLimitFlagKey, CommonStaticData.ageLimitFlag);
             editor.commit();
         }
+        //editor.putBoolean(CommonStaticData.parentalcontrolSwitchKey, CommonStaticData.ratingsetSwitch);
+        editor.putBoolean(CommonStaticData.passwordVerifyFlagKey, CommonStaticData.passwordVerifyFlag);
+        editor.putBoolean(CommonStaticData.mainPasswordVerifyFlagKey, CommonStaticData.mainPasswordVerifyFlag);
+        editor.putBoolean(CommonStaticData.ageLimitFlagKey, CommonStaticData.ageLimitFlag);
+        editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+        editor.commit();
         removeStatusBar(true);
         super.onPause();
     }
@@ -3520,7 +3983,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 // live chage toast message to dialog
                                 CustomToast toast = new CustomToast(getApplicationContext());
                                 toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_LONG);
+                                ll_noChannel.setVisibility(View.INVISIBLE);
                                 ll_noSignal.setVisibility(View.INVISIBLE);
+                                ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                 ll_file_play_mode_usb.setVisibility(View.VISIBLE);
                                 //
 //]]device init failed
@@ -3988,13 +4453,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 @Override
                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                     bb_fail_dialog.dismiss();
+                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                        ll_noChannel.setVisibility(View.INVISIBLE);
+                                    }
                                     if (ll_noSignal.getVisibility() == View.VISIBLE) {
                                         ll_noSignal.setVisibility(View.INVISIBLE);
+                                    }
+                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                     }
                                     if (ll_file_play_mode_usb.getVisibility() == View.INVISIBLE) {
                                         ll_file_play_mode_usb.setVisibility(View.VISIBLE);
                                     }
-                                    //    isWarmReset = true;
+                                    // isWarmReset = true;
                                     withoutUSB = true;
                                 }
                             })
@@ -4023,8 +4494,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 @Override
                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                     bb_fail_dialog.dismiss();
+                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                        ll_noChannel.setVisibility(View.INVISIBLE);
+                                    }
                                     if (ll_noSignal.getVisibility() == View.VISIBLE) {
                                         ll_noSignal.setVisibility(View.INVISIBLE);
+                                    }
+                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                     }
                                     if (ll_file_play_mode.getVisibility() == View.INVISIBLE) {
                                         ll_file_play_mode.setVisibility(View.VISIBLE);
@@ -4067,8 +4544,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 @Override
                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                     bb_fail_dialog.dismiss();
+                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                        ll_noChannel.setVisibility(View.INVISIBLE);
+                                    }
                                     if (ll_noSignal.getVisibility() == View.VISIBLE) {
                                         ll_noSignal.setVisibility(View.INVISIBLE);
+                                    }
+                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                     }
                                     if (ll_file_play_mode_usb.getVisibility() == View.INVISIBLE) {
                                         ll_file_play_mode_usb.setVisibility(View.VISIBLE);
@@ -4102,8 +4585,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 @Override
                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                     bb_fail_dialog.dismiss();
+                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                        ll_noChannel.setVisibility(View.INVISIBLE);
+                                    }
                                     if (ll_noSignal.getVisibility() == View.VISIBLE) {
                                         ll_noSignal.setVisibility(View.INVISIBLE);
+                                    }
+                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                     }
                                     if (ll_file_play_mode.getVisibility() == View.INVISIBLE) {
                                         ll_file_play_mode.setVisibility(View.VISIBLE);
@@ -4151,6 +4640,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         //
 
         if (isMainActivity) {
+            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
+            removeEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                     || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                     || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
@@ -4159,19 +4650,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             } else {
                 postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME);
             }
-            removeEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
-            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
         } else if (ChatMainActivity.isChat) {
             removeEvent(TVEVENT.E_SIGNAL_MONITER);
+            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                     || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                     || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                     || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME_USB);
+                if (ChatMainActivity.getInstance() != null) {
+                    ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME_USB);
+                }
             } else {
-                ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME);
+                if (ChatMainActivity.getInstance() != null) {
+                    ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME);
+                }
             }
-            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
         } else if (FloatingWindow.isFloating) {
             removeEvent(TVEVENT.E_SIGNAL_MONITER);
             removeEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
@@ -4546,11 +5039,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 }
 
                                 if (buildOption.USE_CHAT_FUNCTION) {
-                                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                                        ll_chat.setVisibility(View.VISIBLE);
-                                    } else {
-                                        ll_chat.setVisibility(View.GONE);
-                                    }
+                                    ll_chat.setVisibility(View.VISIBLE);
                                 } else {
                                     ll_chat.setVisibility(View.GONE);
                                 }
@@ -4570,6 +5059,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                                 status_bar.setVisibility(View.VISIBLE);
                                 //}
+                                /*
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                    receiveModeB.setText(arr_svcmodeswitch_jp[CommonStaticData.receivemode]);
+                                }*/
+
                                 postEvent(TVEVENT.E_HIDE_CONTROLER, CONTROLLER_HIDE_TIME);
                                 removeStatusBar(false);
 
@@ -4684,9 +5180,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 @Override
                 public void onClick(View v) {
                     hideController();
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeReturn < DOUBLE_CLICK_TOLERANCE){
+                        return;
+                    }
+                    mLastClickTimeReturn = SystemClock.elapsedRealtime();
                     ll_mainAutoSearch.setVisibility(View.INVISIBLE);
                     sendEvent(TVEVENT.E_SCAN_CANCEL);
-
                 }
             });
         }
@@ -4707,8 +5206,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         //programNotMsg.setVisibility(View.INVISIBLE);
 
         ll_noChannel = (LinearLayout) findViewById(R.id.ll_noChannel);
-        ll_noChannel.setVisibility(View.INVISIBLE);
-
+        if (CommonStaticData.scanCHnum > 0) {
+            ll_noChannel.setVisibility(View.INVISIBLE);
+        } else {
+            ll_noChannel.setVisibility(View.VISIBLE);
+        }
         // live add
         ll_file_play_mode = (LinearLayout) findViewById(R.id.ll_file_play_mode);
         ll_file_play_mode_usb = (LinearLayout) findViewById(R.id.ll_file_play_mode_usb);
@@ -4770,11 +5272,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         iv_chat = (ImageView) findViewById(R.id.iv_chat);
 
         if (buildOption.USE_CHAT_FUNCTION) {
-            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                ll_chat.setVisibility(View.VISIBLE);
-            } else {
-                ll_chat.setVisibility(View.GONE);
-            }
+            ll_chat.setVisibility(View.VISIBLE);
         } else {
             ll_chat.setVisibility(View.GONE);
         }
@@ -4783,8 +5281,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    iv_chat.setScaleX(0.5f);
-                    iv_chat.setScaleY(0.5f);
+                    iv_chat.setScaleX(0.8f);
+                    iv_chat.setScaleY(0.8f);
                     iv_chat.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     try {
@@ -4812,6 +5310,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     // }
                 } else {
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeChat < DOUBLE_CLICK_TOLERANCE){
+                        return;
+                    }
+                    mLastClickTimeChat = SystemClock.elapsedRealtime();
                     if (CommonStaticData.scanCHnum > 0) {
                         if (isRec) {
                             recordingStop(false);
@@ -4881,14 +5383,34 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             //android.os.Process.killProcess(android.os.Process.myPid());   // live
                         }
                     } else {
-                        isMainActivity = true;
-                        ChatMainActivity.isChat = false;
+                        isMainActivity = false;
+                        ChatMainActivity.isChat = true;
                         FloatingWindow.isFloating = false;
 
                         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+                        editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
+                        editor.putBoolean(CommonStaticData.badSignalFlagKey, CommonStaticData.badSignalFlag);
+                        editor.putBoolean(CommonStaticData.encryptFlagKey, CommonStaticData.encryptFlag);
+                        editor.putBoolean(CommonStaticData.ageLimitFlagKey, CommonStaticData.ageLimitFlag);
+                        editor.putBoolean(CommonStaticData.passwordVerifyFlagKey, CommonStaticData.passwordVerifyFlag);
+                        editor.putBoolean(CommonStaticData.mainPasswordVerifyFlagKey, CommonStaticData.mainPasswordVerifyFlag);
+                        editor.putBoolean(CommonStaticData.returnMainFromChatKey, CommonStaticData.returnMainFromChat);
+                        editor.putBoolean(CommonStaticData.returnMainFromFloatingKey, CommonStaticData.returnMainFromFloating);
                         editor.commit();
 
+                        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                            if (mUsbDevice != null) {
+                                ChatMainActivity.chat_currentUsbDevice = mUsbDevice;
+                            } else {
+                                TVlog.i(TAG, " >>>>> mUsbDevice is null !!!");
+                            }
+                        }
+                        Intent intent = new Intent(MainActivity.this, ChatMainActivity.class);
+                        startActivity(intent);
                         new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
                     }
                 }
@@ -4897,6 +5419,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
         ll_multiWindow = (LinearLayout) findViewById(R.id.ll_multiWindow);
+        if (buildOption.USE_CHAT_FUNCTION  == false) {
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            param.topMargin = 0;
+            ll_multiWindow.setLayoutParams(param);
+        } else {
+            LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            param.topMargin = 40;
+            ll_multiWindow.setLayoutParams(param);
+        }
         iv_multiWindow = (ImageView) findViewById(R.id.iv_multiWindow);
 
         if (buildOption.USE_MULTI_WINDOW) {
@@ -4908,29 +5439,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         ll_multiWindow.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    iv_multiWindow.setScaleX(0.8f);
+                    iv_multiWindow.setScaleY(0.8f);
+                    iv_multiWindow.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    try {
+                        Thread.sleep(BUTTON_CLICK_TIME);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } else {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        iv_multiWindow.setScaleX(0.5f);
-                        iv_multiWindow.setScaleY(0.5f);
-                        iv_multiWindow.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
-                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        try {
-                            Thread.sleep(BUTTON_CLICK_TIME);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        iv_multiWindow.setScaleX(1.0f);
-                        iv_multiWindow.setScaleY(1.0f);
-                        iv_multiWindow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-                    }
+                    iv_multiWindow.setScaleX(1.0f);
+                    iv_multiWindow.setScaleY(1.0f);
+                    iv_multiWindow.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
                 }
                 return false;
             }
@@ -4948,6 +5469,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     // }
                 } else {
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeFloating < DOUBLE_CLICK_TOLERANCE) {
+                        return;
+                    }
+                    mLastClickTimeFloating = SystemClock.elapsedRealtime();
                     if (CommonStaticData.scanCHnum > 0) {
                         //TVUI_Handler.removeCallbacks(mRunnable);
                         if (isRec) {
@@ -4986,6 +5511,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 FloatingWindow.currentUsbDevice = mUsbDevice;
                             }
                         }
+                        floatingFromMain = true;
 
                         startService(new Intent(MainActivity.this,FloatingWindow.class));
 
@@ -5027,6 +5553,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 FloatingWindow.currentUsbDevice = mUsbDevice;
                             }
                         }
+                        floatingFromMain = true;
 
                         startService(new Intent(MainActivity.this,FloatingWindow.class));
 
@@ -5053,8 +5580,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    iv_uiLock.setScaleX(0.5f);
-                    iv_uiLock.setScaleY(0.5f);
+                    iv_uiLock.setScaleX(0.8f);
+                    iv_uiLock.setScaleY(0.8f);
                     iv_uiLock.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     try {
@@ -5137,6 +5664,50 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             currChNo.setVisibility(View.GONE);
         }
 
+        rl_ChType = (RelativeLayout) findViewById(R.id.rl_ChType);
+        iv_ChType = (ImageView) findViewById(R.id.iv_ChType);
+        iv_ChFree = (ImageView) findViewById(R.id.iv_ChFree);
+
+        if (CommonStaticData.scanCHnum > 0) {
+            if (mCursor != null) {
+                int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                int free = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
+                if (type == 0) { // if 1seg
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                        iv_ChType.setBackgroundResource(R.drawable.jp_1seg);
+                        iv_ChFree.setVisibility(View.GONE);
+                    } else {
+                        iv_ChType.setBackgroundResource(R.drawable.tv_icon_1seg);
+                        if (free == 0) {
+                            iv_ChFree.setVisibility(View.VISIBLE);
+                        } else {
+                            iv_ChFree.setVisibility(View.GONE);
+                        }
+                    }
+                } else if (type == 1) { // if fullseg
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                        iv_ChType.setBackgroundResource(R.drawable.jp_fullseg);
+                        iv_ChFree.setVisibility(View.GONE);
+                    } else {
+                        iv_ChType.setBackgroundResource(R.drawable.tv_icon_fullseg);
+                        if (free == 0) {
+                            iv_ChFree.setVisibility(View.VISIBLE);
+                        } else {
+                            iv_ChFree.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            }
+        } else {
+            rl_ChType.setVisibility(View.GONE);
+        }
+
         currRemoteNo = (TextView) findViewById(R.id.tv_remote_no);
         currCH = (TextView)findViewById(R.id.servicename);
         //if (buildOption.GUI_STYLE == 1) {
@@ -5167,24 +5738,41 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             svSub = (SurfaceView) findViewById(R.id.surfaceView2);
         }
+        //dualdecode[[
+        else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+            svSub =(SurfaceView) findViewById(R.id.surfaceView2);
+            videoSurfaceHolderSub = svSub.getHolder();
+        }
+        //]]dualdecode
 
-        scanB = (ImageButton)findViewById(R.id.button_scan);
+        ll_audioOnlyChannel = (LinearLayout) findViewById(R.id.ll_audioOnlyChannel);
+        if (ll_audioOnlyChannel != null) {
+            ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+        }
+
+        ll_black = (LinearLayout) findViewById(R.id.ll_black);
+        if (CommonStaticData.isAudioChannel == true) {
+            if (ll_black != null) {
+                ll_black.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (ll_black != null) {
+                ll_black.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        scanB=(ImageButton)findViewById(R.id.button_scan);
+        scanB.setPadding(0, 10, 0, 10);
         scanB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
-                } else {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        scanB.setScaleX(0.5f);
-                        scanB.setScaleY(0.5f);
-                        scanB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    scanB.setScaleX(0.8f);
+                    scanB.setScaleY(0.8f);
+                    scanB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
                         try {
                             Thread.sleep(BUTTON_CLICK_TIME);
@@ -5194,42 +5782,65 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         scanB.setScaleX(1.0f);
                         scanB.setScaleY(1.0f);
                         scanB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
+                }
+                return false;
+            }
+        });
 
-                        // mis-clicking prevention, using threshold of 1500 ms
-                        // live add
-                        if (sv != null) {
-                            sv.setBackgroundColor(getResources().getColor(R.color.transparent));
+        scanB.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
+                    CustomToast toast12 = new CustomToast(getApplicationContext());
+                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                } else {
+                    // mis-clicking prevention, using threshold of 1500 ms
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeScan < DOUBLE_CLICK_TOLERANCE){
+                        return;
+                    }
+                    mLastClickTimeScan = SystemClock.elapsedRealtime();
+
+                    // live add
+                    if (sv != null && sv.isShown()) {
+                        sv.setBackgroundColor(getResources().getColor(R.color.transparent));
+                    }
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (svSub != null && svSub.isShown()) {
+                            svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
                         }
-                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                            if (svSub != null)
-                            {
-                                svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        if (svSub != null && svSub.isShown()) {
+                            svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
                         }
 
                         if (ll_noSignal.getVisibility() == View.VISIBLE) {
                             ll_noSignal.setVisibility(View.INVISIBLE);
                         }
+                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                    }
                         if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
                             ll_scramble_msg.setVisibility(View.INVISIBLE);
                         }
 
                         if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                             setDefaultChannel = true;  // live add
-                        }
-
-                        mLastClickTimeScan = SystemClock.elapsedRealtime();
-                        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                            showDialog(DIALOG_SCANMODE);
-                        } else {
-                            sendEvent(TVEVENT.E_SCAN_START);
-                        }
+                    }
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                        showDialog(DIALOG_SCANMODE);
+                    } else {
+                        sendEvent(E_SCAN_START);
                     }
                 }
-                return false;
             }
         });
 
@@ -5237,21 +5848,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         listB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
-                } else {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        listB.setScaleX(0.5f);
-                        listB.setScaleY(0.5f);
-                        listB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
-                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        try {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    listB.setScaleX(0.8f);
+                    listB.setScaleY(0.8f);
+                    listB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    try {
                             Thread.sleep(BUTTON_CLICK_TIME);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -5259,37 +5861,42 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         listB.setScaleX(1.0f);
                         listB.setScaleY(1.0f);
                         listB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
-                        hideController();
-                        // mis-clicking prevention, using threshold of 1500 ms
-                        MainActivity.isMainActivity=true;
-                        setChangeProcMemory();
-                        setChangeProcShift();
-                        Intent intent = new Intent(MainActivity.this, ChannelMainActivity.class);
-
-                        startActivity(intent);
-                    }
                 }
                 return false;
             }
         });
-
-        leftB = (ImageButton)findViewById(R.id.button_down);
-        leftB.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        listB.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
+                    CustomToast toast12 = new CustomToast(getApplicationContext());
+                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                 } else {
+                    hideController();
+                    // mis-clicking prevention, using threshold of 1500 ms
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeList < DOUBLE_CLICK_TOLERANCE){
+                        return;
+                    }
+                    mLastClickTimeList = SystemClock.elapsedRealtime();
+                    MainActivity.isMainActivity=true;
+                    setChangeProcMemory();
+                        setChangeProcShift();
+                    Intent intent = new Intent(MainActivity.this, ChannelMainActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
+        if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3){
+        leftB = (ImageButton)findViewById(R.id.button_down);
+        leftB.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        leftB.setScaleX(0.5f);
-                        leftB.setScaleY(0.5f);
+                        leftB.setScaleX(0.8f);
+                        leftB.setScaleY(0.8f);
                         leftB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
                         try {
@@ -5300,7 +5907,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         leftB.setScaleX(1.0f);
                         leftB.setScaleY(1.0f);
                         leftB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
+                    }
+                    return false;
+                }
+            });
+            leftB.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+                    if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
+                        CustomToast toast12 = new CustomToast(getApplicationContext());
+                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    } else {
                         CommonStaticData.passwordVerifyFlag = false;
                         CommonStaticData.ageLimitFlag = false;
                         channelChangeStartView(false);
@@ -5313,26 +5932,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         TVBridge.AVStartMinus();
                     }
                 }
-                return false;
-            }
-        });
+            });
+        }
 
-        rightB = (ImageButton)findViewById(R.id.button_up);
-        rightB.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
-                } else {
+        if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3){
+            rightB=(ImageButton)findViewById(R.id.button_up);
+            rightB.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        rightB.setScaleX(0.5f);
-                        rightB.setScaleY(0.5f);
+                        rightB.setScaleX(0.8f);
+                        rightB.setScaleY(0.8f);
                         rightB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
                         try {
@@ -5343,7 +5953,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         rightB.setScaleX(1.0f);
                         rightB.setScaleY(1.0f);
                         rightB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
+                    }
+                    return false;
+                }
+            });
+            rightB.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+                    if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
+                        CustomToast toast12 = new CustomToast(getApplicationContext());
+                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    } else {
                         // justin DB
                         CommonStaticData.passwordVerifyFlag = false;
                         CommonStaticData.ageLimitFlag = false;
@@ -5361,71 +5983,67 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         TVBridge.AVStartPlus();
                     }
                 }
-                return false;
-            }
-        });
+            });
+        }
 
-        epgB = (ImageButton)findViewById(R.id.button_epg);
+        epgB = (ImageButton) findViewById(R.id.button_epg);
+        epgB.setPadding(0, 10, 0, 10);
         epgB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    epgB.setScaleX(0.8f);
+                    epgB.setScaleY(0.8f);
+                    epgB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    try {
+                        Thread.sleep(BUTTON_CLICK_TIME);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } else {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        epgB.setScaleX(0.5f);
-                        epgB.setScaleY(0.5f);
-                        epgB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
-                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        try {
-                            Thread.sleep(BUTTON_CLICK_TIME);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        epgB.setScaleX(1.0f);
-                        epgB.setScaleY(1.0f);
-                        epgB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
-                        hideController();
-
-                        MainActivity.isMainActivity=true;
-                        setChangeProcMemory();
-                        setChangeProcShift();
-                        Intent intent = new Intent(MainActivity.this, EPGActivity.class);
-                        intent.putExtra("curIndex", mChannelIndex);
-
-                        startActivity(intent);
-                    }
+                    epgB.setScaleX(1.0f);
+                    epgB.setScaleY(1.0f);
+                    epgB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
                 }
                 return false;
             }
         });
-
-        scaleB = (ImageButton)findViewById(R.id.button_scale);
-        scaleB.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        epgB.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
+                    CustomToast toast12 = new CustomToast(getApplicationContext());
+                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                 } else {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        scaleB.setScaleX(0.5f);
-                        scaleB.setScaleY(0.5f);
-                        scaleB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
-                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        try {
+                    hideController();
+                    // mis-clicking prevention, using threshold of 1500 ms
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeEPG < DOUBLE_CLICK_TOLERANCE){
+                        return;
+                    }
+                    mLastClickTimeEPG = SystemClock.elapsedRealtime();
+                    MainActivity.isMainActivity=true;
+                    setChangeProcMemory();
+                    setChangeProcShift();
+                    Intent intent = new Intent(MainActivity.this, EPGActivity.class);
+                    intent.putExtra("curIndex", mChannelIndex);
+                    startActivity(intent);
+                }
+            }
+        });
+
+        scaleB = (ImageButton) findViewById(R.id.button_scale);
+        scaleB.setPadding(0, 10, 0, 10);
+        scaleB.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    scaleB.setScaleX(0.8f);
+                    scaleB.setScaleY(0.8f);
+                    scaleB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    try {
                             Thread.sleep(BUTTON_CLICK_TIME);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -5433,7 +6051,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         scaleB.setScaleX(1.0f);
                         scaleB.setScaleY(1.0f);
                         scaleB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
+                }
+                return false;
+            }
+        });
+        scaleB.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
+                    CustomToast toast12 = new CustomToast(getApplicationContext());
+                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                } else {
                         android.view.ViewGroup.LayoutParams lp = sv.getLayoutParams();
                         if (currentVideoMode == SCALEMODE_NORMAL) {
                             TVlog.i(TAG, "video mode : Normal --> 16:9");
@@ -5448,10 +6078,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         } else {
                             TVlog.i(TAG, "video mode : 4:3 --> Normal");
                             SetVideoScale(SCALEMODE_NORMAL);
-                        }
+
                     }
                 }
-                return false;
             }
         });
 
@@ -5467,19 +6096,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (ll_age_limit.getVisibility() == View.INVISIBLE) {
-                        if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                            if (event.getAction() == MotionEvent.ACTION_UP) {
-                                CustomToast toast12 = new CustomToast(getApplicationContext());
-                                toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                            }
-                        } else {
                             if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
                                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                                    captureB.setScaleX(0.5f);
-                                    captureB.setScaleY(0.5f);
+                                captureB.setScaleX(0.8f);
+                                captureB.setScaleY(0.8f);
                                     captureB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                                     try {
@@ -5490,87 +6110,107 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     captureB.setScaleX(1.0f);
                                     captureB.setScaleY(1.0f);
                                     captureB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
+                            }
+                        }
+                    }
+                    return false;
+                }
+            });
 
-                                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                                        if (isStoragePermissionGranted() == true && mCursor != null) { // for Android M Permission
-                                            //mLastClickTimeRec = SystemClock.elapsedRealtime();
-                                            //if (isRec == false) {  // available capture on recording
-                                            // change rec image
-                                            String channelName = mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
-                                            int serviceID = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_ID);
-                                            channelName = channelName.substring(4);
-                                            channelName = channelName.replaceAll("[^a-zA-Z0-9]", "");
+            captureB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (ll_age_limit.getVisibility() == View.INVISIBLE) {
+                        if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                                || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
+                            CustomToast toast12 = new CustomToast(getApplicationContext());
+                            toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                        } else {
+                            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
+
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
+                                    if (isStoragePermissionGranted() == true && mCursor != null) { // for Android M Permission
+                                        //mLastClickTimeRec = SystemClock.elapsedRealtime();
+                                        //if (isRec == false) {  // available capture on recording
+                                        // change rec image
+                                        String channelName = mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
+                                        int serviceID = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_ID);
+                                        channelName = channelName.substring(4);
+                                        channelName = channelName.replaceAll("[^a-zA-Z0-9]", "");
 
 
-                                            Date now = new Date();
-                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+                                        Date now = new Date();
+                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
 
-                                            recordAndCapturePath filePath = getCurrentCapturePath();
+                                        recordAndCapturePath filePath = getCurrentCapturePath();
 
-                                            captureFileName = filePath.fullPath + sdf.format(now) + "_" + channelName + ".png";
+                                        captureFileName = filePath.fullPath + sdf.format(now) + "_" + channelName + ".png";
 
-                                            TVlog.i(TAG, " Capture Name = " + captureFileName);
-                                            status_bar.setVisibility(View.INVISIBLE);
-                                            controllerLayout.setVisibility(View.INVISIBLE);
+                                        TVlog.i(TAG, " Capture Name = " + captureFileName);
+                                        status_bar.setVisibility(View.INVISIBLE);
+                                        controllerLayout.setVisibility(View.INVISIBLE);
 
-                                            //live
-                                            //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                                            if (buildOption.USE_MULTI_WINDOW) {
-                                                ll_multiWindow.setVisibility(View.GONE);
-                                            }
-                                            //}
+                                        //live
+                                        //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
+                                        if (buildOption.USE_MULTI_WINDOW) {
+                                            ll_multiWindow.setVisibility(View.GONE);
+                                        }
+                                        //}
 
-                                            //ll_chat.setVisibility(View.INVISIBLE);
-                                            if (buildOption.USE_CHAT_FUNCTION) {
-                                                ll_chat.setVisibility(View.GONE);
-                                            }
+                                        //ll_chat.setVisibility(View.INVISIBLE);
+                                        if (buildOption.USE_CHAT_FUNCTION) {
+                                            ll_chat.setVisibility(View.GONE);
+                                        }
 
-                                            int isCaptured = FCI_TVi.DoCapture(captureFileName);
+                                        int isCaptured = FCI_TVi.DoCapture(captureFileName);
 
-                                            instance.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-                                                    Uri.parse("file://" + captureFileName)));
+                                        instance.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                                                Uri.parse("file://" + captureFileName)));
 
-                                            //int isCaptured = FCI_TVi.DoCapture(captureFileName);
+                                        //int isCaptured = FCI_TVi.DoCapture(captureFileName);
 
-                                            if (isCaptured == 1) {
-                                                if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                                                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                                                    CustomToast toast = new CustomToast(getApplicationContext());
-                                                    toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
-                                                            + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
-                                                            + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
-                                                } else {
-                                                    if (SDK_INT < Build.VERSION_CODES.N) {
-                                                        if (getExternalMounts().size() != 0) {
+                                        if (isCaptured == 1) {
+                                            if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                                                    || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                                                CustomToast toast = new CustomToast(getApplicationContext());
+                                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
+                                                        + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
+                                                        + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
+                                            } else {
+                                                if (SDK_INT < Build.VERSION_CODES.N) {
+                                                    if (getExternalMounts().size() != 0) {
 
-                                                            CustomToast toast = new CustomToast(getApplicationContext());
-                                                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
-                                                                    + getApplicationContext().getString(R.string.sd_storage_capture) + "\n"
-                                                                    + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
-                                                        } else {
-                                                            CustomToast toast = new CustomToast(getApplicationContext());
-                                                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
-                                                                    + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
-                                                                    + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
-                                                        }
+                                                        CustomToast toast = new CustomToast(getApplicationContext());
+                                                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
+                                                                + getApplicationContext().getString(R.string.sd_storage_capture) + "\n"
+                                                                + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
                                                     } else {
                                                         CustomToast toast = new CustomToast(getApplicationContext());
                                                         toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
                                                                 + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
                                                                 + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
                                                     }
+                                                } else {
+                                                    CustomToast toast = new CustomToast(getApplicationContext());
+                                                    toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
+                                                            + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
+                                                            + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
                                                 }
-                                            } else {
-                                                CustomToast toast = new CustomToast(getApplicationContext());
-                                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.capture_fail), Toast.LENGTH_SHORT);
                                             }
+
                                         } else {
                                             CustomToast toast = new CustomToast(getApplicationContext());
-                                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_for_capture), Toast.LENGTH_SHORT);
+                                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.capture_fail), Toast.LENGTH_SHORT);
                                         }
+                                    } else {
+                                        CustomToast toast = new CustomToast(getApplicationContext());
+                                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_for_capture), Toast.LENGTH_SHORT);
                                     }
+
                                 }
                             }
                         }
@@ -5578,7 +6218,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast = new CustomToast(getApplicationContext());
                         toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.age_limit_title), Toast.LENGTH_SHORT);
                     }
-                    return false;
                 }
             });
         }
@@ -5591,6 +6230,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             recTimeview.setTextColor(getResources().getColor(R.color.white));
         }
         recB = (ImageButton)findViewById(R.id.button_rec);
+        recB.setPadding(0, 10, 0, 10);
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE || buildOption.RECORD_FUNCTION_USE == false) {
@@ -5716,6 +6356,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
 
         recfileB = (ImageButton)findViewById(R.id.button_recfile);
+        recfileB.setPadding(0, 10, 0, 10);
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE || buildOption.RECORD_FUNCTION_USE == false) {
@@ -5729,8 +6370,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    recfileB.setScaleX(0.5f);
-                    recfileB.setScaleY(0.5f);
+                    recfileB.setScaleX(0.8f);
+                    recfileB.setScaleY(0.8f);
                     recfileB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     try {
@@ -5741,11 +6382,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     recfileB.setScaleX(1.0f);
                     recfileB.setScaleY(1.0f);
                     recfileB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
-                    hideController();
-
-                    if (isStoragePermissionGranted() == true) {  // for Android M Permission
-                        mLastClickTimeRecF = SystemClock.elapsedRealtime();
+                }
+                return false;
+            }
+        });
+        recfileB.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                hideController();
+                // mis-clicking prevention, using threshold of 1500 ms
+                if (SystemClock.elapsedRealtime() - mLastClickTimeRecF < DOUBLE_CLICK_TOLERANCE){
+                    return;
+                }
+                mLastClickTimeRecF = SystemClock.elapsedRealtime();
+                if (isStoragePermissionGranted() == true) {  // for Android M Permission
+                    mLastClickTimeRecF = SystemClock.elapsedRealtime();
                         Intent intent = new Intent(MainActivity.this, RecordedFileListActivity.class);
                         MainActivity.isMainActivity = true;
                         isPlayBackActivity = true;
@@ -5753,52 +6403,165 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     } else {
                         CustomToast toast = new CustomToast(getApplicationContext());
                         toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_need_play), Toast.LENGTH_SHORT);
-                    }
+                }
+            }
+        });
+
+        setB=(ImageButton)findViewById(R.id.button_set);
+        setB.setPadding(0, 10, 0, 10);
+        setB.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    setB.setScaleX(0.8f);
+                    setB.setScaleY(0.8f);
+                    setB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    try {
+                        Thread.sleep(BUTTON_CLICK_TIME);
+                    } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        setB.setScaleX(1.0f);
+                    setB.setScaleY(1.0f);
+                    setB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
                 }
                 return false;
             }
         });
-
-        setB = (ImageButton)findViewById(R.id.button_set);
-        setB.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+        setB.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
                 if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
+                    CustomToast toast12 = new CustomToast(getApplicationContext());
+                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                 } else {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        setB.setScaleX(0.5f);
-                        setB.setScaleY(0.5f);
-                        setB.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
-                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        try {
-                            Thread.sleep(BUTTON_CLICK_TIME);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        setB.setScaleX(1.0f);
-                        setB.setScaleY(1.0f);
-                        setB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
-                        hideController();
-
-                        //isMainActivity=false;
-                        setChangeProcMemory();
-                        setChangeProcShift();
-                        Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-
-                        startActivity(intent);
+                    // mis-clicking prevention, using threshold of 1500 ms
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeSet < DOUBLE_CLICK_TOLERANCE){
+                        return;
                     }
+                    mLastClickTimeSet = SystemClock.elapsedRealtime();
+                    hideController();
+                    setChangeProcMemory();
+                    setChangeProcShift();
+                    Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
+        /*
+        arr_svcmodeswitch_jp = getResources().getStringArray(R.array.svcmode_switch_jp);
+        receiveModeB = (Button) findViewById(R.id.button_mode);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            receiveModeB.setVisibility(View.VISIBLE);
+        } else {
+            receiveModeB.setVisibility(View.GONE);
+        }
+        receiveModeB.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    receiveModeB.setScaleX(0.8f);
+                    receiveModeB.setScaleY(0.8f);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    receiveModeB.setScaleX(1.0f);
+                    receiveModeB.setScaleY(1.0f);
                 }
                 return false;
             }
         });
+        receiveModeB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int isChanged = 0;
+                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                int isPaired = 0;
+                int pairedIndex = info[0];
+                int segInfo = info[1];
+                if (pairedIndex >= 0) {
+                    isPaired = 1;
+                }
+
+                CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+
+                if (CommonStaticData.receivemode == 1) {  //fullseg --> 1seg
+                    CommonStaticData.receivemode = 0;
+                    //if (isChanged == 1) {
+                    if (CommonStaticData.scanCHnum > 0) {
+                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                    } else {
+                        CustomToast toast = new CustomToast(getApplicationContext());
+                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
+                    }
+                    //}
+                    receiveModeB.setText(arr_svcmodeswitch_jp[0]);
+                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                    editor.commit();
+                } else if (CommonStaticData.receivemode == 0) {  //1seg --> auto
+                    CommonStaticData.receivemode = 2;
+                    //if (isChanged == 1) {
+                    if (CommonStaticData.scanCHnum > 0) {
+                        if (isPaired == 1) {
+                            if (segInfo == 1) { //F-seg
+                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
+                            } else { //O-seg
+                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
+                            }
+                        } else {
+                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
+                        }
+                    } else {
+                        CustomToast toast = new CustomToast(getApplicationContext());
+                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
+                    }
+                    //}
+                    receiveModeB.setText(arr_svcmodeswitch_jp[2]);
+                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                    editor.commit();
+                } else if (CommonStaticData.receivemode == 2) {  //auto --> off
+                    CommonStaticData.receivemode = 3;
+                    //if (isChanged == 1) {
+                    if (CommonStaticData.scanCHnum > 0) {
+                        if (isPaired == 1) {
+                            if (segInfo == 1) { //F-seg
+                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
+                            } else {
+                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
+                            }
+                        } else {
+                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
+                        }
+                    } else {
+                        CustomToast toast = new CustomToast(getApplicationContext());
+                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
+                    }
+                    //}
+                    receiveModeB.setText(arr_svcmodeswitch_jp[3]);
+                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                    editor.commit();
+                } else if (CommonStaticData.receivemode == 3) {  //off --> fullseg
+                    CommonStaticData.receivemode = 1;
+                    //if (isChanged == 1) {
+                    if (CommonStaticData.scanCHnum > 0) {
+                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                    } else {
+                        CustomToast toast = new CustomToast(getApplicationContext());
+                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
+                    }
+                    //}
+                    receiveModeB.setText(arr_svcmodeswitch_jp[1]);
+                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                    editor.commit();
+                }
+            }
+        });
+        */
 
         subTitleView = (TextView)findViewById(R.id.subTitleView);
 
@@ -5818,11 +6581,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
             // [[ solution switching mode 20170223
             envSet_JP();
-
             //]]
         }
 
-        changeChannelView= (LinearLayout) findViewById(R.id.progressBarCircularIndeterminate);
+        changeChannelView = (LinearLayout) findViewById(R.id.progressBarCircularIndeterminate);
         changeChannelView.setVisibility(View.INVISIBLE);
 
         //progressingChange=(CustomView)findViewById(R.id.progressing_channel);
@@ -6054,22 +6816,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             channelLayout.setVisibility(View.VISIBLE);
         }
 
-        ch_up = (ImageButton) findViewById(R.id.button_up);
-        ch_up.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
-                } else {
+        if(buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1) {
+            ch_up = (ImageButton) findViewById(R.id.button_up);
+            ch_up.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        ch_up.setScaleX(0.5f);
-                        ch_up.setScaleY(0.5f);
+                        ch_up.setScaleX(0.8f);
+                        ch_up.setScaleY(0.8f);
                         ch_up.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
                         try {
@@ -6080,13 +6834,36 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         ch_up.setScaleX(1.0f);
                         ch_up.setScaleY(1.0f);
                         ch_up.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
+                    }
+                    return false;
+                }
+            });
 
+            ch_up.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
+                        CustomToast toast12 = new CustomToast(getApplicationContext());
+                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    } else {
+                        // mis-clicking prevention, using threshold of 1500 ms
+                        if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < 500) {
+                            return;
+                        }
+                        mLastClickTimeCHMenu = SystemClock.elapsedRealtime();
                         // justin DB
                         CommonStaticData.passwordVerifyFlag = false;
                         CommonStaticData.ageLimitFlag = false;
-                        channelChangeStartView(false);
+                        //channelChangeStartView(false);
 
-                        changeChannelView.setVisibility(View.VISIBLE);
+                        //changeChannelView.setVisibility(View.VISIBLE);
+
+                        sendEvent(E_CAPTION_CLEAR_NOTIFY);
+                        sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
+
                         if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
                             ll_mainAutoSearch.setVisibility(View.INVISIBLE);
                         }
@@ -6098,12 +6875,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         ll_age_limit.setVisibility(View.INVISIBLE);
 
-                        TVBridge.AVStartPlus();
+                        TVBridge.AVStartMinus();
                     }
                 }
-                return false;
-            }
-        });
+            });
+        }
 
         if (buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1) {
             ch_CherryMenu = (ImageButton) findViewById(R.id.button_tv);
@@ -6120,8 +6896,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         }
                     } else {
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                            ch_CherryMenu.setScaleX(0.5f);
-                            ch_CherryMenu.setScaleY(0.5f);
+                            ch_CherryMenu.setScaleX(0.8f);
+                            ch_CherryMenu.setScaleY(0.8f);
                             ch_CherryMenu.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                         } else if (event.getAction() == MotionEvent.ACTION_UP) {
                             try {
@@ -6163,8 +6939,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         }
                     } else {
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                            ch_MyphoneMenu.setScaleX(0.5f);
-                            ch_MyphoneMenu.setScaleY(0.5f);
+                            ch_MyphoneMenu.setScaleX(0.8f);
+                            ch_MyphoneMenu.setScaleY(0.8f);
                             ch_MyphoneMenu.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                         } else if (event.getAction() == MotionEvent.ACTION_UP) {
                             try {
@@ -6194,22 +6970,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             });
         }
 
-        ch_down = (ImageButton) findViewById(R.id.button_down);
-        ch_down.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    }
-                } else {
+        if(buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1) {
+            ch_down = (ImageButton) findViewById(R.id.button_down);
+            ch_down.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        ch_down.setScaleX(0.5f);
-                        ch_down.setScaleY(0.5f);
+                        ch_down.setScaleX(0.8f);
+                        ch_down.setScaleY(0.8f);
                         ch_down.setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
                         try {
@@ -6220,10 +6988,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         ch_down.setScaleX(1.0f);
                         ch_down.setScaleY(1.0f);
                         ch_down.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
+                    }
+                    return false;
+                }
+            });
+            ch_down.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if ((buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
+                        CustomToast toast12 = new CustomToast(getApplicationContext());
+                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    } else {
+                        // mis-clicking prevention, using threshold of 1500 ms
+                        if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < 500) {
+                            return;
+                        }
+                        mLastClickTimeCHMenu = SystemClock.elapsedRealtime();
                         CommonStaticData.passwordVerifyFlag = false;
                         CommonStaticData.ageLimitFlag = false;
-                        channelChangeStartView(false);
+                        //channelChangeStartView(false);
+
+                        sendEvent(E_CAPTION_CLEAR_NOTIFY);
+                        sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
+
                         // live add
                         if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
                             ll_scramble_msg.setVisibility(View.INVISIBLE);
@@ -6231,12 +7021,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         ll_age_limit.setVisibility(View.INVISIBLE);
 
-                        TVBridge.AVStartMinus();
+                        TVBridge.AVStartPlus();
                     }
                 }
-                return false;
-            }
-        });
+            });
+        }
 
         videoSurfaceHolder = sv.getHolder();
         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
@@ -6257,7 +7046,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
 
-        if (SurfaceRotationOn ==true) {
+        //dualdecode[[
+        else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+            if (svSub != null) {
+                videoSurfaceHolderSub.setFixedSize(w, h);
+                videoSurfaceHolderSub.addCallback(SubSurfaceSet.getSubSurfaceSet());
+            }
+        }
+        //]]dualdecode
+
+        if(SurfaceRotationOn ==true) {
             sv.setOnTouchListener(new View.OnTouchListener() {
                 public boolean onTouch(View arg0, MotionEvent arg1) {
 
@@ -6329,6 +7130,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         currCH.setTypeface(mFont);
         if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
             currProgram.setTypeface(mFont);
+            currProgram.setPadding(0, 5, 0, 0);
         }
 
 
@@ -6391,8 +7193,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     {
         String progName = FCI_TVi.GetServiceName();
 
-        if (!progName.equalsIgnoreCase("") && progName.length() != 0) {
-
+        if (progName.length() != 0) {
             //duration
             String epgStartNDuration = null;
             String epgStartTime = null;
@@ -6580,13 +7381,27 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     }
 
 
-    private void channelChangeEndView(boolean _keepBG)
+    public void channelChangeEndView(boolean _keepBG)
     {
         if (_keepBG == false) {
             channelChangeBG.setVisibility(View.INVISIBLE);
         }
         recTimeview.setVisibility(View.VISIBLE);
         changeChannelView.setVisibility(View.INVISIBLE);
+    }
+
+    public int getChannelChangView()
+    {
+        int visual = changeChannelView.getVisibility();
+
+        if (visual == 0)
+        {
+            TVlog.i(TAG, "Viewing Ch change view ");
+            return 0;
+        } else {
+            TVlog.i(TAG, "No Viewing  Ch change view ");
+            return 1;
+        }
     }
 
     private void hideController() {
@@ -6631,11 +7446,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     private void showController() {
-
         if (!isUiLocked) {
             //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
             status_bar.setVisibility(View.VISIBLE);
-            //}
+            /*
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                receiveModeB.setText(arr_svcmodeswitch_jp[CommonStaticData.receivemode]);
+            }*/
+
             controllerLayout.setVisibility(View.VISIBLE);
             if (buildOption.ADD_LOUD_SPEAKER) {
                 if (is_wired_headset) {
@@ -6657,11 +7477,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
 
             if (buildOption.USE_CHAT_FUNCTION) {
-                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                    ll_chat.setVisibility(View.VISIBLE);
-                } else {
-                    ll_chat.setVisibility(View.GONE);
-                }
+                ll_chat.setVisibility(View.VISIBLE);
             } else {
                 ll_chat.setVisibility(View.GONE);
             }
@@ -6806,19 +7622,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             editor.clear();
             editor.commit();
         }
-
+        CommonStaticData.captionSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.captionSwitchKey, true);
+        CommonStaticData.superimposeSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.superimposeSwitchKey, true);
         CommonStaticData.lastCH = CommonStaticData.settings.getInt(CommonStaticData.lastChannelKey, 0);
         CommonStaticData.scanCHnum = CommonStaticData.settings.getInt(CommonStaticData.scanedChannelsKey, 0);
         CommonStaticData.PG_Rate = CommonStaticData.settings.getInt(CommonStaticData.parentalRatingKey, 0);
         CommonStaticData.PassWord = CommonStaticData.settings.getString(CommonStaticData.passwordKey, null);
         CommonStaticData.ratingsetSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.parentalcontrolSwitchKey, true);
         CommonStaticData.loudSpeaker = CommonStaticData.settings.getBoolean(CommonStaticData.loudSpeakerKey, false);
-        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) { // Japan
             CommonStaticData.localeSet = 10;
-            CommonStaticData.autoSearch = CommonStaticData.settings.getInt(CommonStaticData.autoSearchSwitchKey, 0);
-
         } else if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE){
@@ -6844,7 +7660,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         if (strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
             CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 0); // 1seg
         } else {
-            CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 2);  // auto
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 2);  // auto
+            } else {
+                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 3);  // off
+            }
+        }
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+            CommonStaticData.autoSearch = CommonStaticData.settings.getInt(CommonStaticData.autoSearchSwitchKey, 0);
+        } else {
+            CommonStaticData.autoSearch = CommonStaticData.settings.getInt(CommonStaticData.autoSearchSwitchKey, 1);
         }
         //
 
@@ -6996,22 +7824,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             if (mUsbDevice.equals(device)){
                                 // call your method that cleans up and closes communication with the device
                                 if (mUsbChipType == USB_CHIP_TYPE_NXP || mUsbChipType == USB_CHIP_TYPE_ITE || (mUsbChipType == USB_CHIP_TYPE_LME && mUsbLMEMode == USB_LME_MODE_WARM)) {
-                                    if (CommonStaticData.settingActivityShow == true) {
-                                        SettingActivity.getInstance().onBackPressed();
-                                    } else if (CommonStaticData.epgActivityShow == true) {
-                                        EPGActivity.getInstance().onBackPressed();
-                                    } else if (CommonStaticData.recordedFileActivityShow == true) {
-                                        RecordedFileListActivity.getInstance().onBackPressed();
-                                    } else if (CommonStaticData.playBackActivityShow == true) {
-                                        //PlayBackActivity.getInstance().onBackPressed();
-                                        PlayBackActivity.getInstance().closeActivity();
-                                    } else if (CommonStaticData.channelMainActivityShow == true) {
-                                        ChannelMainActivity.getInstance().onBackPressed();
-                                    } else if (CommonStaticData.openActivityShow == true) {
-                                        OpenActivity.getInstance().onBackPressed();
-                                    } else if (CommonStaticData.aboutActivityShow == true) {
-                                        AboutActivity.getInstance().onBackPressed();
-                                    }
                                     TVlog.i("FCIISDBT::", "usb dongle closed ! (by device detached)");
                                     //viewToastMSG("USB Dongle was detached!\n" + "TV app is terminated.", true);
                                     CustomToast toast = new CustomToast(getApplicationContext());
@@ -7123,7 +7935,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 dialog_scanmode_selected = which;
                                 if (dialog_scanmode_selected == 0) {
-                                    sendEvent(TVEVENT.E_SCAN_START);
+                                    sendEvent(E_SCAN_START);
                                 } else if (dialog_scanmode_selected == 1) {
                                     showDialog(DIALOG_AREA);
                                 }
@@ -9926,6 +10738,34 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     public void stopNCLDemux() {
         if (buildOption.ADD_GINGA_NCL==true) {
             mRunDemuxThread = false;
+        }
+    }
+
+    public void onAppStart() {
+        if (buildOption.ADD_GINGA_NCL==true) {
+            TVlog.i(TAG, "onAppStart");
+        }
+    }
+
+    public void onAppStop() {
+        if (buildOption.ADD_GINGA_NCL==true) {
+            TVlog.i(TAG,"onAppStop ");
+        }
+    }
+
+    public void SetVideoLayout(Rect in_rect) {
+        if (buildOption.ADD_GINGA_NCL==true) {
+        }
+    }
+
+    public void NotifyDownloadInfo(int status, int percent) {
+        if (buildOption.ADD_GINGA_NCL==true) {
+        }
+    }
+
+    public void NotifyDocumentDone() {
+        // NCL Contents is ready to show.
+        if (buildOption.ADD_GINGA_NCL==true) {
         }
     }
 
