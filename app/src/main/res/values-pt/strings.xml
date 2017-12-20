@@ -1,0 +1,418 @@
+<resources>
+    <string name="app_name">FCI TV</string>
+    <string name="ReleaseDate">Data de lançamento :</string>
+    <string name="customerName">FCI</string>
+    <string name="TVAppVersion">TV APP Versão : </string>
+    <string name="TVSolutionVersion">Solution Versão : </string>
+
+        <string name="version">
+         Release Date : Oct 08 2015\nFCI TV Solution Versão : 1.0.328M</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">configurações</string>
+    <string name="title_activity_translucent">translúcido</string>
+    <string name="settings">configurações</string>
+    <string name="about">Sobre</string>
+
+    <string name="caption_title">Legenda</string>
+    <string name="screen_title">Tamanho da tela</string>
+    <string name="brightness_title">Brilho</string>
+    <string name="transparency_title">Transparência</string>
+    <string name="audiomode_title">modo de áudio</string>
+    <string name="audiotrack_title">faixa de áudio</string>
+    <string name="videotrack_title">trilha de vídeo</string>
+    <string name="sleep_title">Modo dormir</string>
+    <string name="interactive_title">Serviço interativo</string>
+    <string name="storage_title">Local de armazenamento</string>
+    <string name="parental_title">Classificação indicativa</string>
+    <string name="age_title">Definir idade</string>
+    <string name="battery_title">Limite da bateria</string>
+    <string name="locale_title">localidade</string>
+    <string name="reset_title">Redefinir configurações</string>
+    <string name="reset_msg">Esta ação irá restaurar todas as configurações para o padrão.\nDeseja restaurar todas as configurações agora? </string>
+    <string name="about_title">Sobre</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">cancelamento</string>
+    <string name="done">feito</string>
+
+    <string name="screen_ratio">Tamanho da tela</string>
+    <string name="audio_language">Escolha Áudio</string>
+    <string name="video_track">Escolha de vídeo</string>
+    <string name="sleep_timer">Modo dormir</string>
+    <string name="storage_location">Local de armazenamento</string>
+    <string name="set_age">Definir idade</string>
+    <string name="battery_limit">Limite da bateria</string>
+
+    <string name="password_title">Definir senha</string>
+    <string name="set">Definir</string>
+    <string name="password">Inserir senha</string>
+    <string name="confirm_password">Confirmação senha</string>
+    <string name="settings_password">Inserir senha</string>
+    <string name="settings_password_wrong">Senha inválida</string>
+    <string name="settings_password_needed">Definir senha</string>
+    <string name="invalid_password">Senha inválida</string>
+
+    <string name="copyright">direitos autorais @ 2015\nFCI Inc.\nTodos os direitos reservados</string>
+
+    <string name="notify">A qualidade do sinal dependem da localização e da rede.</string>
+
+    <string name="open">Código aberto</string>
+
+    <string name="libupnp1_title">Libupnp 1.6.19</string>
+    <string name="geexbox_title">GeeXBox ushare</string>
+    <string name="ssl_title">Open SSL</string>
+    <string name="libupnp_title">Libupnp</string>
+    <string name="ffmpeg_title">FFmpeg(MPEG2 Audio)</string>
+    <string name="libusb_title">libusb</string>
+
+    <string name="libupnp1">Libupnp 1.6.19 is open source.</string>
+    <string name="geexbox">GeeXBox ushare is open source.</string>
+    <string name="ssl">Open SSL is open source.</string>
+    <string name="libupnp">Libupnp is open source</string>
+    <string name="ffmpeg">Este software utiliza bibliotecas do projeto FFmpeg sob a LGPL v2.1</string>
+    <string name="libusb">Este software usa bibliotecas do projeto libusb sob a LGPLv2.1</string>
+
+    <string name="rescan_tip">Pesquisar novamente irá limpar todos permanecem canais!\nVocê deseja pesquisar canal agora?</string>
+    <string name="scan_tip">Você deseja pesquisar canal agora?</string>
+    <string name="scan_again">Deseja repetir a busca?</string>
+    <string name="rescan_title">Deseja repetir a busca?</string>
+    <string name="no_channel_tip">Canal indisponível</string>
+    <string name="no_channel_title">- - - -</string>
+    <string name="ch_change_fail">Canal de mudança falham</string>
+
+
+    <!--    <string name="scan_mode">Please select scan mode!</string> -->
+    <string name="scan_mode_title">Buscar canais</string>
+    <string name="scan_mode_msg">Que canais gostaria de assitir?</string>
+    <string name="allmode">Canais digitais e HD</string>
+    <string name="hdmode">Somente canais HD</string>
+    <string name="sdmode">Somente canais digitais</string>
+    <string name="scan_mode">Por favor, selecione Iniciar pesquisa ou cancelar!</string>
+    <string name="select_freq">Por favor, selecione uma freqüência:</string>
+    <string name="select_subtitle">Por favor seleccione um subtítulo:</string>
+    <string name="select_teletxt">Por favor seleccione um teletexto:</string>
+    <string name="auto_scan">Pesquisa Auto</string>
+    <string name="auto_scan_start">Iniciar a procura automática</string>
+    <string name="manual_scan">busca manual</string>
+    <string name="str_ok">OK</string>
+    <string name="str_cancel">cancelamento</string>
+    <string name="start_scan">iniciar pesquisa</string>
+
+    <string name="disable_caption">desativar legenda</string>
+    <string name="caption_none">nenhum</string>
+    <string name="disable_teletxt">Disable teletext</string>
+
+    <string name="program_list">lista de programas</string>
+    <string name="service_list">lista de serviços</string>
+    <string name="summaryTitle">resumo</string>
+
+    <string name="path">/sdcard/test0.mp4</string>
+    
+    <string name="epg_help">Up/Down key to scroll, Left/Right key to switch, Enter key to play</string>
+    <string name="epg_no_desc">Informação indisponível</string>
+    <string name="epg_no">guia de canais não está disponível</string>
+    <string name="summary">Por favor, selecione uma freqüência:</string>
+
+    <string name="about_help"></string>
+
+    <string name="rightArrow">></string>
+
+    <string name="general_setting">geral</string>
+    <string name="scan">Buscar</string>
+
+    <string name="area_set">conjunto área</string>
+    <string name="order_set">Service list order set</string>
+    <string name="date_time" formatted="false">Date &#38; time</string>
+    <string name="scan_channels">busca de canais</string>
+
+    <string name="waitTitle">Carregando</string>
+    <string name="waitBody">por favor, espere...</string>
+
+    <string name="noContent">sem conteúdo!</string>
+
+    <string name="recordFailed">registro falhou, talvez não ou mau sinal!</string>
+    <string name="recordSuccess">sucesso registro, por favor, copie o arquivo de registro TS de armazenamento flash!</string>
+    <string name="recordFinish">registro</string>
+    <string name="recordwrongformat">Desculpe, este fluxo não poderia suportar a gravação</string>
+    <string name="recordFileSizeError">precisamos de mais armazenamento para gravação</string>
+    <string name="recordNotSupportFormat">não suporta o formato de gravação</string>
+    <string name="recordTSInvalid">arquivo gravado é inválido</string>
+    <string name="recorded_files_no">arquivos não registrados.</string>
+    <string name="recording">gravação...</string>
+    <string name="playbackCommonError">Não é possível reproduzir esse arquivo gravado!</string>
+    <string name="playbackNotSupportedFormat">Este formato não suportado!</string>
+    <string name="playbackFileOpError">Erro de operação de arquivo!</string>
+    <string name="paused">jogo arquivo gravado foi interrompida.\nPor favor, clique no botão jogo.</string>
+    <string name="filePlay">Por favor, espere\nCarregando arquivo</string>
+
+    <string name="teletext_picker_interver">-----</string>
+    <string name="dialog_set_number">Definir</string>
+    <string name="dialog_cancel">cancelamento</string>
+    <string name="dialog_picker_title">escolher um número</string>
+
+
+    <string name="tab_caption">subtítulo</string>
+    <string name="tab_teletxt">teletexto</string>
+    <string name="tab_audio">auditivo</string>
+    <string name="tab_scale">escala</string>
+    <string name="scale_16_9">16 : 9 escala</string>
+    <string name="scale_4_3">4 : 3 escala</string>
+    <string name="scale_normal">Normal escala</string>
+    <string name="tab_info">informação</string>
+
+    <string name="choose_service">selecione serviço</string>
+
+    <string name="dtv_num">DTV:0</string>
+    <string name="radio_num">rádio:0</string>
+
+    <string name="freq_label">Download Freq.(MHz)</string>
+    <string name="lnbfreq_label">LNB Freq.(MHz)</string>
+    <string name="rate_label">Symbol Rate(KS/s)</string>
+    <string name="pol_label">Polarization</string>
+    <string name="pol_ver">VERTICAL</string>
+    <string name="s22k_mode">22K Mode</string>
+    <string name="s22kmode_label">22K Mode</string>
+    <string name="channel_search">Digitalização</string>
+    <string name="channel_found">Foi detectado um canal.</string>
+    <string name="mega_hertz">MHz</string>
+    <string name="kilo_hertz">KHz</string>
+
+    <string name="input_freq">Please input "Download Freq."</string>
+    <string name="input_lnbfreq">Please input "LNB Freq."</string>
+    <string name="input_rate">Please input "Symbol Rate"</string>
+
+    <string name="signal_weak">Sinal fraco do canal</string>
+    <string name="no_signal">Sinal fraco do canal!</string>
+    <string name="no_signal_tip">Sinal muito fraco ou programa indisponível.\nDeseja repetir a busca?</string>
+    <string name="no_signal_msg">Sem sinal!</string>
+    <string name="program_not_available">programa indisponível.\nDeseja repetir a busca?</string>
+    <string name="alert">alerta</string>
+
+    <string name="scrambl_ch">Canal criptografado!</string>
+    <string name="scrambl_ch_tip">este canal é criptografado</string>
+
+    <string name="frontend_label">Frontend Type:</string>
+    <string name="dvbt_label">DVB-T</string>
+    <string name="isdbt_oneseg_label">ISDB-T 1 seg</string>
+    <string name="isdbt_fullseg_label">ISDB-T full seg</string>
+    <string name="atsct_label">ATSC-T</string>
+
+    <string name="frequency_label">Frequency:</string>
+    <string name="bandwidth_label">Bandwidth:</string>
+    <string name="area_label">Area:</string>
+
+
+    <string name="area_sel">Please select an area:</string>
+    <string name="freq_sel">Please select a frequency:</string>
+    <string name="band_sel">Please select a bandwidth:</string>
+    <string name="scan_lcn">scan LCN</string>
+
+    <string name="channelcount">TV channel count : 0</string>
+    <string name="play">Play</string>
+    <string name="scan_stop">Scan Stop</string>
+
+    <string name="autoSwitchStr">Auto Switching Control Set</string>
+    <string name="captionSwitchStr">Closed Caption</string>
+    <string name="switchOffStr">OFF</string>
+    <string name="switchOnStr">ON</string>
+    <string name="parentalRatingStr">Parental Rating</string>
+    <string name="ewsSwitchStr">EWS Reception</string>
+    <string name="handoverSwitchStr">Handover Control</string>
+    <string name="backKeyAgainQuit">Press the back key again to quit Mobile TV</string>
+    <string name="language">Idioma</string>
+    <string name="total_large">Total</string>
+    <string name="found">found</string>
+    <string name="audio_dual">dual</string>
+    <string name="audio_mono">mono</string>
+    <string name="audio_stereo">estéreo</string>
+    <string name="audio_5_1">5.1</string>
+
+    <string name="new_pw">Nova senha</string>
+    <string name="submit">enviar</string>
+    <string name="saved">Guardar</string>
+    <string name="program_blocked">programa bloqueado por classificação parental. Desbloquear?</string>
+    <string name="block_10age">atual classificação indicativa é de 10 anos.</string>
+    <string name="block_12age">atual classificação indicativa é de 12 anos.</string>
+    <string name="block_14age">atual classificação indicativa é de 14 anos.</string>
+    <string name="block_16age">atual classificação indicativa é de 16 anos.</string>
+    <string name="block_18age">atual classificação indicativa é de 18 anos.</string>
+
+    <string name="battery_alarm">alarme de bateria</string>
+    <string name="battery_remaining">restante da bateria</string>
+    <string name="exit">finalizar</string>
+    <string name="confirm">confirmar</string>
+    <string name="terminatemsg"> que gostaria de sair?</string>
+    <string name="terminated">TV será encerrado.</string>
+
+    <string name="sleep_alarm">alarme do sono</string>
+    <string name="delete">excluir</string>
+    <string name="edit">finalizar</string>
+    <string name="delete_file">excluir o arquivo</string>
+    <string name="recorded">arquivos gravados</string>
+    <string name="recorded_fail_too_shot">falta de registro - demasiado curto</string>
+
+    <string name="delete_file_msg">Deseja excluir o arquivo?</string>
+    <string name="no_decoder">este telefone não tem vídeo Mpeg2 decoder.this canal não podem ser reproduzidos. por favor tente outro canal.</string>
+
+
+    <!-- =============================== -->
+    <!--           USE_GINGA_NCL         -->
+    <!-- =============================== -->
+    <string name="title_option_key">Option Key</string>
+    <string name="button_ok">OK</string>
+    <string name="button_close">Close</string>
+    <string name="button_pad">P</string>
+    <string name="button_menu">M</string>
+    <string name="button_info">I</string>
+    <string name="button_down">��</string>
+    <string name="button_back">B</string>
+    <string name="button_up">��</string>
+    <string name="button_left">��</string>
+    <string name="button_right">��</string>
+    <string name="button_blue"/>
+    <string name="button_red"/>
+    <string name="button_green"/>
+    <string name="button_yellow"/>
+    <!-- =============================== -->
+    <!--    ShowTwoButtonPopupPeer       -->
+    <!-- =============================== -->
+    <string name="data_broadcasting">Data Broadcasting</string>
+    <string name="msg_leave_ssl">SSL/TLS session is released.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="js_confirm">Java Script</string>
+    <string name="start_script">Do you permit the execution of the script?</string>
+    <string name="browsing_mode_title">Notify Browsing Mode</string>
+    <string name="browsing_mode_msg">Do you want to change browsing mode?</string>
+    <string name="connect_dialog_title">Billing Warning</string>
+    <string name="data_network_bill_warning">"Using data network may incur additional charges according to your data rate plan.\nContinue?"</string>
+    <string name="js_prompt">Java Script</string>
+    <string name="button_cancel">cancelamento</string>
+    <string name="js_http_request_msg">Do you permit the http request by the script?</string>
+    <string name="js_http_request_title">JavaScript HttpRequest</string>
+    <string name="js_timeout_msg1">The Javascript is taking a long time to complete.</string>
+    <string name="js_timeout_msg2">Do you want to continue?</string>
+    <string name="js_timeout_title">JavaScript Timeout</string>
+    <string name="lua_content_error">Lua Content Error</string>
+
+    <string name="downloading">Downloading</string>
+
+
+    <string name="gallery_flow_item_description">item description on gallery flow</string>
+    <string name="gallery_flow_bottom_image">bottom image gallery flow</string>
+    <string name="service_list_channel_icon">channel icon on service list</string>
+    <string name="service_list_tv_icon_small">tv small icon on service list</string>
+    <string name="service_list_radio_icon">radio icon on service list</string>
+
+    <string name="channels">Canais</string>
+    <string name="no_channels_items">Sem Canais!</string>
+    <string name="no_channels_msg1">0 canais disponíveis. Pressione</string>
+    <string name="no_channels_msg2"> de tentar novamente.</string>
+    <string name="favorites">Favoritos</string>
+
+    <string name="loading">Aguarde.\nCarregando canal...</string>
+    <string name="ewbs_title_start">Aviso de emergência: começado</string>
+    <string name="ewbs_title_end">Aviso de emergência: terminou</string>
+    <string name="ewbs_siglevel_0">Alarme terremoto de grande escala</string>
+    <string name="ewbs_siglevel_1">Alarme maremoto</string>
+
+    <string name="superimpose_title">Sobrepor</string>
+    <string name="select_superimpose">sobrepor idioma </string>
+    <string name="select_caption">idioma de legenda </string>
+    <string name="receivemode_title">modo de recepção</string>
+
+    <string name="SD">significa canal de definição padrão.</string>
+    <string name="HD">significa canal de Alta Definição.</string>
+    <string name="Encrypt">significa canal criptografado.</string>
+
+    <string name="set_svcmode_switch">Definir configuração do interruptor 1-seg / Full-seg</string>
+    <string name="svcmode_switch">comutação 1-seg/Full-seg</string>
+
+    <string name="change_area">mudança de área</string>
+    <string name="area">Área</string>
+    <string name="prefecture">Prefeitura</string>
+    <string name="locality">Localidade</string>
+    <string name="select_area">Selecionar área (Area)</string>
+    <string name="select_prefecture">Selecionar área (Prefeitura)</string>
+    <string name="select_locality">Selecionar área (Localidade)</string>
+
+    <string name="scan_channel">canal de varredura</string>
+    <string name="not_support_resolution">Este telefone não suporta o formato de vídeo HD.</string>
+
+    <string name="recorded_to_file">Gravado em arquivo</string>
+    <string name="phone_storage_record">Phone storage/FCI TV/</string>
+    <string name="sd_storage_record">SD/FCI TV/</string>
+    <string name="permission_for_record">A permissão é necessária para a gravação!</string>
+    <string name="permission_for_play">A permissão é necessária para a reprodução de arquivos gravados!</string>
+
+    <string name="captured_to_file">Capturado em arquivo</string>
+    <string name="phone_storage_capture">Phone storage/Pictures/FCI TV/</string>
+    <string name="sd_storage_capture">SD/Pictures/FCI TV/</string>
+    <string name="permission_for_capture">A permissão é necessária para a captura!</string>
+    <string name="capture_fail">Capturar fracasso - Signal é ruim.</string>
+
+    <string name="bb_init_fail_msg">inicialização DTV Hardware falhou. \nSe esta mensagem é mostrado continuamente, \nPor favor, visite Centro de serviço.</string>
+
+    <string name="bcas_id_title">B-CAS card ID</string>
+    <string name="bcas_test_title">B-CAS card Test</string>
+    <string name="bcas_card_test_good_msg">B-CAS card is operating normally.</string>
+    <string name="bcas_card_test_ng_msg">B-CAS card is not working properly. \nPlease check the B-CAS card.</string>
+    <string name="bcas_card_insert_msg">Please correctly insert the B-CAS card.</string>
+    <string name="close">close</string>
+    <string name="bcas_tested_msg">It is being tested.</string>
+
+    <string name="chlist">lista de canais</string>
+
+    <string name="system_change_title">TV irá procurar canais</string>
+
+    <string name="usb_dongle_not_attached">USB dongle não foi anexado !!!!!</string>
+    <string name="usb_permission_not_granted">A permissão do USB não foi concedida !!!!!</string>
+    <string name="usb_detached_app_terminated">Dongle USB foi destacado! \nAplicativo de TV é encerrado.</string>
+
+
+    <string name="not_use_capture">Não é possível usar a função de captura de tela!</string>
+    <string name="permission_need_recording">A permissão é necessária para a gravação!</string>
+    <string name="permission_need_play">A permissão é necessária para o jogo de arquivos gravados!</string>
+
+    <string name="continue_msg">CONTINUAR</string>
+    <string name="usb_dongle_not_attach_msg">TV dongle USB não foi anexado. \nSe você quiser assistir TV, por favor, anexar dongle USB TV. \nSe você pressionar "CONTINUAR", você usará somente a reprodução de arquivos gravados.</string>
+
+    <string name="need_network_connect_msg">Para usar a função de bate-papo, este dispositivo precisa de uma conexão de rede.</string>
+
+    <string name="file_play_mode_title">Modo de reprodução de ficheiros</string>
+    <string name="file_play_mode_msg">Somente a reprodução de arquivos gravados está disponível.</string>
+    <string name="file_play_mode_msg_usb">Somente a reprodução de arquivos gravados está disponível.\nPara assistir TV, por favor, ligue o dongle.</string>
+
+    <string name="chat_room_name"><![CDATA[#]]> Nome do quarto do bate-papo : </string>
+
+    <string name="age_limit_title">Restrições de limite de idade!</string>
+    <string name="age_limit_10">Conteúdo não apropriado para pessoas com menos de 10 anos.</string>
+    <string name="age_limit_12">nConteúdo não apropriado para pessoas com menos de 12 anos.</string>
+    <string name="age_limit_14">Conteúdo não apropriado para pessoas com menos de 14 anos.</string>
+    <string name="age_limit_16">Conteúdo não apropriado para pessoas com menos de 16 anos.</string>
+    <string name="age_limit_18">Conteúdo não apropriado para pessoas com menos de 18 anos.</string>
+    <string name="enter_password">Digite a senha</string>
+    <string name="floating_age_limit_msg">Volte ao aplicativo de TV para assistir a este programa.</string>
+
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="monday"> (月)</string>
+    <string name="tuesday"> (火)</string>
+    <string name="wednesday"> (水)</string>
+    <string name="thursday"> (木)</string>
+    <string name="friday"> (金)</string>
+    <string name="saturday"> (土)</string>
+    <string name="sunday"> (日)</string>
+
+    <string name="set_auto_search">Configuração de Auto Channel Search</string>
+    <string name="auto">Auto</string>
+    <string name="off">Fora</string>
+    <string name="auto_channel_search">Auto Channel Search</string>
+    <string name="autoSearch_msg">Procurando</string>
+    <string name="return__">Retorna</string>
+
+    <string name="no_channel_msg">Você não possui nenhum canal registrado.\nExecute a pesquisa.</string>
+
+</resources>

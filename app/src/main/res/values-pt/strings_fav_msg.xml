@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_favr">Adicionado a favoritos</string>
+    <string name="remove_favr">Removidas dos Favoritos</string>
+    <string name="no_favorites_items">Não há favoritos!</string>
+    <string name="no_favorites_msg1">pressione </string>
+    <string name="no_favorites_msg2"> no item para adicionar aos Favoritos.</string>
+    <string name="favorites_remove_msg">Pressione o ícone "Yellow-Star \" na item \ para remover dos favoritos.</string>
+
+</resources>

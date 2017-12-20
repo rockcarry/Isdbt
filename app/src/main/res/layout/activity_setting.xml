@@ -1,0 +1,1383 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:background="@drawable/tab_bg_selector"
+            android:id="@+id/title_setting">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_back_white"
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center_vertical"
+                android:background="@color/transparent"
+                android:id="@+id/btn_back_setting" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="@string/settings"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:gravity="center_vertical"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:background="@color/transparent"
+                android:paddingLeft="10dp"
+                android:paddingRight="20dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:background="@drawable/tab_bg_unselected"></LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="400dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <ScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="400dp"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/ll_autoSearch"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/auto_channel_search"
+                                android:id="@+id/tv_autoSearch"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_autoSearch"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:paddingRight="30dp"
+                                android:paddingLeft="20dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn00"
+                        android:layout_below="@+id/ll_autoSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/svcmodeswitch"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color"
+                        android:layout_below="@+id/btn00">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/svcmode_switch"
+                                android:id="@+id/textView_switching"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_svcmodeswitch"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:paddingRight="30dp"
+                                android:paddingLeft="20dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn0"
+                        android:layout_below="@+id/svcmodeswitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+
+                    <LinearLayout
+                        android:id="@+id/ll_changeArea"
+                        android:layout_width="400dp"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/btn0"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="120dp"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/change_area"
+                                android:id="@+id/textView_changeArea"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:id="@+id/ll_area">
+                                <LinearLayout
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_gravity="center"
+                                    android:gravity="center_vertical|center_horizontal">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/area"
+                                        android:textSize="15dp"
+                                        android:layout_marginRight="10dp"
+                                        android:gravity="center_vertical|center_horizontal"
+                                        android:textColor="@color/white" />
+                                </LinearLayout>
+                                <LinearLayout
+                                    android:layout_width="200dp"
+                                    android:layout_height="60dp"
+                                    android:orientation="horizontal"
+                                    android:layout_gravity="center"
+                                    android:gravity="center_vertical|center_horizontal">
+                                    <Button
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:id="@+id/button_area"
+                                        android:textColor="@color/white"
+                                        android:textSize="15sp"
+                                        android:layout_gravity="center"
+                                        android:gravity="center"
+                                        style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                        android:paddingRight="30dp"
+                                        android:paddingLeft="20dp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <Button
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_below="@id/ll_area"
+                                android:background="@color/item_divider_transparent_color" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:id="@+id/ll_prefecture">
+                                <LinearLayout
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_gravity="center"
+                                    android:gravity="center_vertical|center_horizontal">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/prefecture"
+                                        android:textSize="15dp"
+                                        android:layout_marginRight="10dp"
+                                        android:gravity="center_vertical|center_horizontal"
+                                        android:textColor="@color/white" />
+                                </LinearLayout>
+                                <LinearLayout
+                                    android:layout_width="200dp"
+                                    android:layout_height="60dp"
+                                    android:orientation="horizontal"
+                                    android:layout_gravity="center"
+                                    android:gravity="center_vertical|center_horizontal">
+                                    <Button
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:id="@+id/button_prefecture"
+                                        android:textColor="@color/white"
+                                        android:textSize="15sp"
+                                        android:layout_gravity="center"
+                                        android:gravity="center"
+                                        style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                        android:paddingRight="30dp"
+                                        android:paddingLeft="20dp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <Button
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_below="@id/ll_prefecture"
+                                android:background="@color/item_divider_transparent_color" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:id="@+id/ll_locality">
+                                <LinearLayout
+                                    android:layout_width="80dp"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_gravity="center"
+                                    android:gravity="center_vertical|center_horizontal">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/locality"
+                                        android:textSize="15dp"
+                                        android:layout_marginRight="10dp"
+                                        android:gravity="center_vertical|center_horizontal"
+                                        android:textColor="@color/white" />
+                                </LinearLayout>
+                                <LinearLayout
+                                    android:layout_width="200dp"
+                                    android:layout_height="60dp"
+                                    android:orientation="horizontal"
+                                    android:layout_gravity="center"
+                                    android:gravity="center_vertical|center_horizontal">
+                                    <Button
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:id="@+id/button_locality"
+                                        android:textColor="@color/white"
+                                        android:textSize="15sp"
+                                        android:layout_gravity="center"
+                                        android:gravity="center"
+                                        style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                        android:paddingRight="30dp"
+                                        android:paddingLeft="20dp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn01"
+                        android:layout_below="@+id/ll_changeArea"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+
+
+                    <LinearLayout
+                        android:id="@+id/caption"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/btn01"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/caption_title"
+                                android:id="@+id/textView2"
+                                android:textSize="15sp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Switch
+                                android:id="@+id/switchCaption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:switchMinWidth="56dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn1"
+                        android:layout_below="@+id/caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/captionselect"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:layout_below="@+id/btn1"
+                        android:background="@color/window_transparent_color">
+
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/select_caption"
+                                android:id="@+id/textViewCaptionselect"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal" >
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_captionselect"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                android:textAllCaps="true"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn16"
+                        android:layout_below="@+id/captionselect"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color" />
+
+                    <LinearLayout
+                        android:id="@+id/superimpose"
+                        android:layout_below="@+id/btn16"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/superimpose_title"
+                                android:id="@+id/textView15"
+                                android:textSize="15sp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Switch
+                                android:id="@+id/switchSuperimpose"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:switchMinWidth="56dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn17"
+                        android:layout_below="@+id/superimpose"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/superimposeselect"
+                        android:layout_below="@+id/btn17"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color" >
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/select_superimpose"
+                                android:id="@+id/textViewSuperimposeSelect"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal" >
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_superimposeselect"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn18"
+                        android:layout_below="@+id/superimposeselect"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color" />
+
+                    <LinearLayout
+                        android:id="@+id/screen"
+                        android:layout_below="@+id/btn1"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color"
+                        android:layout_alignParentEnd="false"
+                        android:visibility="gone">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/screen_title"
+                            android:id="@+id/textView3"
+                            android:textSize="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/white"
+                            android:layout_marginLeft="10dp"
+                            android:layout_weight="5" />
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/button_screen"
+                            android:textSize="15sp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="10dp"
+                            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                            android:layout_weight="1"
+                            android:textColor="@color/blue3"
+                            android:gravity="center"/>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn2"
+                        android:layout_below="@+id/screen"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"
+                        android:visibility="gone"/>
+
+                    <LinearLayout
+                        android:id="@+id/brightness"
+                        android:layout_below="@+id/btn2"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color"
+                        android:visibility="gone">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/brightness_title"
+                            android:id="@+id/textView4"
+                            android:textSize="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/white"
+                            android:layout_weight="8"
+                            android:layout_marginLeft="10dp" />
+                        <SeekBar
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/seekBar1"
+                            android:layout_gravity="center_vertical"
+                            android:progress="50"
+                            android:max="100"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn3"
+                        android:layout_below="@+id/brightness"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/transparent"
+                        android:layout_below="@+id/btn3"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color"
+                        android:visibility="gone">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/transparency_title"
+                            android:id="@+id/textView5"
+                            android:textSize="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/white"
+                            android:layout_weight="8"
+                            android:layout_marginLeft="10dp" />
+                        <SeekBar
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/seekBar2"
+                            android:layout_gravity="center_vertical"
+                            android:progress="50"
+                            android:max="100"
+                            android:layout_weight="1" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn4"
+                        android:layout_below="@+id/transparent"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"
+                        android:visibility="gone"/>
+
+                    <LinearLayout
+                        android:id="@+id/audio"
+                        android:layout_below="@+id/btn18"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/audiomode_title"
+                                android:id="@+id/textView6"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_audio"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:paddingRight="30dp"
+                                android:paddingLeft="20dp" />
+                        </LinearLayout>
+
+
+                        <!--
+                                            <Spinner
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:id="@+id/spinner2"
+                                                android:layout_gravity="center_vertical"
+                                                android:spinnerMode="dialog"
+                                                android:prompt="@string/audio_language"
+                                                android:textSize="15sp"
+                                                android:background="@android:drawable/btn_dropdown"
+                                                android:layout_marginRight="10dp"
+                                                android:layout_weight="1" />
+                                            -->
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn5"
+                        android:layout_below="@+id/audio"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/audiotrack"
+                        android:layout_below="@+id/btn5"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color" >
+
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal" >
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/audiotrack_title"
+                                android:id="@+id/textViewTrack"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal" >
+
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_audiotrack"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn20"
+                        android:layout_below="@+id/audiotrack"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/videotrack"
+                        android:layout_below="@+id/btn20"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color" >
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal" >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/videotrack_title"
+                                android:id="@+id/textViewVideoTrack"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal" >
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_videotrack"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn15"
+                        android:layout_below="@+id/videotrack"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color" />
+
+                    <LinearLayout
+                        android:id="@+id/sleep"
+                        android:layout_below="@+id/btn15"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sleep_title"
+                                android:id="@+id/textView7"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_sleep"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp"
+                                android:gravity="center"
+                                android:layout_gravity="center" />
+                        </LinearLayout>
+                        <!--
+                                            <Spinner
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:id="@+id/spinner3"
+                                                android:layout_gravity="center_vertical"
+                                                android:spinnerMode="dialog"
+                                                android:prompt="@string/sleep_timer"
+                                                android:textSize="15sp"
+                                                android:background="@android:drawable/btn_dropdown"
+                                                android:layout_weight="1"
+                                                android:layout_marginRight="10dp" />
+                                            -->
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn6"
+                        android:layout_below="@+id/sleep"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/interactive"
+                        android:layout_below="@+id/btn6"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/interactive_title"
+                                android:id="@+id/textView8"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Switch
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/switchInteractive"
+                                android:layout_gravity="center_vertical"
+                                android:checked="false"
+                                android:switchMinWidth="56dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn7"
+                        android:layout_below="@+id/interactive"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"
+                        android:visibility="visible"/>
+
+                    <!--<LinearLayout
+                        android:id="@+id/storage"
+                        android:layout_below="@+id/btn7"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/storage_title"
+                                android:id="@+id/textView9"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_storage"
+                                android:textSize="15sp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@android:drawable/btn_dropdown"
+                                android:gravity="center"/>
+                        </LinearLayout>
+                        &lt;!&ndash;
+                                            <Spinner
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:id="@+id/spinner4"
+                                                android:layout_gravity="center_vertical"
+                                                android:spinnerMode="dialog"
+                                                android:prompt="@string/storage_location"
+                                                android:textSize="15sp"
+                                                android:background="@android:drawable/btn_dropdown"
+                                                android:layout_marginRight="10dp"
+                                                android:layout_weight="1" />
+                                            &ndash;&gt;
+                    </LinearLayout>-->
+
+                    <!-- <Button
+                         android:id="@+id/btn8"
+                         android:layout_below="@+id/storage"
+                         android:layout_width="match_parent"
+                         android:layout_height="1dp"
+                         android:background="@color/item_divider_transparent_color"/>-->
+
+                    <LinearLayout
+                        android:id="@+id/parental"
+                        android:layout_below="@+id/btn7"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/parental_title"
+                                android:id="@+id/textView10"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Switch
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/switchParental"
+                                android:layout_gravity="center_vertical"
+                                android:checked="false"
+                                android:switchMinWidth="56dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn9"
+                        android:layout_below="@+id/parental"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/age"
+                        android:layout_below="@+id/btn9"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:dependency="switch3"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/age_title"
+                                android:id="@+id/textVie11"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_age"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                android:layout_gravity="center"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp"
+                                android:gravity="center" />
+                        </LinearLayout>
+
+                        <!--
+                        <Spinner
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/spinner5"
+                            android:layout_gravity="center_vertical"
+                            android:spinnerMode="dialog"
+                            android:prompt="@string/set_age"
+                            android:textSize="15sp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:layout_marginRight="10dp"
+                            android:layout_weight="1" />
+                        -->
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn10"
+                        android:layout_below="@+id/age"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/password"
+                        android:layout_below="@+id/btn10"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:dependency="switch3"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/password_title"
+                                android:id="@+id/textView12"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_password"
+                                android:text="@string/set"
+                                android:textSize="15sp"
+                                android:background="@color/blue3"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/default_text_color"
+                                android:gravity="center"/>
+                        </LinearLayout>
+
+                        <!--
+                        <Spinner
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/spinner5"
+                            android:layout_gravity="center_vertical"
+                            android:spinnerMode="dialog"
+                            android:prompt="@string/set_age"
+                            android:textSize="15sp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:layout_marginRight="10dp"
+                            android:layout_weight="1" />
+                        -->
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn11"
+                        android:layout_below="@+id/password"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/battery"
+                        android:layout_below="@+id/btn11"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/battery_title"
+                                android:id="@+id/textVie13"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Button
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/button_battery"
+                                android:textColor="@color/white"
+                                android:textSize="15sp"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:gravity="center"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp"
+                                android:layout_gravity="center" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <!--
+                                        <Spinner
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:id="@+id/spinner6"
+                                            android:layout_gravity="center_vertical"
+                                            android:spinnerMode="dialog"
+                                            android:prompt="@string/battery_limit"
+                                            android:textSize="15sp"
+                                            android:background="@android:drawable/btn_dropdown"
+                                            android:layout_weight="1"
+                                            android:layout_marginRight="10dp" />
+                                      -->
+
+                    <Button
+                        android:id="@+id/btn12"
+                        android:layout_below="@+id/battery"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/locale"
+                        android:layout_below="@+id/btn12"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/locale_title"
+                                android:id="@+id/textLocale"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                                android:id="@+id/locale_range"
+                                android:gravity="center"
+                                android:paddingLeft="20dp"
+                                android:paddingRight="30dp"
+                                android:paddingBottom="10dp">
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/Locale_flag"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginLeft="5dp"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/setLocale"
+                                    android:textSize="15dp"
+                                    android:layout_gravity="center"
+                                    android:textColor="@color/white"
+                                    android:layout_marginLeft="5dp"
+                                    android:gravity="center" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn14"
+                        android:layout_below="@+id/locale"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/reset"
+                        android:layout_below="@+id/btn14"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/reset_title"
+                                android:id="@+id/textView14"
+                                android:textSize="15dp"
+                                android:layout_gravity="center_vertical"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="200dp"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                            <Switch
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/switchReset"
+                                android:layout_gravity="center_vertical"
+                                android:checked="false"
+                                android:switchMinWidth="56dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn13"
+                        android:layout_below="@+id/reset"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/ll_bcas_id"
+                        android:layout_below="@+id/btn13"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <TextView
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bcas_id_title"
+                            android:id="@+id/tv_bcas_id_title"
+                            android:textSize="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/white"
+                            android:layout_marginLeft="10dp" />
+                        <TextView
+                            android:layout_width="200dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tv_bcas_id"
+                            android:textSize="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/white"
+                            android:gravity="center_vertical|center_horizontal" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn21"
+                        android:layout_below="@+id/ll_bcas_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/ll_bcas_test"
+                        android:layout_below="@+id/btn21"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bcas_test_title"
+                            android:id="@+id/tv_bcas_test"
+                            android:textSize="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/white"
+                            android:layout_marginLeft="10dp" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn22"
+                        android:layout_below="@+id/ll_bcas_test"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/item_divider_transparent_color"/>
+
+                    <LinearLayout
+                        android:id="@+id/about"
+                        android:layout_below="@+id/btn22"
+                        android:layout_width="400dp"
+                        android:layout_height="60dp"
+                        android:orientation="horizontal"
+                        android:background="@color/window_transparent_color">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/about_title"
+                            android:id="@+id/textView_about"
+                            android:textSize="15dp"
+                            android:layout_gravity="center_vertical"
+                            android:textColor="@color/white"
+                            android:layout_marginLeft="10dp" />
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </ScrollView>
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/button_extra"
+            android:background="@color/transparent" />
+
+
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

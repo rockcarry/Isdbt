@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_favr">Añadido a favoritos</string>
+    <string name="remove_favr">Fuera del Favoritos</string>
+    <string name="no_favorites_items">No hay favoritos!</string>
+    <string name="no_favorites_msg1">prensa </string>
+    <string name="no_favorites_msg2"> el elemento para añadir a favoritos.</string>
+    <string name="favorites_remove_msg">Pulse el icono "Amarillo-Star \" sobre el tema \ va a quitar de Favoritos.</string>
+
+</resources>

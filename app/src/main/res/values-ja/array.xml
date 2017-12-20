@@ -1,0 +1,817 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="array_menu">
+        <item>チャンネルのリスト</item>
+        <item>お気に入り</item>
+        <item>スキャン</item>
+        <item>設定</item>
+    </string-array>
+
+    <string-array name="array_service_order">
+        <item>Order by service ID</item>
+        <item>Order by service Name</item>
+        <!-- <item>Order by service LCN</item> -->
+    </string-array>
+
+    <string-array name="array_area_set_isdb_oneseg">
+        <item>Brazil (ワンセグ)</item>
+        <item>Japan (ワンセグ)</item>
+    </string-array>
+
+    <string-array name="array_area_set_isdb_fullseg">
+        <item>Brazil (フルセグ)</item>
+        <item>Japan (フルセグ)</item>
+    </string-array>
+
+    <string-array name="parentalRating">
+        <item >すべて</item>
+        <item >10歳以上</item>
+        <item >12歳以上</item>
+        <item >14歳以上</item>
+        <item >16歳以上</item>
+        <item >18歳以上</item>
+    </string-array>
+
+        <string-array name="screen_ratio">
+            <item>16:9</item>
+            <item>4:3</item>
+            <item>ノーマル</item>
+        </string-array>
+
+        <string-array name="screen_ratio_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+        </string-array>
+
+
+        <string-array name="audio_language">
+            <item>主+副音声</item>
+            <item>主音声</item>
+            <item>副音声</item>
+        </string-array>
+
+        <string-array name="audio_track">
+           <item>言語 1</item>
+            <item>言語 2</item>
+            <item>言語 3</item>
+        <item>言語 4</item>
+        </string-array>
+	
+<string-array name="audio_track_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+	<string-array name="video_track">
+           <item>映像 1</item>
+            <item>映像 2</item>
+            <item>映像 3</item>
+        <item>映像 4</item>
+        </string-array>
+
+        <string-array name="audio_language_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+        </string-array>
+
+
+        <string-array name="sleep_timer">
+            <item>オフ</item>
+            <item>15 分</item>
+            <item>30 分</item>
+            <item>45 分</item>
+            <item>60 分</item>
+            <item>90 分</item>
+            <item>120 分</item>
+        </string-array>
+
+        <string-array name="sleep_timer_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+            <item>5</item>
+            <item>6</item>
+        </string-array>
+
+
+        <string-array name="storage_location">
+            <item>電話</item>
+            <item>SDカード</item>
+        </string-array>
+
+        <string-array name="storage_location_values">
+            <item>0</item>
+            <item>1</item>
+        </string-array>
+
+
+        <string-array name="set_age">
+            <item>なし</item>
+            <item>10</item>
+            <item>12</item>
+            <item>14</item>
+            <item>16</item>
+            <item>18</item>
+        </string-array>
+
+        <string-array name="set_age_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+            <item>5</item>
+        </string-array>
+
+        <string-array name="battery_limit">
+            <item>オフ</item>
+            <item>50%</item>
+            <item>30%</item>
+            <item>15%</item>
+            <item>10%</item>
+        </string-array>
+
+        <string-array name="battery_limit_values">
+            <item>0</item>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+        </string-array>
+
+    <string-array name="locale_set">
+        <item>アルゼンチン</item>
+        <item>ベリーズ</item>
+        <item>ボリビア</item>
+        <item>ボツワナ</item>
+        <item>ブラジル</item>
+        <item>チリ</item>
+        <item>コスタリカ</item>
+        <item>エクアドル</item>
+        <item>グアテマラ</item>
+        <item>ホンジュラス</item>
+        <item>日本</item>
+        <item>モルディブ</item>
+        <item>ニカラグア</item>
+        <item>パラグアイ</item>
+        <item>ペルー</item>
+        <item>フィリピン</item>
+        <item>スリランカ</item>
+        <item>ウルグアイ</item>
+        <item>ベネズエラ</item>
+    </string-array>
+
+    <string-array name="locale_set_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+    </string-array>
+
+    <string-array name="auto_search_jp">
+        <item>自動</item>
+        <item>切</item>
+    </string-array>
+    <string-array name="auto_search_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="svcmode_switch_jp">
+        <item>ワンセグ</item>
+        <item>地上D</item>
+        <item>自動</item>
+        <item>切</item>
+    </string-array>
+    <string-array name="svcmode_switch_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="area">
+        <item>北海道•東北</item>
+        <item>関東</item>
+        <item>甲信越•北陸</item>
+        <item>東海</item>
+        <item>近畿</item>
+        <item>中国</item>
+        <item>四国</item>
+        <item>九州•沖縄</item>
+    </string-array>
+    <string-array name="area_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="prefecture_0">
+        <item>北海道</item>
+        <item>靑森県</item>
+        <item>岩手県</item>
+        <item>宮城県</item>
+        <item>秋田県</item>
+        <item>山形県</item>
+        <item>福島県</item>
+    </string-array>
+    <string-array name="prefecture_0_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="prefecture_1">
+        <item>茨城県</item>
+        <item>栃木県</item>
+        <item>群馬県</item>
+        <item>埼玉県</item>
+        <item>千葉県</item>
+        <item>東京都</item>
+        <item>神奈川県</item>
+    </string-array>
+    <string-array name="prefecture_1_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="prefecture_2">
+        <item>新潟県</item>
+        <item>富山県</item>
+        <item>石川県</item>
+        <item>福井県</item>
+        <item>山梨県</item>
+        <item>長野県</item>
+    </string-array>
+    <string-array name="prefecture_2_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="prefecture_3">
+        <item>岐阜県</item>
+        <item>靜岡県</item>
+        <item>愛知県</item>
+        <item>三重県</item>
+    </string-array>
+    <string-array name="prefecture_3_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="prefecture_4">
+        <item>滋賀県</item>
+        <item>京都府</item>
+        <item>大阪府</item>
+        <item>兵庫県</item>
+        <item>奈良県</item>
+        <item>和歌山県</item>
+    </string-array>
+    <string-array name="prefecture_4_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="prefecture_5">
+        <item>鳥取県</item>
+        <item>島根県</item>
+        <item>岡山県</item>
+        <item>広島県</item>
+        <item>山口県</item>
+    </string-array>
+    <string-array name="prefecture_5_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="prefecture_6">
+        <item>德島県</item>
+        <item>香川県</item>
+        <item>愛媛県</item>
+        <item>高知県</item>
+    </string-array>
+    <string-array name="prefecture_6_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="prefecture_7">
+        <item>福岡県</item>
+        <item>佐賀県</item>
+        <item>長崎県</item>
+        <item>熊本県</item>
+        <item>大分県</item>
+        <item>宮崎県</item>
+        <item>鹿児島県</item>
+        <item>沖繩県</item>
+    </string-array>
+    <string-array name="prefecture_7_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="locality_00">
+        <item>札幌</item>
+        <item>函館</item>
+        <item>旭川</item>
+        <item>室蘭</item>
+        <item>釧路</item>
+        <item>帯広</item>
+        <item>北見</item>
+    </string-array>
+    <string-array name="locality_00_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="locality_01">
+        <item>靑森</item>
+        <item>八戸</item>
+    </string-array>
+    <string-array name="locality_01_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_02">
+        <item>盛岡</item>
+        <item>遠野</item>
+        <item>一関</item>
+        <item>二戸</item>
+        <item>宮古</item>
+        <item>釜石</item>
+    </string-array>
+    <string-array name="locality_02_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="locality_03">
+        <item>仙台</item>
+        <item>涌谷</item>
+        <item>気仙沼</item>
+        <item>栗原(栗駒)</item>
+    </string-array>
+    <string-array name="locality_03_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_04">
+        <item>秋田</item>
+        <item>大仙</item>
+    </string-array>
+    <string-array name="locality_04_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_05">
+        <item>山形</item>
+        <item>米沢</item>
+        <item>鶴岡</item>
+        <item>新庄</item>
+    </string-array>
+    <string-array name="locality_05_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_06">
+        <item>福島</item>
+        <item>会津若松</item>
+        <item>いわき</item>
+    </string-array>
+    <string-array name="locality_06_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_10">
+        <item>水戸</item>
+    </string-array>
+    <string-array name="locality_10_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_11">
+        <item>宇都宮</item>
+    </string-array>
+    <string-array name="locality_11_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_12">
+        <item>前橋</item>
+    </string-array>
+    <string-array name="locality_12_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_13">
+        <item>さいたま</item>
+    </string-array>
+    <string-array name="locality_13_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_14">
+        <item>千葉</item>
+    </string-array>
+    <string-array name="locality_14_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_15">
+        <item>東京</item>
+    </string-array>
+    <string-array name="locality_15_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_16">
+        <item>横浜</item>
+        <item>平塚</item>
+    </string-array>
+    <string-array name="locality_16_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_20">
+        <item>新潟</item>
+    </string-array>
+    <string-array name="locality_20_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_21">
+        <item>富山</item>
+    </string-array>
+    <string-array name="locality_21_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_22">
+        <item>金沢</item>
+        <item>七尾</item>
+        <item>珠洲</item>
+    </string-array>
+    <string-array name="locality_22_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_23">
+        <item>福井</item>
+    </string-array>
+    <string-array name="locality_23_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_24">
+        <item>甲府</item>
+    </string-array>
+    <string-array name="locality_24_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_25">
+        <item>長野</item>
+        <item>飯田</item>
+        <item>諏訪</item>
+    </string-array>
+    <string-array name="locality_25_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_30">
+        <item>岐阜</item>
+        <item>高山</item>
+        <item>中津川</item>
+    </string-array>
+    <string-array name="locality_30_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_31">
+        <item>靜岡</item>
+        <item>浜松</item>
+    </string-array>
+    <string-array name="locality_31_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_32">
+        <item>名古屋</item>
+    </string-array>
+    <string-array name="locality_32_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_33">
+        <item>津</item>
+        <item>伊勢</item>
+    </string-array>
+    <string-array name="locality_33_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_40">
+        <item>大津</item>
+        <item>彦根</item>
+    </string-array>
+    <string-array name="locality_40_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_41">
+        <item>京都</item>
+    </string-array>
+    <string-array name="locality_41_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_42">
+        <item>大阪</item>
+    </string-array>
+    <string-array name="locality_42_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_43">
+        <item>神戸</item>
+    </string-array>
+    <string-array name="locality_43_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_44">
+        <item>奈良</item>
+    </string-array>
+    <string-array name="locality_44_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_45">
+        <item>和歌山</item>
+    </string-array>
+    <string-array name="locality_45_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_50">
+        <item>鳥取</item>
+        <item>米子</item>
+        <item>倉吉</item>
+    </string-array>
+    <string-array name="locality_50_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_51">
+        <item>松江</item>
+        <item>浜田</item>
+        <item>益田</item>
+    </string-array>
+    <string-array name="locality_51_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_52">
+        <item>岡山</item>
+        <item>津山</item>
+    </string-array>
+    <string-array name="locality_52_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_53">
+        <item>広島</item>
+        <item>福山</item>
+    </string-array>
+    <string-array name="locality_53_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_54">
+        <item>山口</item>
+        <item>下関</item>
+        <item>岩国</item>
+    </string-array>
+    <string-array name="locality_54_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_60">
+        <item>德島</item>
+    </string-array>
+    <string-array name="locality_60_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_61">
+        <item>高松</item>
+        <item>丸亀</item>
+    </string-array>
+    <string-array name="locality_61_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_62">
+        <item>松山</item>
+        <item>宇和島</item>
+        <item>新居浜</item>
+    </string-array>
+    <string-array name="locality_62_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_63">
+        <item>高知</item>
+        <item>土佐</item>
+        <item>四万十</item>
+    </string-array>
+    <string-array name="locality_63_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_70">
+        <item>福岡</item>
+        <item>北九州</item>
+        <item>久留米</item>
+        <item>宗像</item>
+    </string-array>
+    <string-array name="locality_70_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_71">
+        <item>佐賀</item>
+    </string-array>
+    <string-array name="locality_71_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_72">
+        <item>長崎</item>
+        <item>佐世保</item>
+    </string-array>
+    <string-array name="locality_72_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_73">
+        <item>熊本</item>
+        <item>水俣</item>
+    </string-array>
+    <string-array name="locality_73_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_74">
+        <item>大分</item>
+        <item>中津</item>
+    </string-array>
+    <string-array name="locality_74_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_75">
+        <item>宮崎</item>
+        <item>延岡</item>
+    </string-array>
+    <string-array name="locality_75_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_76">
+        <item>鹿児島</item>
+        <item>鹿屋</item>
+        <item>枕崎</item>
+        <item>阿久根</item>
+    </string-array>
+    <string-array name="locality_76_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_77">
+        <item>那覇</item>
+    </string-array>
+    <string-array name="locality_77_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="scan_mode">
+        <item>すべてのチャンネルスキャン</item>
+        <item>地域チャンネルスキャン</item>
+    </string-array>
+    <string-array name="scan_mode_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+
+</resources>

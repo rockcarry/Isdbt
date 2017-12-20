@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "424039291106",
+    "firebase_url": "https://api-project-424039291106.firebaseio.com",
+    "project_id": "api-project-424039291106",
+    "storage_bucket": "api-project-424039291106.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424039291106:android:7fabd6b3074452f0",
+        "android_client_info": {
+          "package_name": "kr.co.fci.tv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "424039291106-5t1dpuna94kmt1qiidccvkkole9hv6bc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.co.fci.tv",
+            "certificate_hash": "56cf4669b6a6a0edfbd01df796dcb8b08067ae8a"
+          }
+        },
+        {
+          "client_id": "424039291106-j9vghab664aapmsfpcmhuf6ef7ugutg7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRoqBR0G-4N4upOPl9R8u0AuBNa8sre-o"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "424039291106-j9vghab664aapmsfpcmhuf6ef7ugutg7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

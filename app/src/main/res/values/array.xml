@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="array_menu">
+        <item>Channel list</item>
+        <item>Favorites</item>
+        <item>Scan</item>
+        <item>Settings</item>
+    </string-array>
+
+    <string-array name="array_service_order">
+        <item>Order by service ID</item>
+        <item>Order by service Name</item>
+        <!-- <item>Order by service LCN</item> -->
+    </string-array>
+
+    <string-array name="array_area_set_isdb_oneseg">
+        <item>Brazil (ISDB-1Seg)</item>
+        <item>Japan (ISDB-1Seg)</item>
+    </string-array>
+
+    <string-array name="array_area_set_isdb_fullseg">
+        <item>Brazil (ISDB-Fullseg)</item>
+        <item>Japan (ISDB-Fullseg)</item>
+    </string-array>
+
+    <string-array name="parentalRating">
+        <item >All</item>
+        <item >Over 10 years old</item>
+        <item >Over 12 years old</item>
+        <item >Over 14 years old</item>
+        <item >Over 16 years old</item>
+        <item >Over 18 years old</item>
+    </string-array>
+
+    <string-array name="screen_ratio">
+        <item>16:9</item>
+        <item>4:3</item>
+        <item>Normal</item>
+    </string-array>
+    <string-array name="screen_ratio_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+
+    <string-array name="audio_language">
+        <item>Main+Sub</item>
+        <item>Main</item>
+        <item>Sub</item>
+    </string-array>
+    <string-array name="audio_language_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="audio_track">
+        <item>Language 1</item>
+        <item>Language 2</item>
+        <item>Language 3</item>
+        <item>Language 4</item>
+    </string-array>
+    <string-array name="audio_track_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    
+    <string-array name="video_track">
+        <item>Video 1</item>
+        <item>Video 2</item>
+        <item>Video 3</item>
+        <item>Video 4</item>
+    </string-array>
+
+    <string-array name="sleep_timer">
+        <item>OFF</item>
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>45 minutes</item>
+        <item>60 minutes</item>
+        <item>90 minutes</item>
+        <item>120 minutes</item>
+    </string-array>
+    <string-array name="sleep_timer_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="storage_location">
+        <item>Phone</item>
+        <item>SD card</item>
+    </string-array>
+    <string-array name="storage_location_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="set_age">
+        <item>None</item>
+        <item>10</item>
+        <item>12</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+    </string-array>
+    <string-array name="set_age_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="battery_limit">
+        <item>OFF</item>
+        <item>50%</item>
+        <item>30%</item>
+        <item>15%</item>
+        <item>10%</item>
+    </string-array>
+    <string-array name="battery_limit_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="locale_set">
+        <item>Argentina</item>
+        <item>Belize</item>
+        <item>Bolivia</item>
+        <item>Botswana</item>
+        <item>Brazil</item>
+        <item>Chile</item>
+        <item>Costa Rica</item>
+        <item>Ecuador</item>
+        <item>Guatemala</item>
+        <item>Honduras</item>
+        <item>Japan</item>
+        <item>Maldives</item>
+        <item>Nicaragua</item>
+        <item>Paraguay</item>
+        <item>Peru</item>
+        <item>Philippines</item>
+        <item>Sri Lanka</item>
+        <item>Uruguay</item>
+        <item>Venezuela</item>
+    </string-array>
+    <string-array name="locale_set_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+    </string-array>
+
+    <string-array name="auto_search_jp">
+        <item>Auto</item>
+        <item>Off</item>
+    </string-array>
+    <string-array name="auto_search_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="svcmode_switch_jp">
+        <item>1seg</item>
+        <item>Fullseg</item>
+        <item>Auto</item>
+    <item>Off</item>
+    </string-array>
+    <string-array name="svcmode_switch_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    <item>3</item>
+    </string-array>
+
+    <string-array name="area">
+        <item>Hokkaido·Tohoku</item>
+        <item>Kanto</item>
+        <item>Koshinetsu·Hokuriku</item>
+        <item>Tokai</item>
+        <item>Kinki</item>
+        <item>Chugoku</item>
+        <item>Shikoku</item>
+        <item>Kyushu·Okinawa</item>
+    </string-array>
+    <string-array name="area_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="prefecture_0">
+        <item>Hokkaido</item>
+        <item>Aomori</item>
+        <item>Iwate</item>
+        <item>Miyagi</item>
+        <item>Akita</item>
+        <item>Yamagata</item>
+        <item>Fukushima</item>
+    </string-array>
+    <string-array name="prefecture_0_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="prefecture_1">
+        <item>Ibaraki</item>
+        <item>Tochigi</item>
+        <item>Gunma</item>
+        <item>Saitama</item>
+        <item>Chiba</item>
+        <item>Tokyo</item>
+        <item>Kanagawa</item>
+    </string-array>
+    <string-array name="prefecture_1_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="prefecture_2">
+        <item>Niigata</item>
+        <item>Toyama</item>
+        <item>Ishikawa</item>
+        <item>Fukui</item>
+        <item>Yamanashi</item>
+        <item>Nagano</item>
+    </string-array>
+    <string-array name="prefecture_2_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="prefecture_3">
+        <item>Gifu</item>
+        <item>Shizuoka</item>
+        <item>Aichi</item>
+        <item>Mie</item>
+    </string-array>
+    <string-array name="prefecture_3_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="prefecture_4">
+        <item>Shiga</item>
+        <item>Kyoto</item>
+        <item>Osaka</item>
+        <item>Hyogo</item>
+        <item>Nara</item>
+        <item>Wakayama</item>
+    </string-array>
+    <string-array name="prefecture_4_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="prefecture_5">
+        <item>Tottori</item>
+        <item>Shimane</item>
+        <item>Okayama</item>
+        <item>Hiroshima</item>
+        <item>Yamaguchi</item>
+    </string-array>
+    <string-array name="prefecture_5_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="prefecture_6">
+        <item>Tokushima</item>
+        <item>Kagawa</item>
+        <item>Ehime</item>
+        <item>Kochi</item>
+    </string-array>
+    <string-array name="prefecture_6_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="prefecture_7">
+        <item>Fukuoka</item>
+        <item>Saga</item>
+        <item>Nagasaki</item>
+        <item>Kumamoto</item>
+        <item>Oita</item>
+        <item>Miyazaki</item>
+        <item>Kagoshima</item>
+        <item>Okinawa</item>
+    </string-array>
+    <string-array name="prefecture_7_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+
+    <string-array name="locality_00">
+        <item>Sapporo</item>
+        <item>Hakodate</item>
+        <item>Asahikawa</item>
+        <item>Muroran</item>
+        <item>Kushiro</item>
+        <item>Obihiro</item>
+        <item>Kitami</item>
+    </string-array>
+    <string-array name="locality_00_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
+
+    <string-array name="locality_01">
+        <item>Aomori</item>
+        <item>Hachinohe</item>
+    </string-array>
+    <string-array name="locality_01_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_02">
+        <item>Morioka</item>
+        <item>Tono</item>
+        <item>Ichinoseki</item>
+        <item>Ninohe</item>
+        <item>Miyako</item>
+        <item>Kamaishi</item>
+    </string-array>
+    <string-array name="locality_02_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="locality_03">
+        <item>Sendai</item>
+        <item>Wakuya</item>
+        <item>Kesennuma</item>
+        <item>Kurihara(Kurikoma)</item>
+    </string-array>
+    <string-array name="locality_03_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_04">
+        <item>Akita</item>
+        <item>Daisen</item>
+    </string-array>
+    <string-array name="locality_04_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_05">
+        <item>Yamagata</item>
+        <item>Yonezawa</item>
+        <item>Tsuruoka</item>
+        <item>Shinjo</item>
+    </string-array>
+    <string-array name="locality_05_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_06">
+        <item>Fukushima</item>
+        <item>Aizuwakamatsu</item>
+        <item>Iwaki</item>
+    </string-array>
+    <string-array name="locality_06_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_10">
+        <item>Mito</item>
+    </string-array>
+    <string-array name="locality_10_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_11">
+        <item>Utsunomiya</item>
+    </string-array>
+    <string-array name="locality_11_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_12">
+        <item>Maebashi</item>
+    </string-array>
+    <string-array name="locality_12_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_13">
+        <item>Saitama</item>
+    </string-array>
+    <string-array name="locality_13_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_14">
+        <item>Chiba</item>
+    </string-array>
+    <string-array name="locality_14_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_15">
+        <item>Tokyo</item>
+    </string-array>
+    <string-array name="locality_15_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_16">
+        <item>Yokohama</item>
+        <item>Hiratsuka</item>
+    </string-array>
+    <string-array name="locality_16_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_20">
+        <item>Niigata</item>
+    </string-array>
+    <string-array name="locality_20_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_21">
+        <item>Toyama</item>
+    </string-array>
+    <string-array name="locality_21_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_22">
+        <item>Kanazawa</item>
+        <item>Nanao</item>
+        <item>Suzu</item>
+    </string-array>
+    <string-array name="locality_22_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_23">
+        <item>Fukui</item>
+    </string-array>
+    <string-array name="locality_23_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_24">
+        <item>Kofu</item>
+    </string-array>
+    <string-array name="locality_24_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_25">
+        <item>Nagano</item>
+        <item>Iida</item>
+        <item>Suwa</item>
+    </string-array>
+    <string-array name="locality_25_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_30">
+        <item>Gifu</item>
+        <item>Takayama</item>
+        <item>Nakatsugawa</item>
+    </string-array>
+    <string-array name="locality_30_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_31">
+        <item>Shizuoka</item>
+        <item>Hamamatsu</item>
+    </string-array>
+    <string-array name="locality_31_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_32">
+        <item>Nagoya</item>
+    </string-array>
+    <string-array name="locality_32_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_33">
+        <item>Tsu</item>
+        <item>Ise</item>
+    </string-array>
+    <string-array name="locality_33_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_40">
+        <item>Otsu</item>
+        <item>Hikone</item>
+    </string-array>
+    <string-array name="locality_40_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_41">
+        <item>Kyoto</item>
+    </string-array>
+    <string-array name="locality_41_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_42">
+        <item>Osaka</item>
+    </string-array>
+    <string-array name="locality_42_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_43">
+        <item>Kobe</item>
+    </string-array>
+    <string-array name="locality_43_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_44">
+        <item>Nara</item>
+    </string-array>
+    <string-array name="locality_44_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_45">
+        <item>Wakayama</item>
+    </string-array>
+    <string-array name="locality_45_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_50">
+        <item>Tottori</item>
+        <item>Yonago</item>
+        <item>Kurayoshi</item>
+    </string-array>
+    <string-array name="locality_50_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_51">
+        <item>Matsue</item>
+        <item>Hamada</item>
+        <item>Masuda</item>
+    </string-array>
+    <string-array name="locality_51_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_52">
+        <item>Okayama</item>
+        <item>Tsuyama</item>
+    </string-array>
+    <string-array name="locality_52_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_53">
+        <item>Hiroshima</item>
+        <item>Fukuyama</item>
+    </string-array>
+    <string-array name="locality_53_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_54">
+        <item>Yamaguchi</item>
+        <item>Shimonoseki</item>
+        <item>Iwakuni</item>
+    </string-array>
+    <string-array name="locality_54_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_60">
+        <item>Tokushima</item>
+    </string-array>
+    <string-array name="locality_60_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_61">
+        <item>Takamatsu</item>
+        <item>Marugame</item>
+    </string-array>
+    <string-array name="locality_61_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_62">
+        <item>Matsuyama</item>
+        <item>Uwajima</item>
+        <item>Niihama</item>
+    </string-array>
+    <string-array name="locality_62_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_63">
+        <item>Kochi</item>
+        <item>Tosa</item>
+        <item>Shimanto</item>
+    </string-array>
+    <string-array name="locality_63_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="locality_70">
+        <item>Fukuoka</item>
+        <item>Kitakyushu</item>
+        <item>Kurume</item>
+        <item>Munakata</item>
+    </string-array>
+    <string-array name="locality_70_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_71">
+        <item>Saga</item>
+    </string-array>
+    <string-array name="locality_71_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="locality_72">
+        <item>Nagasaki</item>
+        <item>Sasebo</item>
+    </string-array>
+    <string-array name="locality_72_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_73">
+        <item>Kumamoto</item>
+        <item>Minamata</item>
+    </string-array>
+    <string-array name="locality_73_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_74">
+        <item>Oita</item>
+        <item>Nakatsu</item>
+    </string-array>
+    <string-array name="locality_74_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_75">
+        <item>Miyazaki</item>
+        <item>Nobeoka</item>
+    </string-array>
+    <string-array name="locality_75_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string-array name="locality_76">
+        <item>Kagoshima</item>
+        <item>Kanoya</item>
+        <item>Makurazaki</item>
+        <item>Akune</item>
+    </string-array>
+    <string-array name="locality_76_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="locality_77">
+        <item>Naha</item>
+    </string-array>
+    <string-array name="locality_77_values">
+        <item>0</item>
+    </string-array>
+
+    <string-array name="scan_mode">
+        <item>All channel scan</item>
+        <item>Regional channel scan</item>
+    </string-array>
+    <string-array name="scan_mode_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+
+</resources>

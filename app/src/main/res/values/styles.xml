@@ -1,0 +1,59 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Holo.Light">
+        <item name="android:textColorAlertDialogListItem">@android:color/black</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.AppCompat.Light.NoActionBar.FullScreen" parent="@style/Theme.AppCompat.Light">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="CustomDialog" parent="android:Theme.Holo.Light.Dialog">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+
+        <!--<item name="android:windowBackground">@drawable/dialog_box</item>-->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorAlertDialogListItem">@android:color/black</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:gravity">left</item>
+        <!--<item name="android:buttonBarButtonStyle">@style/MD_ActionButton</item>
+        <item name="android:colorButtonNormal">@color/blue3</item>
+        <item name="android:colorAccent">@color/blue3</item>-->
+        <item name="android:scrollbarSize">20dp</item>
+        <item name="android:scrollbarDefaultDelayBeforeFade">500000</item>
+
+    </style>
+
+    <!--<style name="Theme.AlertDialog" parent="Base.V11.Theme.AppCompat.Dialog">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/dark_gray</item>
+        <item name="colorAccent">@color/cyan</item>
+        <item name="android:windowBackground">@drawable/dialog_box</item>
+    </style>-->
+
+    <!-- <style name="MyDialogAlpha" parent="android:Theme.Holo.Dialog">
+     <item name="android:windowFrame">@null</item>
+     <item name="android:windowNoTitle">true</item>
+     <item name="android:windowIsFloating">true</item>
+     <item name="android:windowContentOverlay">@null</item>
+     <item name="android:alpha">0.9</item>
+ </style>-->
+
+    <!--<style name="AlertDialogCustom" parent="android:Theme.Holo.Dialog">
+        <item name="android:colorPrimary">@color/white</item>
+        <item name="android:colorAccent">@color/blue3</item>
+    </style>-->
+
+
+
+</resources>

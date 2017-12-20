@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_favr">お気に入りに追加</string>
+    <string name="remove_favr">お気に入りから削除</string>
+    <string name="no_favorites_items">いいえお気に入りはありません！</string>
+    <string name="no_favorites_msg1">プレス</string>
+    <string name="no_favorites_msg2">アイテムをお気に入りに追加します。</string>
+    <string name="favorites_remove_msg">項目を押して\"イエロースター\"アイコンはお気に入りから削除します。</string>
+
+
+
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <usb-device vendor-id="7510" product-id="24896" class="255" subclass="0" protocol="0" />
+    <usb-device vendor-id="1165" product-id="37638" />
+    <usb-device vendor-id="13124" product-id="4384"/>
+    <usb-device vendor-id="13124" product-id="9296"/>
+    <usb-device vendor-id="13124" product-id="9298"/>
+    <usb-device vendor-id="13124" product-id="9328"/>
+    <usb-device vendor-id="13124" product-id="9344"/>
+    <usb-device vendor-id="13124" product-id="9360"/>
+    <usb-device vendor-id="13124" product-id="9376"/>
+</resources>

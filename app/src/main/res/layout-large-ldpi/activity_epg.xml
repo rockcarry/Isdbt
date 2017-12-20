@@ -1,0 +1,193 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/title_epg"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/tab_bg_selector"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btn_back_epg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:background="@color/transparent"
+                android:src="@drawable/ic_arrow_back_white" />
+
+            <TextView
+                android:id="@+id/tv_phyChNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:background="@color/transparent"
+                android:gravity="center_vertical"
+                android:textColor="@color/white"
+                android:textSize="15dp"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tv_remoteNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/rectangle_outline"
+                android:gravity="center_vertical|center_horizontal"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:textColor="@color/white"
+                android:textSize="15dp" />
+
+            <TextView
+                android:id="@+id/epg_program"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:background="@color/transparent"
+                android:ellipsize="marquee"
+                android:gravity="center_vertical"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textSize="15dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@drawable/tab_bg_unselected"
+            android:gravity="end"
+            android:orientation="horizontal"
+            android:paddingEnd="10dp">
+
+            <ImageView
+                android:id="@+id/iv_calendar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/calendar_white" />
+
+            <TextView
+                android:id="@+id/tv_curDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/white"
+                android:textSize="15dp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/black"
+        android:gravity="right"
+        android:orientation="horizontal"
+        android:paddingRight="20dp">
+
+        <TextView
+            android:id="@+id/curEpgPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="15dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="/"
+            android:textColor="@color/white"
+            android:textSize="15dp" />
+
+        <TextView
+            android:id="@+id/lastEpgPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/white"
+            android:textSize="15dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <ScrollView
+            android:id="@+id/scrollButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+            android:id="@+id/ll_dateBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/window_transparent_color"
+            android:orientation="vertical">
+        </LinearLayout>
+
+        </ScrollView>
+
+        <ImageView
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/white"/>
+
+        <RelativeLayout
+            android:id="@+id/centerlayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/window_transparent_color"
+            android:orientation="horizontal">
+            <ExpandableListView
+                android:id="@+id/programList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:groupIndicator="@null">
+            </ExpandableListView>
+
+            <TextView
+                android:id="@+id/no_egp_msg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/epg_no"
+                android:gravity="center"
+                android:textSize="18dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:visibility="invisible" />
+        </RelativeLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/button_extra"
+            android:background="@color/transparent" />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

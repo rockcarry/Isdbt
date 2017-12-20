@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="kr.co.fci.tv"
+    android:versionCode="2"
+    android:versionName="1.1">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-feature android:name="android.hardware.usb.host"/>
+
+    <application
+        android:allowBackup="true"
+        android:largeHeap="true"
+        android:hardwareAccelerated="true"
+        android:icon="@drawable/launcher_tv"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Holo.NoActionBar.TranslucentDecor"
+        android:screenOrientation="sensorLandscape"
+        android:progressBackgroundTintMode="src_over">
+
+        <provider android:name=".saves.TVProgramProvider"
+            android:authorities="kr.co.fci.tv.saves.TVProgram"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.IntroActivity"
+            android:label="@string/app_name"
+            android:excludeFromRecents="true"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
+
+        <activity
+            android:name="kr.co.fci.tv.MainActivity"
+            android:label="@string/app_name"
+            android:taskAffinity=""
+            android:screenOrientation="sensorLandscape"
+            android:launchMode="singleTask"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|mcc|mnc">
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
+            </intent-filter>
+
+            <!--            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+
+        <activity
+            android:name=".setting.SettingActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".activity.AboutActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".activity.OpenActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".epgInfo.EPGActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".channelList.ChannelMainActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".recording.RecordedFileListActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".recording.PlayBackActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".chat.ChatMainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
+            android:screenOrientation="portrait"
+>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".FloatingWindow"></service>
+
+        <!--<activity
+            android:name=".multiWindow.StandOutActivity"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="kr.co.fci.tv.MainActivity" />
+            <intent-filter>
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />
+            </intent-filter>
+        </activity>
+
+        <service android:name="kr.co.fci.tv.multiWindow.MultiWindow"
+            android:permission="android.permission.SYSTEM_ALERT_WINDOW">
+        </service>-->
+
+
+    </application>
+
+</manifest>

@@ -1,0 +1,418 @@
+<resources>
+    <string name="app_name">FCI TV</string>
+    <string name="ReleaseDate">නිකුත් කරන දිනය :</string>
+    <string name="customerName">FCI</string>
+    <string name="TVAppVersion">APP සංස්කරණය : </string>
+    <string name="TVSolutionVersion">විසඳුමක් සංස්කරණය : </string>
+
+        <string name="version">
+         නිකුත් කරන දිනය : Dec 05 2016\nFCI TV විසඳුම සංස්කරණය : 1.0.328M</string>
+
+    <string name="hello_world">හෙලෝ වර්ල්ඩ්!</string>
+    <string name="action_settings">සැකසුම්</string>
+    <string name="title_activity_translucent">පාරභාසක</string>
+    <string name="settings">සැකසුම්</string>
+    <string name="about">ගැන</string>
+
+    <string name="caption_title">ශීර්ෂ පාඨය</string>
+    <string name="screen_title">තිරය අනුපාතය</string>
+    <string name="brightness_title">දීප්තිය</string>
+    <string name="transparency_title">ට්රාන්ස්පේරන්සි</string>
+    <string name="audiomode_title">ශ්රව්ය උපකරණ මාදිලිය</string>
+    <string name="audiotrack_title">ශ්රව්ය උපකරණ මාර්ගය</string>
+    <string name="videotrack_title">වීඩියෝ මාර්ගයේ</string>
+    <string name="sleep_title">නින්ද ටයිමරයට</string>
+    <string name="interactive_title">අන්තර් ක්රියාකාරී සේවා</string>
+    <string name="storage_title">ගබඩා ස්ථානය</string>
+    <string name="parental_title">මාපිය ශ්රේණිගත</string>
+    <string name="age_title">සකසන්න වයස අවුරුදු</string>
+    <string name="battery_title">බැටරි සීමාව</string>
+    <string name="locale_title">පෙදෙසි</string>
+    <string name="reset_title">සැකසුම්, පිළිනැගුම</string>
+    <string name="reset_msg">මෙම ක්රියාවන් පෙරනිමි සැකසුම් සියලු සැකසුම් නැවත කරනු ඇත.\nඔබ දැන් සියලු සැකසුම් නැවත කැමතිද? </string>
+    <string name="about_title">ගැන</string>
+
+    <string name="ok">හරි</string>
+    <string name="cancel">අවලංගු කරන්න</string>
+    <string name="done">හරි</string>
+
+    <string name="screen_ratio">තිරය අනුපාතය තෝරන්න</string>
+    <string name="audio_language">ශ්රව්ය උපකරණ තෝරන්න</string>
+    <string name="video_track">වීඩියෝ තෝරන්න</string>
+    <string name="sleep_timer">නින්ද ටයිමරයට තෝරන්න</string>
+    <string name="storage_location">ගබඞා ස්ථානය තෝරන්න</string>
+    <string name="set_age">Set වයස අවුරුදු තෝරන්න</string>
+    <string name="battery_limit">බැටරි සීමාව තෝරන්න</string>
+
+    <string name="password_title">රහස්පදයක්</string>
+    <string name="set">කට්ටලයක්</string>
+    <string name="password">රහස් පදය ඇතුලත් කරන්න</string>
+    <string name="confirm_password">මුරපදය තහවුරු කරන්න</string>
+    <string name="settings_password">මුරපදය ඇතුලත් කරන්න</string>
+    <string name="settings_password_wrong">වැරදි මුරපදය. නැවතත් මුරපදය ඇතුල් කරන්න.</string>
+    <string name="settings_password_needed">පළමු පදය සකසන්න</string>
+    <string name="invalid_password">වැරදි මුරපදය. නැවතත් වලංගු මුරපදය ඇතුල් කරන්න.</string>
+
+    <string name="copyright">කතුහිමිකම @ 2016\nFCI IC Inc.\nසියලුම හිමිකම් ඇවිරිණි</string>
+
+    <string name="notify">සටහන: සිග්නල් ගුණාත්මක ස්ථානය හා ජාල මත පදනම් වේ.</string>
+
+    <string name="open">විවෘත මූලාශ්ර</string>
+
+    <string name="libupnp1_title">Libupnp 1.6.19</string>
+    <string name="geexbox_title">GeeXBox ushare</string>
+    <string name="ssl_title">Open SSL</string>
+    <string name="libupnp_title">Libupnp</string>
+    <string name="ffmpeg_title">FFmpeg(MPEG2 Audio)</string>
+    <string name="libusb_title">libusb</string>
+
+    <string name="libupnp1">Libupnp 1.6.19 විවෘත මූලාශ්ර වේ.</string>
+    <string name="geexbox">GeeXBox ushare විවෘත මූලාශ්ර වේ.</string>
+    <string name="ssl">Open SSL විවෘත මූලාශ්ර වේ.</string>
+    <string name="libupnp">Libupnp විවෘත මූලාශ්ර වේ.</string>
+    <string name="ffmpeg">මෙම මෘදුකාංග LGPLv2.1 යටතේ FFmpeg ව්යාපෘතිය පුස්තකාල භාවිතා.</string>
+    <string name="libusb">මෙම මෘදුකාංග LGPLv2.1 යටතේ libusb ව්යාපෘතිය පුස්තකාල භාවිතා කරයි.</string>
+
+    <string name="rescan_tip">සියලු නාලිකා රැඳී ඉවත් කරනු ඇත නැවත ස්කෑන්!\nඔබ දැන් නාලිකාව ස්කෑන් කිරීමට අවශ්ය ද?</string>
+    <string name="scan_tip">ඔබ දැන් නාලිකාව ස්කෑන් කිරීමට අවශ්ය ද?</string>
+    <string name="scan_again">ඔබ නැවතත් නාලිකාව ස්කෑන් කිරීමට අවශ්ය ද?</string>
+    <string name="rescan_title">නැවත ස්කෑන්!</string>
+    <string name="no_channel_tip">කිසිදු නාලිකාව!</string>
+    <string name="no_channel_title">- - - -</string>
+    <string name="ch_change_fail">චැනල් වෙනස් අසමත්</string>
+
+
+    <!--    <string name="scan_mode">Please select scan mode!</string> -->
+    <string name="scan_mode_title">චැනල් තෝරා</string>
+    <string name="scan_mode_msg">ඔබ නැරඹීමට කැමති දේ නාලිකා?</string>
+    <string name="allmode">සම්මත හා HD නාලිකා</string>
+    <string name="hdmode">HD නාලිකා පමණක්</string>
+    <string name="sdmode">සම්මත නාලිකා පමණක්</string>
+    <string name="scan_mode">කරුණාකර ස්කෑන් ආරම්භ තෝරා ගැනීම හෝ අවලංගු!</string>
+    <string name="select_freq">කරුණාකර සංඛ්යාත තෝරා:</string>
+    <string name="select_subtitle">කරුණාකර උප සිරැසි තෝරා:</string>
+    <string name="select_teletxt">කරුණාකර ෙටලිෙටක්ස්සහ තෝරා:</string>
+    <string name="auto_scan">වාහන ස්කෑන්</string>
+    <string name="auto_scan_start">වාහන ස්කෑන් අරඹන්න</string>
+    <string name="manual_scan">කායික ගියර් සහිත මෝටර් රථ ස්කෑන්</string>
+    <string name="str_ok">හරි</string>
+    <string name="str_cancel">අවලංගු කරන්න</string>
+    <string name="start_scan">ආරම්භක ස්කෑන්</string>
+
+    <string name="disable_caption">ශීර්ෂ පාඨය අක්රීය</string>
+    <string name="caption_none">නැහැ</string>
+    <string name="disable_teletxt">ෙටලිෙටක්ස්සහ අක්රීය</string>
+
+    <string name="program_list">වැඩසටහන් ලැයිස්තුව</string>
+    <string name="service_list">සේවා ලැයිස්තුව</string>
+    <string name="summaryTitle">සාරාංශය</string>
+
+    <string name="path">/sdcard/test0.mp4</string>
+
+    <string name="epg_help">ඉහළ / පහළ මාරු වීම, වාමාංශික / අයිතිය ප්රධාන අනුචලනය කිරීමට යතුර, සෙල්ලම් කිරීමට Enter යතුර</string>
+    <string name="epg_no_desc">තොරතුරු ලබා ගත නොහැකි</string>
+    <string name="epg_no">චැනල් මඟ පෙන්වීමක් ලබා ගත නොහැකි</string>
+    <string name="summary">කරුණාකර සංඛ්යාත තෝරා:</string>
+
+    <string name="about_help"></string>
+
+    <string name="rightArrow">></string>
+
+    <string name="general_setting">ජනරාල්</string>
+    <string name="scan">ස්කෑන්</string>
+
+    <string name="area_set">ප්රදේශයේ කට්ටලයක්</string>
+    <string name="order_set">සේවා ලැයිස්තුව සඳහා කට්ටලයක්</string>
+    <string name="date_time" formatted="false">Date &#38; time</string>
+    <string name="scan_channels">සෙවීම</string>
+
+    <string name="waitTitle">පැටවීම</string>
+    <string name="waitBody">කරුණාකර රැඳී සිටින්න...</string>
+
+    <string name="noContent">කිසිදු අන්තර්ගත!</string>
+
+    <string name="recordFailed">වාර්තා සමහරවිට කිසිදු හෝ නරක සංඥාවක් අසාර්ථක විය!</string>
+    <string name="recordSuccess">වාර්තා සාර්ථකත්වය, ෆ්ලෑෂ් ගබඩාවෙන් වාර්තා ටී.එස් ගොනුව පිටපත් කරන්න!</string>
+    <string name="recordFinish">වාර්තාව</string>
+    <string name="recordwrongformat">සමාවන්න, මෙම විෂය ධාරාව පටිගත කරන්න හැකියාවක් තිබුණේ නැත</string>
+    <string name="recordFileSizeError">පටිගත කිරීම සඳහා වැඩි ගබඩා අවශ්ය</string>
+    <string name="recordNotSupportFormat">වීඩියෝ ආකෘතිය සඳහා පහසුකම් සපයන්නේ නැත</string>
+    <string name="recordTSInvalid">වාර්තා ගොනු සාවද්ය වේ</string>
+    <string name="recorded_files_no">කිසිදු වාර්තා ගොනු.</string>
+    <string name="recording">පටිගත...</string>
+    <string name="playbackCommonError">මෙම වාර්තාගත ගොනුව ධාවනය කල නොහැක!</string>
+    <string name="playbackNotSupportedFormat">මෙම ආකෘතිය සහාය නොදක්වයි!</string>
+    <string name="playbackFileOpError">ගොනුව මෙහෙයුම් දෝෂයක්!</string>
+    <string name="paused">වාර්තා ගොනු නාට්යය මද කළකට කරන ලදී.\nනාට්යයේ බොත්තම ක්ලික් කරන්න.</string>
+    <string name="filePlay">කරුණාකර රැඳී සිටින්න\nපැටවුම් ගොනුව</string>
+
+    <string name="teletext_picker_interver">-----</string>
+    <string name="dialog_set_number">Set</string>
+    <string name="dialog_cancel">අවලංගු කරන්න</string>
+    <string name="dialog_picker_title">ගණනාවක් තෝරන්න</string>
+
+
+    <string name="tab_caption">ශීර්ෂ පාඨය</string>
+    <string name="tab_teletxt">ෙටලිෙටක්ස්සහ</string>
+    <string name="tab_audio">ශ්රව්ය උපකරණ</string>
+    <string name="tab_scale">පරිමාණ</string>
+    <string name="scale_16_9">16 : 9 පරිමාණ</string>
+    <string name="scale_4_3">4 : 3 පරිමාණ</string>
+    <string name="scale_normal">සාමාන්ය පරිමාණ</string>
+    <string name="tab_info">විස්තර</string>
+
+    <string name="choose_service">සේවා තෝරන්න</string>
+
+    <string name="dtv_num">DTV:0</string>
+    <string name="radio_num">Radio:0</string>
+
+    <string name="freq_label">Download Freq.(MHz)</string>
+    <string name="lnbfreq_label">LNB Freq.(MHz)</string>
+    <string name="rate_label">Symbol Rate(KS/s)</string>
+    <string name="pol_label">Polarization</string>
+    <string name="pol_ver">VERTICAL</string>
+    <string name="s22k_mode">22K Mode</string>
+    <string name="s22kmode_label">22K Mode</string>
+    <string name="channel_search">ස්කෑන් කිරීම</string>
+    <string name="channel_found">නාලිකාවක් අනාවරණය විය.</string>
+    <string name="mega_hertz">MHz</string>
+    <string name="kilo_hertz">KHz</string>
+
+    <string name="input_freq">Please input "Download Freq."</string>
+    <string name="input_lnbfreq">Please input "LNB Freq."</string>
+    <string name="input_rate">Please input "Symbol Rate"</string>
+
+    <string name="signal_weak">දුර්වල සංඥා</string>
+    <string name="no_signal">දුර්වල සංඥා නාලිකාව!</string>
+    <string name="no_signal_tip">ඉතා දුර්වල සංඥාවක් හෝ \nවැඩසටහන ලබා ගත හැකි නොවේ. \nඇන්ටෙනා සම්බන්ධයෙන් පරීක්ෂා කර බලන්න!</string>
+    <string name="no_signal_msg">කිසිදු සිග්නල්!</string>
+    <string name="program_not_available">ඇන්ටෙනා සම්බන්ධතාවය පරික්ෂා කරන්න; හෝ එතන \nස්ථානය දුර්වල පිළිගැනීමේ තිබිය හැක.</string>
+    <string name="alert">ඇලර්ට්</string>
+
+    <string name="scrambl_ch">එන්ක්රිප්ට් කරන චැනල්!</string>
+    <string name="scrambl_ch_tip">මෙම නාලිකාව සංකේතාත්මක වේ.</string>
+
+    <string name="frontend_label">Frontend Type:</string>
+    <string name="dvbt_label">DVB-T</string>
+    <string name="isdbt_oneseg_label">ISDB-T 1 seg</string>
+    <string name="isdbt_fullseg_label">ISDB-T full seg</string>
+    <string name="atsct_label">ATSC-T</string>
+
+    <string name="frequency_label">Frequency:</string>
+    <string name="bandwidth_label">Bandwidth:</string>
+    <string name="area_label">Area:</string>
+
+
+    <string name="area_sel">Please select an area:</string>
+    <string name="freq_sel">Please select a frequency:</string>
+    <string name="band_sel">Please select a bandwidth:</string>
+    <string name="scan_lcn">scan LCN</string>
+
+    <string name="channelcount">TV channel count : 0</string>
+    <string name="play">Play</string>
+    <string name="scan_stop">Scan Stop</string>
+
+    <string name="autoSwitchStr">Auto Switching Control Set</string>
+    <string name="captionSwitchStr">Closed Caption</string>
+    <string name="switchOffStr">OFF</string>
+    <string name="switchOnStr">ON</string>
+    <string name="parentalRatingStr">Parental Rating</string>
+    <string name="ewsSwitchStr">EWS Reception</string>
+    <string name="handoverSwitchStr">Handover Control</string>
+    <string name="backKeyAgainQuit">Press the back key again to quit Mobile TV</string>
+    <string name="language">Language</string>
+    <string name="total_large">Total</string>
+    <string name="found">found</string>
+    <string name="audio_dual">dual</string>
+    <string name="audio_mono">mono</string>
+    <string name="audio_stereo">stereo</string>
+    <string name="audio_5_1">5.1</string>
+
+    <string name="new_pw">නව මුරපදය</string>
+    <string name="submit">ඉදිරිපත්</string>
+    <string name="saved">දිවි ගළවාගත්</string>
+    <string name="program_blocked">දෙමාපියන්ගේ ශ්රේණිගත විසින් අවහිර වැඩසටහන. අන්ලොක්?</string>
+    <string name="block_10age">දෙමාපියන්ගේ වත්මන් ණය ශ්රේණිය 10 වයස අවුරුදු වේ.</string>
+    <string name="block_12age">දෙමාපියන්ගේ වත්මන් ණය ශ්රේණිය 12 වයස අවුරුදු වේ.</string>
+    <string name="block_14age">දෙමාපියන්ගේ වත්මන් ණය ශ්රේණිය 14 වයස අවුරුදු වේ.</string>
+    <string name="block_16age">දෙමාපියන්ගේ වත්මන් ණය ශ්රේණිය 16 වයස අවුරුදු වේ.</string>
+    <string name="block_18age">Cදෙමාපියන්ගේ වත්මන් ණය ශ්රේණිය 18 වයස අවුරුදු වේ.</string>
+
+    <string name="battery_alarm">බැටරි එලාම්</string>
+    <string name="battery_remaining">බැටරි ඉතිරි</string>
+    <string name="exit">පිටවීම</string>
+    <string name="confirm">තහවුරු කරන්න</string>
+    <string name="terminatemsg"> ඔබ ඉවත් වන්න කැමතිද?</string>
+    <string name="terminated">රූපවාහිනි අවලංගු කරනු ලැබේ.</string>
+
+    <string name="sleep_alarm">Sleep Alarm</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="delete_file">ගොනුව මකා</string>
+    <string name="recorded">වාර්තා ගොනු</string>
+    <string name="recorded_fail_too_shot">වාර්තා කිරීමට අසමත් වීම - ඉතා කෙටි</string>
+
+    <string name="delete_file_msg">ඔබ මෙම ගොනුව මකා දමන්න කැමතිද?</string>
+    <string name="no_decoder">මෙම දුරකථන Mpeg2 වීඩියෝ විකේතන නැහැ. මෙම නාලිකාව ක්රීඩා කළ නොහැක. වෙනත් නාලිකාව උත්සාහ කරන්න.</string>
+
+
+    <!-- =============================== -->
+    <!--           USE_GINGA_NCL         -->
+    <!-- =============================== -->
+    <string name="title_option_key">Option Key</string>
+    <string name="button_ok">OK</string>
+    <string name="button_close">Close</string>
+    <string name="button_pad">P</string>
+    <string name="button_menu">M</string>
+    <string name="button_info">I</string>
+    <string name="button_down">��</string>
+    <string name="button_back">B</string>
+    <string name="button_up">��</string>
+    <string name="button_left">��</string>
+    <string name="button_right">��</string>
+    <string name="button_blue"/>
+    <string name="button_red"/>
+    <string name="button_green"/>
+    <string name="button_yellow"/>
+    <!-- =============================== -->
+    <!--    ShowTwoButtonPopupPeer       -->
+    <!-- =============================== -->
+    <string name="data_broadcasting">Data Broadcasting</string>
+    <string name="msg_leave_ssl">SSL/TLS session is released.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="js_confirm">Java Script</string>
+    <string name="start_script">Do you permit the execution of the script?</string>
+    <string name="browsing_mode_title">Notify Browsing Mode</string>
+    <string name="browsing_mode_msg">Do you want to change browsing mode?</string>
+    <string name="connect_dialog_title">Billing Warning</string>
+    <string name="data_network_bill_warning">"Using data network may incur additional charges according to your data rate plan.\nContinue?"</string>
+    <string name="js_prompt">Java Script</string>
+    <string name="button_cancel">අවලංගු කරන්න</string>
+    <string name="js_http_request_msg">Do you permit the http request by the script?</string>
+    <string name="js_http_request_title">JavaScript HttpRequest</string>
+    <string name="js_timeout_msg1">The Javascript is taking a long time to complete.</string>
+    <string name="js_timeout_msg2">Do you want to continue?</string>
+    <string name="js_timeout_title">JavaScript Timeout</string>
+    <string name="lua_content_error">Lua Content Error</string>
+
+    <string name="downloading">Downloading</string>
+
+
+    <string name="gallery_flow_item_description">item description on gallery flow</string>
+    <string name="gallery_flow_bottom_image">bottom image gallery flow</string>
+    <string name="service_list_channel_icon">channel icon on service list</string>
+    <string name="service_list_tv_icon_small">tv small icon on service list</string>
+    <string name="service_list_radio_icon">radio icon on service list</string>
+
+    <string name="channels">නාලිකා</string>
+    <string name="no_channels_items">කිසිදු චැනල්!</string>
+    <string name="no_channels_msg1">ලබා ගත හැකි 0 නාලිකාව. මාධ්ය</string>
+    <string name="no_channels_msg2"> නැවත උත්සාහ කරන්න.</string>
+    <string name="favorites">ප්රියතම දැන්වීම්</string>
+
+    <string name="loading">කරුණාකර රැඳී සිටින්න\nනාලිකාව පැටවීම</string>
+    <string name="ewbs_title_start">Emergency Warning: started</string>
+    <string name="ewbs_title_end">Emergency Warning: ended</string>
+    <string name="ewbs_siglevel_0">Large scale earthquake alarm</string>
+    <string name="ewbs_siglevel_1">Tidal wave alarm</string>
+
+    <string name="superimpose_title">Superimpose</string>
+    <string name="select_superimpose">Superimpose language </string>
+    <string name="select_caption">ශීර්ෂ පාඨය භාෂාව </string>
+    <string name="receivemode_title">Receive mode</string>
+
+    <string name="SD">means Standard Definition channel.</string>
+    <string name="HD">means High Definition channel.</string>
+    <string name="Encrypt">means Encrypted channel.</string>
+
+    <string name="set_svcmode_switch">Set 1seg/Fullseg switch setting</string>
+    <string name="svcmode_switch">Fullseg/1seg switching</string>
+
+    <string name="change_area">Change area</string>
+    <string name="area">Area</string>
+    <string name="prefecture">Prefecture</string>
+    <string name="locality">Locality</string>
+    <string name="select_area">Select area(Area)</string>
+    <string name="select_prefecture">Select area(Prefecture)</string>
+    <string name="select_locality">Select area(Locality)</string>
+
+    <string name="scan_channel">ස්කෑන් නාලිකාව</string>
+    <string name="not_support_resolution">මෙම දුරකථන HD වීඩියෝ ආකෘතිය සඳහා පහසුකම් සපයන්නේ නැත.</string>
+
+    <string name="recorded_to_file">ගොනුව වාර්තා</string>
+    <string name="phone_storage_record">Phone storage/FCI TV/</string>
+    <string name="sd_storage_record">SD/FCI TV/</string>
+    <string name="permission_for_record">අවසර පටිගත සඳහා අවශ්ය වේ!</string>
+    <string name="permission_for_play">අවසර වාර්තා ගොනු Play සඳහා අවශ්ය වේ!</string>
+
+    <string name="captured_to_file">ගොනුව අල්ලා</string>
+    <string name="phone_storage_capture">Phone storage/Pictures/FCI TV/</string>
+    <string name="sd_storage_capture">SD/Pictures/FCI TV/</string>
+    <string name="permission_for_capture">අවසර ග්රහණ සඳහා අවශ්ය වේ!</string>
+    <string name="capture_fail">අසාර්ථක අල්ලා - සිග්නල් නරකයි.</string>
+
+    <string name="bb_init_fail_msg">DTV දෘඩාංග ඇරඹෙන අසාර්ථක කර ඇත. \nමෙම පණිවිඩය දිගින් දිගටම පෙන්වා ඇත නම්, \nසේවා මධ්යස්ථානය වෙත පිවිසෙන්න.</string>
+
+    <string name="bcas_id_title">B-CAS card ID</string>
+    <string name="bcas_test_title">B-CAS card Test</string>
+    <string name="bcas_card_test_good_msg">B-CAS card is operating normally.</string>
+    <string name="bcas_card_test_ng_msg">B-CAS card is not working properly. \nPlease check the B-CAS card.</string>
+    <string name="bcas_card_insert_msg">Please correctly insert the B-CAS card.</string>
+    <string name="close">close</string>
+    <string name="bcas_tested_msg">It is being tested.</string>
+
+    <string name="chlist">චැනල් ලැයිස්තුව</string>
+
+    <string name="system_change_title">රූපවාහිනී නාලිකා සඳහා ස්කෑන් ඇත</string>
+
+    <string name="usb_dongle_not_attached">USB Dongle අමුණා නැත !!!!!</string>
+    <string name="usb_permission_not_granted">USB අවසර ලබා නැත !!!!!</string>
+    <string name="usb_detached_app_terminated">USB Dongle වෙන් කරන ලදී! \nරූපවාහිනී යෙදුම කෙළිති.</string>
+
+
+    <string name="not_use_capture">තිර සටහන ක්රියාව භාවිත කල නොහැක!</string>
+    <string name="permission_need_recording">අවසර පටිගත කිරීම සඳහා අවශ්ය වේ!</string>
+    <string name="permission_need_play">අවසර වාර්තාගත ගොනු තරගය සඳහා අවශ්ය වේ!</string>
+
+    <string name="continue_msg">දිගටම</string>
+    <string name="usb_dongle_not_attach_msg">රූපවාහිනී USB Dongle අමුණා නැත. \nඔබ රූපවාහිනිය බලන්න අවශ්ය නම්, රූපවාහිනී USB Dongle අනුයුක්ත කරන්න. \nඔබ "දිගටම" බොත්තම ක්ලික් කර නම්, ඔබ පමණක් වාර්තා ගොනු තරගය භාවිතා කරනු ඇත.</string>
+
+    <string name="need_network_connect_msg">චැට් කාර්යය භාවිතා කිරීම සඳහා, මෙම උපාංගය හට ජාලයක් අවශ්ය වේ.</string>
+
+    <string name="file_play_mode_title">ගොනුව තරගය මාදිලිය</string>
+    <string name="file_play_mode_msg">පමණක් වාර්තා ගොනු නාට්යයේ ලබා ගත හැකි වේ.</string>
+    <string name="file_play_mode_msg_usb">පමණක් වාර්තා ගොනු නාට්යයේ ලබා ගත හැකි වේ.\nරූපවාහිනී නැරඹීම සඳහා, කරුණාකර dongle ප්ලග් ඉන්.</string>
+
+    <string name="chat_room_name"><![CDATA[#]]> චැට් රූම් නම : </string>
+
+    <string name="age_limit_title">වයස් සීමාව සීමා!</string>
+    <string name="age_limit_10">අන්තර්ගත 10 යටතේ ජනතාව සඳහා සුදුසු නොවේ.</string>
+    <string name="age_limit_12">අන්තර්ගත 12 යටතේ ජනතාව සඳහා සුදුසු නොවේ.</string>
+    <string name="age_limit_14">අන්තර්ගත 14 යටතේ ජනතාව සඳහා සුදුසු නොවේ.</string>
+    <string name="age_limit_16">අන්තර්ගත 16 යටතේ ජනතාව සඳහා සුදුසු නොවේ.</string>
+    <string name="age_limit_18">අන්තර්ගත 18 යටතේ ජනතාව සඳහා සුදුසු නොවේ.</string>
+    <string name="enter_password">මුරපදය ඇතුලත් කරන්න</string>
+    <string name="floating_age_limit_msg">මෙම වැඩසටහන නැරඹීමට රූපවාහිනී යෙදුම නැවත කරන්න.</string>
+
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="monday"> (月)</string>
+    <string name="tuesday"> (火)</string>
+    <string name="wednesday"> (水)</string>
+    <string name="thursday"> (木)</string>
+    <string name="friday"> (金)</string>
+    <string name="saturday"> (土)</string>
+    <string name="sunday"> (日)</string>
+
+    <string name="set_auto_search">ස්වයංක්රිය චැනල සෙවීම සැකසුම</string>
+    <string name="auto">ඔටෝ</string>
+    <string name="off">ඕෆ්</string>
+    <string name="auto_channel_search">ස්වයං චැනල සෙවීම</string>
+    <string name="autoSearch_msg">සෙවීම්</string>
+    <string name="return__">ආපසු</string>
+
+    <string name="no_channel_msg">ඔබට නාලිකා ලියාපදිංචිය නොලැබේ.\nකරුණාකර සෙවුම් කරන්න.</string>
+
+</resources>

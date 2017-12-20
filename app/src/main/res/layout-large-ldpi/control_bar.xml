@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/control_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/control_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="10dp"
+        android:background="#2f000000"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="3dp" >
+
+            <FrameLayout
+                android:id="@+id/control_pad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" >
+
+                <LinearLayout
+                    android:id="@+id/nav_pad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_red"
+                            android:layout_width="78dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/ic_stop_red_24dp" />
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_yellow"
+                            android:layout_width="78dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/ic_stop_yellow_24dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_green"
+                            android:layout_width="78dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp"
+                            android:src="@drawable/ic_stop_green_24dp" />
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_blue"
+                            android:layout_width="78dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp"
+                            android:src="@drawable/ic_stop_blue_24dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_left"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/navigate_left_white" />
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_up"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/navigate_up_white" />
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_right"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/navigate_right_white" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <Button
+                            android:id="@+id/nav_pad_ok"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="OK"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_down"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/navigate_down_white" />
+
+                        <ImageButton
+                            android:id="@+id/nav_pad_back"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/ic_arrow_back_white_24dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/num_pad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" >
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <Button
+                            android:id="@+id/num_pad_1"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="1"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <Button
+                            android:id="@+id/num_pad_2"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="2"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <Button
+                            android:id="@+id/num_pad_3"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="3"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <Button
+                            android:id="@+id/num_pad_4"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="4"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <Button
+                            android:id="@+id/num_pad_5"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="5"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <Button
+                            android:id="@+id/num_pad_6"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="6"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <Button
+                            android:id="@+id/num_pad_7"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="7"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <Button
+                            android:id="@+id/num_pad_8"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="8"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <Button
+                            android:id="@+id/num_pad_9"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="9"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal" >
+
+                        <Button
+                            android:id="@+id/num_pad_ok"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="OK"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <Button
+                            android:id="@+id/num_pad_0"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:text="0"
+                            android:textColor="@android:color/white"
+                            android:textSize="16sp" />
+
+                        <ImageButton
+                            android:id="@+id/num_pad_back"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="3dp"
+                            android:background="@drawable/control_key_button"
+                            android:src="@drawable/ic_arrow_back_white" />
+                    </LinearLayout>
+                </LinearLayout>
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <ImageButton
+                    android:id="@+id/control_move"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/control_key_button"
+                    android:src="@drawable/ic_expand" />
+
+                <LinearLayout
+                    android:id="@+id/control_collapse_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <ImageButton
+                        android:id="@+id/control_collapse"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="3dp"
+                        android:background="@drawable/control_key_button"
+                        android:src="@drawable/ic_open_grid" />
+
+                    <Button
+                        android:id="@+id/control_123"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="3dp"
+                        android:background="@drawable/control_key_button"
+                        android:text="123"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp" />
+
+                    <ImageButton
+                        android:id="@+id/control_nav"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="3dp"
+                        android:background="@drawable/control_key_button"
+                        android:src="@drawable/ic_open_with"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/control_off"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="3dp"
+                        android:background="@drawable/control_key_button"
+                        android:src="@drawable/ic_close_white" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

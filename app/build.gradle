@@ -1,0 +1,59 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '27.0.2'
+    defaultConfig {
+        applicationId "kr.co.fci.tv"
+        minSdkVersion 17
+        targetSdkVersion 25
+        versionCode 6
+        versionName "2.6.1866"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+        }
+        debug {
+            debuggable false
+        }
+    }
+}
+
+android {
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile(name: 'fci_sol-release', ext: 'aar')
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile('com.github.afollestad.material-dialogs:core:0.8.6.0@aar') {
+        transitive = true
+    }
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.wdullaer:materialdatetimepicker:2.0.0'
+    compile 'me.grantland:autofittextview:0.2.+'
+    // Firebase
+    compile 'com.google.firebase:firebase-database:10.0.1'
+    compile 'com.google.firebase:firebase-auth:10.0.1'
+    compile 'com.google.android.gms:play-services-auth:10.0.1'
+    // Picasso
+    compile 'com.squareup.picasso:picasso:2.5.2'
+}
+
+repositories {
+    maven { url "https://jitpack.io" }
+    flatDir {
+        dirs 'libs'
+    }
+    mavenCentral()
+}
+
+apply plugin: 'com.google.gms.google-services'
+

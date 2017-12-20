@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    android:background="@color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="@string/channels"
+                android:id="@+id/button_channels"
+                android:gravity="center"
+                android:textColor="@drawable/tab_text_selector"
+                android:textStyle="bold"
+                android:singleLine="false"
+                android:src="@drawable/tab_bg_selector"
+                android:background="@drawable/tab_bg_selector"
+                android:textSize="25dp" />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:id="@+id/ind_channels" />
+
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+            <Button
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:id="@+id/button"
+                android:background="@color/light_gray"
+                android:layout_gravity="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="@string/favorites"
+                android:id="@+id/button_favorites"
+                android:gravity="center"
+                android:textColor="@drawable/tab_text_selector"
+                android:textStyle="bold"
+                android:src="@drawable/tab_bg_selector"
+                android:background="@drawable/tab_bg_selector"
+                android:textSize="25dp"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:id="@+id/ind_favorites" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="600dp"
+            android:layout_height="wrap_content" >
+        </FrameLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/button_extra"
+            android:background="@color/transparent" />
+
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>
+

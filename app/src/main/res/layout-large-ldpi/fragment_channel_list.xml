@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:background="@color/light_gray"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_horizontal" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/arrow_left_f"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/black"
+                android:text="00:00 - 00:00"
+                android:layout_gravity="center_vertical"
+                android:id="@+id/textView_duration"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginBottom="2dp" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/arrow_right_f"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginBottom="2dp" />
+            <Button
+                android:layout_width="1dp"
+                android:layout_height="20dp"
+                android:background="@color/ripple_material_light"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="2dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:text="Genre"
+                android:textColor="@color/blue"
+                android:layout_gravity="center_vertical"
+                android:id="@+id/textView_genre"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginBottom="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dp">
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Detail description of program"
+                    android:textColor="@color/black"
+                    android:background="@color/light_gray"
+                    android:padding="5dp"
+                    android:id="@+id/textView_detail"
+                    android:height="100dp"
+                    android:textSize="12sp" />
+            </ScrollView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/centerlayout"
+        android:layout_width="600dp"
+        android:layout_height="match_parent"
+        android:background="@color/window_transparent_color"
+        android:orientation="horizontal">
+        <ListView
+            android:layout_width="600dp"
+            android:layout_height="match_parent"
+            android:id="@+id/list_channel"
+            android:groupIndicator="@drawable/group_indicator"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/window_transparent_color"
+            android:divider="@color/window_transparent_color"
+            android:dividerHeight="2dp"
+            android:listSelector="@color/blue3">
+        </ListView>
+        <!--<TextView
+            android:id="@+id/no_chlist_msg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/channel_no"
+            android:textSize="15dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:visibility="visible"
+            android:gravity="top|left"
+            android:paddingTop="10dp"
+            android:paddingLeft="50dp" />-->
+
+    </RelativeLayout>
+
+
+
+
+
+
+</LinearLayout>
+

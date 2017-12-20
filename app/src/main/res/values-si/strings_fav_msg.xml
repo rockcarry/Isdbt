@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_favr">ප්රියතම දැන්වීම් එකතු</string>
+    <string name="remove_favr">ප්රියතම දැන්වීම් ඉවත්</string>
+    <string name="no_favorites_items">ප්රියතම දැන්වීම් නැත!</string>
+    <string name="no_favorites_msg1">මාධ්ය</string>
+    <string name="no_favorites_msg2">ප්රියතම දැන්වීම් එකතු කිරීමට අයිතමය මත.</string>
+    <string name="favorites_remove_msg">මාධ්ය \"Yellow-Star\" ප්රියතම දැන්වීම් ඉවත් කිරීමට අයිතමය අයිකනය මත.</string>
+
+
+
+</resources>
