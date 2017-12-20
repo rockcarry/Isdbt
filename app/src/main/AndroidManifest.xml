@@ -65,11 +65,13 @@
                 <action android:name="android.intent.action.SCREEN_OFF" />
             </intent-filter>
 
-            <!--            <intent-filter>
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
 
         <activity
@@ -131,8 +133,7 @@
         <activity
             android:name=".chat.ChatMainActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
-            android:screenOrientation="portrait"
->
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="kr.co.fci.tv.MainActivity" />
@@ -142,9 +143,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".FloatingWindow"></service>
+        <service android:name=".FloatingWindow" />
 
-        <!--<activity
+        <!--
+        <activity
             android:name=".multiWindow.StandOutActivity"
             android:excludeFromRecents="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
@@ -159,8 +161,8 @@
 
         <service android:name="kr.co.fci.tv.multiWindow.MultiWindow"
             android:permission="android.permission.SYSTEM_ALERT_WINDOW">
-        </service>-->
-
+        </service>
+        -->
 
     </application>
 
