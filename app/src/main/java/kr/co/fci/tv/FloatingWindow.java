@@ -128,8 +128,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     int mode = NONE;
 
 
-
-    private static String TAG = "FloatingWindow ";
+    private static String TAG = "FloatingWindow";
     private View floating_view;
     public static boolean isFloating = false;
 
@@ -145,7 +144,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     LinearLayout ll_controller_floating;
     LinearLayout ll_scan;
     ImageView iv_scan;
-
 
     LinearLayout ll_max;
     LinearLayout ll_close;
@@ -165,16 +163,16 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     private static SurfaceHolder floatingVideoSurfaceHolder = null;
     public static SurfaceView sv_floatingView = null;
 
-    public int frameWidthFloating = 0;
-    public int frameHeightFloating =0;
+    public int frameWidthFloating  = 0;
+    public int frameHeightFloating = 0;
 
     //private static Cursor mCursor_floating;
 
     //Uri mUri;
 
-    int AudioFormat=0x00;        // recording 0x60(HEAAV), 0x40(AAC)
-    int VideoFormat=0x00;        // recording 0x04(H.264)
-    int Scrambled = 1;             // 0: scramble ch, 1: free ch
+    int AudioFormat= 0x00;         // recording 0x60(HEAAV), 0x40(AAC)
+    int VideoFormat= 0x00;         // recording 0x04(H.264)
+    int Scrambled  = 1;            // 0: scramble ch, 1: free ch
     int mRemoteKey = 0;
     int mSvcNumber = 0;
 
@@ -226,7 +224,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     //ImageView signalImage;
 
     // parent rate checking
-    //  private Boolean screenbl_enable = false;	// justin 20170523
+    //  private Boolean screenbl_enable = false;    // justin 20170523
     //  private Boolean password_verify = false;
     private int floating_curr_rate;
 
@@ -241,7 +239,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     }
 
     public FloatingWindow() {
-
     }
 
     @Override
@@ -255,7 +252,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         @Override
         public void handleMessage(Message msg) {
             TVEVENT event = TVEVENT.values()[msg.what];
-            /*if(TVON==false)
+            /*
+            if (TVON==false)
             {
                 TVlog.i(TAG, "---------------- TV OFF -------------------");
                 return;
@@ -278,7 +276,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         }
                     }
                     CommonStaticData.scanningNow = false;
-                    if(CommonStaticData.scanCHnum > 0) {
+                    if (CommonStaticData.scanCHnum > 0) {
                         floating_noChannel.setVisibility(View.INVISIBLE);
                         final int NEED_TO_CHANGE_CHANNEL_NO = 0;
                         final int NEED_TO_CHANGE_CHANNEL_FIRST_LOAD = 1;
@@ -310,8 +308,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                                 break;
                                             }
                                         }
-                                    }
-                                    else { //service is decreased.
+                                    } else { //service is decreased.
                                         for (int i = 0; i < cursorCount; i++) {
                                             MainActivity.getInstance().mCursor.moveToPosition(i);
                                             if ((MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY) == TVBridge.getLastRemoteKey())
@@ -330,16 +327,14 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                         floating_mChannelIndex = CommonStaticData.handoverIndex;
                                         mCursor.moveToPosition(floating_mChannelIndex);
                                         TVlog.e(TAG, "handover: list reloaded & different index: channel index =  " + floating_mChannelIndex);
-                                    }
-                                    else {
+                                    } else {
                                         TVlog.e(TAG, "handover: list reloaded & same index: channel index =  " + floating_mChannelIndex);
                                     }
                                     statusOfNeedToChange = NEED_TO_CHANGE_CHANNEL_CHANGE_INDEX;
                                     CommonStaticData.handoverMode = 0;
                                 }
                                 CommonStaticData.isProcessingUpdate = false;
-                            }
-                            else {
+                            } else {
                                 statusOfNeedToChange = NEED_TO_CHANGE_CHANNEL_FIRST_LOAD;
                                 if (CommonStaticData.handoverMode == 1) {
                                     CommonStaticData.handoverMode = 0;
@@ -350,9 +345,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                                switch (CommonStaticData.receivemode){
+                                switch (CommonStaticData.receivemode) {
                                     case 0:     // 1seg
-                                        if(MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=0) {
+                                        if (MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=0) {
                                             for (int i=0; i < MainActivity.getInstance().mCursor.getCount(); i++) {
                                                 MainActivity.getInstance().mCursor.moveToPosition(i);
                                                 if (MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 0) {
@@ -360,7 +355,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                                     break;
                                                 }
                                             }
-                                            if(floating_mChannelIndex==0){   // not found channel
+                                            if (floating_mChannelIndex == 0) {   // not found channel
                                                 TVBridge.stop();
                                                 //channelChangeEndViewFloating(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
@@ -370,7 +365,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                         }
                                         break;
                                     case 1:     // fullseg
-                                        if(MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1) {
+                                        if (MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1) {
                                             for (int i=0; i < MainActivity.getInstance().mCursor.getCount(); i++) {
                                                 MainActivity.getInstance().mCursor.moveToPosition(i);
                                                 if (MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 1) {
@@ -378,7 +373,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                                     break;
                                                 }
                                             }
-                                            if(floating_mChannelIndex==0) {      // not found channel
+                                            if (floating_mChannelIndex == 0) {      // not found channel
                                                 TVBridge.stop();
                                                 //channelChangeEndViewFloating(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
@@ -389,13 +384,12 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                         break;
                                     case 2:     // auto
                                     case 3:     // off
-
                                         break;
-
                                 }
                             }
 
-                            /*if(buildOption.CUSTOMER.contains("Myphone")) {
+                            /*
+                            if (buildOption.CUSTOMER.contains("Myphone")) {
                                 if (setDefaultChannel) {
                                     for (int i = 0; i < mCursor.getCount(); i++) {
                                         mCursor.moveToPosition(i);
@@ -470,13 +464,13 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                     TVlog.i(TAG, " scan completed " + statusOfNeedToChange);
 
                                     // checking TS playback running...
-
-                                    /*if(isCheckingPlayback())
+                                    /*
+                                    if (isCheckingPlayback())
                                     {
                                         TVlog.i(TAG, " playback running  ");
                                         break;
                                     }*/
-                                    if(buildOption.LOG_CAPTURE_MODE==3)
+                                    if (buildOption.LOG_CAPTURE_MODE==3)
                                     {
                                         TVBridge.serviceID_start(0);
                                         postEvent(TVEVENT.E_AUTO_CHANGE_CHANNEL_TEST_FLOATING, 20 * 1000);
@@ -491,7 +485,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                     floating_loadingChannel.setVisibility(View.INVISIBLE);
                                 }
                             } else {
-
                                 TVlog.i(TAG, " =====  screen off =========");
                                 MainActivity.getInstance().SolutionStop();
                             }
@@ -500,10 +493,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         }
                         floating_noSignal.setVisibility(View.INVISIBLE);
                         floating_programNotMsg.setVisibility(View.INVISIBLE);
-
                     } else {
-
-
                         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                         boolean isScreenOn;
                         if (Build.VERSION.SDK_INT <= 19) {
@@ -512,9 +502,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             isScreenOn = pm.isInteractive();
                         }
 
-                        if(isScreenOn)
-                        {
-
+                        if (isScreenOn) {
                             TVlog.i(TAG, " =====  no scan =========");
                             if (currChNo_floating != null && currCH_floating != null) {
                                 currChNo_floating.setText("- -ch");
@@ -533,16 +521,17 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                 CommonStaticData.ageLimitFlag = false;
                             }
 
-                            /*if(isCheckingPlayback())
+                            /*
+                            if (isCheckingPlayback())
                             {
                                 TVlog.i(TAG, " playback running  ");
                                 break;
                             }*/
 
-                            /*if (buildOption.ADD_TS_CAPTURE != true) {
+                            /*
+                            if (buildOption.ADD_TS_CAPTURE != true) {
                                 new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
                             }*/
-
                         } else {
                             TVlog.i(TAG, " =====  no scan and screen off =========");
                             MainActivity.getInstance().SolutionStop();
@@ -550,10 +539,10 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     }
                     CommonStaticData.loadingNow = false;
 
-                    /*if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+                    /*
+                    if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                         setDefaultChannel = false;  // live add
                     }*/
-
                     break;
 
                 case E_SCAN_START_FLOATING:
@@ -617,7 +606,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     }
                     //   TVlog.e(TAG, "E_SCAN_PROCESS " + progress + " % " + found + " found");
                     if (doScan_floating != null) {
-                        if(progress_floating < 97) {
+                        if (progress_floating < 97) {
                             if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
@@ -682,7 +671,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE) {
                         floating_curr_rate = FCI_TVi.GetCurProgramRating();
-                        if((floating_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+                        if ((floating_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                                 && (CommonStaticData.passwordVerifyFlag == false)
                                 && (CommonStaticData.ratingsetSwitch == true)) {
                             CommonStaticData.ageLimitFlag = true;
@@ -692,7 +681,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         sendEvent(TVEVENT.E_RATING_MONITOR_FLOATING);
                     }
 
-                    /*if (floating_programNotMsg.getVisibility() == View.VISIBLE) {
+                    /*
+                    if (floating_programNotMsg.getVisibility() == View.VISIBLE) {
                         floating_noSignal.setVisibility(View.INVISIBLE);
                         floating_programNotMsg.setVisibility(View.INVISIBLE);
                     }*/
@@ -713,8 +703,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                 case E_CHANNEL_CHANGE_TIMEOVER_FLOATING:
                     TVlog.i(TAG, " >>>>> E_CHANNEL_CHANGE_TIMEOVER_FLOATING");
-                    if(CommonStaticData.tuneTimeOver==true && CommonStaticData.scanningNow==false ) {
-
+                    if (CommonStaticData.tuneTimeOver==true && CommonStaticData.scanningNow==false) {
                         //TVBridge.stop();
                         //sendEvent(TVEVENT.E_CHANNEL_CHANGE_FAIL);
                         sendEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING, 4, 0, null);
@@ -731,12 +720,13 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 case E_BADSIGNAL_CHECK_FLOATING:
                     TVlog.i(TAG, " >>>>> E_BADSIGNAL_CHECK_FLOATING");
                     int stat = (int)msg.arg1;
-                    /*if (isPlayBackActivity) {
+                    /*
+                    if (isPlayBackActivity) {
                         break;
                     }*/
-                    switch (stat){
+                    switch (stat) {
                         case 1: // low buffer
-                            if(SignalStatFlag==false) {
+                            if (SignalStatFlag==false) {
                                 TVlog.i(TAG, " >>>>> E_BADSIGNAL_CHECK_FLOATING CASE1");
                                 if (ll_floatingAutoSearch.getVisibility() == View.VISIBLE) {
                                     ll_floatingAutoSearch.setVisibility(View.INVISIBLE);
@@ -775,10 +765,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                     channelChangeEndView(true);
                                     floating_noSignal.setVisibility(View.INVISIBLE);
                                     floating_programNotMsg.setVisibility(View.INVISIBLE);
-                                tv_scramble_title.setVisibility(View.VISIBLE);
-                                tv_scramble_msg.setVisibility(View.VISIBLE);
-                            }
-
+                                    tv_scramble_title.setVisibility(View.VISIBLE);
+                                    tv_scramble_msg.setVisibility(View.VISIBLE);
+                                }
                             }
                             break;
                         case 3: //RF signal bad
@@ -786,8 +775,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             if (ll_floatingAutoSearch.getVisibility() == View.VISIBLE) {
                                 ll_floatingAutoSearch.setVisibility(View.INVISIBLE);
                             }
-                            if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
-                                //if(CommonStaticData.scanningNow==false) {
+                            if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
+                                //if (CommonStaticData.scanningNow==false) {
 
                                 //new InputDialog(instance, InputDialog.TYPE_SIGNALSTAT_NOTI, null, null, null);
 
@@ -840,12 +829,14 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             if (ll_floatingAutoSearch.getVisibility() == View.VISIBLE) {
                                 ll_floatingAutoSearch.setVisibility(View.INVISIBLE);
                             }
-                            if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
+                            if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
                                 //channelChangeEndViewMulti(false);
-                                /*CustomToast toast7 = new CustomToast(getApplicationContext());
+                                /*
+                                CustomToast toast7 = new CustomToast(getApplicationContext());
                                 toast7.showToast(getApplicationContext(),
                                         getApplicationContext().getString(R.string.no_signal_msg)+"\n"+
-                                                getApplicationContext().getString(R.string.program_not_available), Toast.LENGTH_SHORT);*/
+                                                getApplicationContext().getString(R.string.program_not_available), Toast.LENGTH_SHORT);
+                                */
 
                                 // live add
                                 CommonStaticData.badSignalFlag = true;
@@ -871,8 +862,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                         MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
@@ -892,11 +882,10 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                 case E_SCAN_MONITOR_FLOATING:
                     TVlog.i(TAG, " >>>>> E_SCAN_MONITOR_FLOATING");
-                    if(CommonStaticData.scanCHnum != 0) {
+                    if (CommonStaticData.scanCHnum != 0) {
                         removeEvent(E_SCAN_MONITOR_FLOATING);
                         //MainActivity.getInstance().removeEvent(TVEVENT.E_SCAN_MONITOR);
-                    }
-                    else{
+                    } else {
                         if (buildOption.ADD_TS_CAPTURE != true) {
                             new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
                         }
@@ -907,7 +896,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                 case E_SIGNAL_MONITER_FLOATING:
                     TVlog.i(TAG, " >>>>> E_SIGNAL_MONITER_FLOATING");
-                    if(signalMoniter != null)
+                    if (signalMoniter != null)
                     {
                         int segType;
 
@@ -918,7 +907,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE) {
                             floating_curr_rate = FCI_TVi.GetCurProgramRating();
-                            if(CommonStaticData.ageLimitFlag) {
+                            if (CommonStaticData.ageLimitFlag) {
                                 if (sv_floatingView != null) {
                                     sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
@@ -946,13 +935,12 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         }
                         //MainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR);
                         //MainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME);
-
                     }
                     break;
 
                 case E_SIGNAL_NOTI_MSG_FLOATING:
                     TVlog.i(TAG, " >>>>> E_SIGNAL_NOTI_MSG_FLOATING");
-                    if(CommonStaticData.scanningNow==false) {
+                    if (CommonStaticData.scanningNow==false) {
                         CustomToast toast4 = new CustomToast(getApplicationContext());
                         toast4.showToast(getApplicationContext(), getApplicationContext().getString(R.string.signal_weak), Toast.LENGTH_SHORT);
                         SignalStatFlag = false;
@@ -960,23 +948,23 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         //MainActivity.getInstance().postEvent(TVEVENT.E_NOSIGNAL_SHOW, NO_SIGNAL_MSG_TIME);
                     }
                     break;
+
                 case E_NOSIGNAL_SHOW_FLOATING:
                     TVlog.i(TAG, " >>>>> E_NOSIGNAL_SHOW_FLOATING");
-                    if(CommonStaticData.scanningNow==false) {
+                    if (CommonStaticData.scanningNow==false) {
                         sendEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING, 3, 0, null);
                         //MainActivity.getInstance().sendEvent(TVEVENT.E_BADSIGNAL_CHECK, 3, 0, null);
                     }
                     break;
 
                 case E_RATING_MONITOR_FLOATING:
-
                     floating_curr_rate = FCI_TVi.GetCurProgramRating();  // curr_rate 2~6, PG_Rate 1~5
                     TVlog.i("justin", " ====> E_RATING_MONITOR_FLOATING :: floating_curr_rate " + floating_curr_rate + " , Set PG-rate" + CommonStaticData.PG_Rate);
                     if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_ONESEG) {
-                        if(CommonStaticData.ageLimitFlag) {
+                        if (CommonStaticData.ageLimitFlag) {
                             //TVBridge.stop();
                             if (sv_floatingView != null) {
                                 sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
@@ -998,27 +986,28 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             FCI_TVi.setVolume(1.0f);
                         }
                     }
-
                     break;
 
-                /*case E_HIDE_TITLE :
+                /*
+                case E_HIDE_TITLE :
                     hideTitle();
                     break;
                 case E_SHOW_TITLE :
                     // mIsTouchFlag =true;
                     showTitle();
-                    break;*/
+                    break;
+                */
 
                 case E_AUTO_CHANGE_CHANNEL_TEST_FLOATING:
                     TVlog.i(TAG, " >>>>> E_AUTO_CHANGE_CHANNEL_TEST_FLOATING");
                 {
 
-                    if(buildOption.LOG_CAPTURE_MODE ==3)
+                    if (buildOption.LOG_CAPTURE_MODE ==3)
                     {
                         int currentChannel = TVBridge.getCurrentChannel();
 
                         TVlog.i(TAG, " E_AUTO_CHANGE_CHANNEL_TEST  currentID = " + currentChannel + " ChannelCount = "+CommonStaticData.scanCHnum );
-                        if(currentChannel < (CommonStaticData.scanCHnum -1)) {
+                        if (currentChannel < (CommonStaticData.scanCHnum -1)) {
                             CommonStaticData.passwordVerifyFlag = false;
                             CommonStaticData.ageLimitFlag = false;
                             //CommonStaticData.screenBlockFlag = false;
@@ -1031,13 +1020,11 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             TVBridge.AVStartPlus();
 
                             postEvent(TVEVENT.E_AUTO_CHANGE_CHANNEL_TEST_FLOATING,20*1000);
-                        } else
-                        {
+                        } else {
                             TVlog.i(TAG, " E_AUTO_CHANGE_CHANNEL_TEST  END ~~~~~~~~~~~");
                             MainActivity.getInstance().TVTerminate();
                         }
                     }
-
                 }
 
                 case E_CHANNEL_NAME_UPDATE_FLOATING:
@@ -1046,7 +1033,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         TVlog.i(TAG, " >>>>> E_CHANNEL_NAME_UPDATE_FLOATING");
                         floating_mChannelIndex = CommonStaticData.lastCH;
                         MainActivity.getInstance().mCursor.moveToPosition(floating_mChannelIndex);
-                        if(CommonStaticData.scanCHnum != 0) {
+                        if (CommonStaticData.scanCHnum != 0) {
 
                             int freq = Integer.parseInt(MainActivity.getInstance().mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_FREQ));
                             TVlog.i(TAG, " >>>>> current freq = " + freq);
@@ -1093,12 +1080,11 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                             TVlog.i (TAG, " >>>>> Scrambled = "+String.valueOf(Scrambled));
 
-                            if(Scrambled == 0) {
+                            if (Scrambled == 0) {
                                 sendEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING, 2, 0, null);
                             }
                         }
                     }
-
                 }
                 break;
 
@@ -1176,7 +1162,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
         //FloatingWindow.this.mParams = new WindowManager.LayoutParams();
 
-        /*if (MainActivity.dpiName.contains("xhdpi")) {
+        /*
+        if (MainActivity.dpiName.contains("xhdpi")) {
             this.mParams = new WindowManager.LayoutParams(
                     MainActivity.getInstance().frameWidth/2,
                     MainActivity.getInstance().frameHeight/2,
@@ -1251,19 +1238,23 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        /*displayMetrics = new DisplayMetrics();
+        /*
+        displayMetrics = new DisplayMetrics();
         windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         floatingpxHeight = displayMetrics.heightPixels;
-        floatingpxWidth = displayMetrics.widthPixels;*/
+        floatingpxWidth = displayMetrics.widthPixels;
+        */
 
-        /*final WindowManager.LayoutParams parameters = new WindowManager.LayoutParams(
+        /*
+        final WindowManager.LayoutParams parameters = new WindowManager.LayoutParams(
                 600, 400, WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         parameters.gravity = Gravity.CENTER | Gravity.CENTER;
         parameters.x = 0;
-        parameters.y = 0;*/
+        parameters.y = 0;
+        */
 
         LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         floating_view = inflater.inflate(R.layout.multi_window, null);
@@ -1275,9 +1266,11 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         //floating_view.setTag(viewHolder);
 
 
-        /*floating_view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        /*
+        floating_view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         floatingpxHeight = floating_view.getMeasuredHeight();
-        floatingpxWidth = floating_view.getMeasuredWidth();*/
+        floatingpxWidth = floating_view.getMeasuredWidth();
+        */
 
         sv_floatingView = (SurfaceView) floating_view.findViewById(R.id.sv_multiview);
         if (sv_floatingView != null) {
@@ -1358,7 +1351,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         TVlog.i(TAG, " >>>>> CommonStaticData.badSignaltFlag= "+CommonStaticData.badSignalFlag+
                 ", CommonStaticData.encryptFlag = "+CommonStaticData.encryptFlag);
 
-
         // live add
         if (CommonStaticData.badSignalFlag) {
             if (sv_floatingView != null) {
@@ -1395,23 +1387,23 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 }
             }
         } else {
-        if (CommonStaticData.encryptFlag) {
-            if (sv_floatingView != null) {
-                sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+            if (CommonStaticData.encryptFlag) {
+                if (sv_floatingView != null) {
+                    sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                }
+                if (tv_scramble_msg.getVisibility() == View.INVISIBLE) {
+                    tv_scramble_title.setVisibility(View.VISIBLE);
+                    tv_scramble_msg.setVisibility(View.VISIBLE);
+                }
+            } else if (!CommonStaticData.encryptFlag) {
+                if (sv_floatingView != null) {
+                    sv_floatingView.setBackgroundColor(getResources().getColor(R.color.transparent));
+                }
+                if (tv_scramble_msg.getVisibility() == View.VISIBLE) {
+                    tv_scramble_title.setVisibility(View.INVISIBLE);
+                    tv_scramble_msg.setVisibility(View.INVISIBLE);
+                }
             }
-            if (tv_scramble_msg.getVisibility() == View.INVISIBLE) {
-                tv_scramble_title.setVisibility(View.VISIBLE);
-                tv_scramble_msg.setVisibility(View.VISIBLE);
-            }
-        } else if (!CommonStaticData.encryptFlag) {
-            if (sv_floatingView != null) {
-                sv_floatingView.setBackgroundColor(getResources().getColor(R.color.transparent));
-            }
-            if (tv_scramble_msg.getVisibility() == View.VISIBLE) {
-                tv_scramble_title.setVisibility(View.INVISIBLE);
-                tv_scramble_msg.setVisibility(View.INVISIBLE);
-            }
-        }
         }
 
         if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL
@@ -1481,7 +1473,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         } else {
             currChNo_floating.setVisibility(View.GONE);
         }
-
 
         currRemoteNo_floating = (TextView) floating_view.findViewById(R.id.tv_remote_no_floating);
         //currRemoteNo_floating.setText(MainActivity.getInstance().currRemoteNo.getText());
@@ -1563,8 +1554,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 if (sv_floatingView != null) {
                     sv_floatingView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
-                /*if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                    if(svSub_flolating!= null)
+                /*
+                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (svSub_flolating!= null)
                     {
                         svSub_flolating.setBackgroundColor(getResources().getColor(R.color.transparent));
                     }
@@ -1596,8 +1588,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 if (sv_floatingView != null) {
                     sv_floatingView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
-                /*if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                    if(svSub_flolating!= null)
+                /*
+                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (svSub_flolating!= null)
                     {
                         svSub_flolating.setBackgroundColor(getResources().getColor(R.color.transparent));
                     }
@@ -1750,7 +1743,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             stopSelf();
         }
 
-        /*floating_view.setOnTouchListener(new View.OnTouchListener() {
+        /*
+        floating_view.setOnTouchListener(new View.OnTouchListener() {
             WindowManager.LayoutParams updatedParameters = mParams;
             double x;
             double y;
@@ -1824,7 +1818,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        if(event.getPointerCount()>=2) {
+                        if (false && event.getPointerCount() >= 2) {
                             float xLength = event.getX(1) - event.getX(0);
                             float yLength = event.getY(1) - event.getY(0);
                             currentDistance = (int) Math.sqrt(xLength * xLength + yLength * yLength);
@@ -1935,7 +1929,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         }
 
         if (MainActivity.getInstance() != null) {
-        if((MainActivity.getInstance().mUsbChipType != MainActivity.getInstance().USB_CHIP_TYPE_NONE) && (CommonStaticData.scanCHnum < 1)){
+        if ((MainActivity.getInstance().mUsbChipType != MainActivity.getInstance().USB_CHIP_TYPE_NONE) && (CommonStaticData.scanCHnum < 1)) {
             MainActivity.getInstance().isBBFail = false;
             sendEvent(TVEVENT.E_SCAN_COMPLETED_FLOATING);
         }
@@ -1945,7 +1939,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE) {
-            if((floating_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+            if ((floating_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                     && (CommonStaticData.passwordVerifyFlag == false)
                     && (CommonStaticData.ratingsetSwitch == true)) {
                 CommonStaticData.ageLimitFlag = true;
@@ -1998,8 +1992,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             tv_scramble_title.setVisibility(View.INVISIBLE);
             tv_scramble_msg.setVisibility(View.INVISIBLE);
         }
-        /*if (!CommonStaticData.badSignalFlag) {
-        notifyFirstVideoFloating();
+        /*
+        if (!CommonStaticData.badSignalFlag) {
+            notifyFirstVideoFloating();
         }*/
 
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
@@ -2029,9 +2024,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
-
     }
-
 
     @Override
     public void onDestroy() {
@@ -2099,7 +2092,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         TVlog.i(TAG, " ===== FloatingWindow surfaceChanged =====");
-        if(frameWidthFloating ==0 || frameHeightFloating ==0) {
+        if (frameWidthFloating ==0 || frameHeightFloating ==0) {
 
             frameWidthFloating =width;
             frameHeightFloating=height;
@@ -2126,7 +2119,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 mWindowManager = null;
             }
         }
-
     }
 
 
@@ -2157,7 +2149,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                 FCI_TVi.setVolume(1.0f);
 
-                if(am != null) {
+                if (am != null) {
                     int result = am.requestAudioFocus(afChangeListener, am.STREAM_MUSIC, am.AUDIOFOCUS_GAIN);
 
                 }
@@ -2167,17 +2159,14 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             am.abandonAudioFocus(afChangeListener);
             FCI_TVi.setVolume(1.0f);
             //TVBridge.stop();
-
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-
         }
     }
-
 
     private class MyPhoneStateListener extends PhoneStateListener {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
-            switch(state){
+            switch(state) {
                 case TelephonyManager.CALL_STATE_IDLE:
                     // TVlog.i("MyPhoneStateListener", " >>>>> CALL_STATE_IDLE "+state);
                     break;
@@ -2218,7 +2207,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             }
                             break;
                         }
-
                     default:
                         break;
                 }
@@ -2235,14 +2223,15 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 exit(0);
             }
 
-            /*if (action.equals(Intent.ACTION_SCREEN_ON)) {
+            /*
+            if (action.equals(Intent.ACTION_SCREEN_ON)) {
                 TVlog.i(TAG, " >>>>> Intent.ACTION_SCREEN_ON");
                 MainActivity.getInstance().onStart_TV();
             }*/
 
             if (action.equals(Intent.ACTION_USER_PRESENT)) {
                 TVlog.i(TAG, " >>>>> Intent.ACTION_USER_PRESENT1");
-                if(isRunningInForeground())
+                if (isRunningInForeground())
                 {
                     TVlog.i(TAG, " TV running fore ground");
                     if (!CommonStaticData.ageLimitFlag) {
@@ -2286,9 +2275,10 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         return topActivityName.equalsIgnoreCase(getPackageName());
     }
 
-    /*private void channelChangeEndViewFloating(boolean _keepBG)
+    /*
+    private void channelChangeEndViewFloating(boolean _keepBG)
     {
-        if(_keepBG ==false)
+        if (_keepBG ==false)
         {
             channelChangeBG.setVisibility(View.INVISIBLE);
         }
@@ -2297,20 +2287,16 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     }*/
 
     private void hideFloatingController() {
-        //if(controllerLayout.isShown()) {
-
-
+        //if (controllerLayout.isShown()) {
         TVlog.i(TAG, "== hideController ==");
         status_bar_floating.setVisibility(View.INVISIBLE);
         channelLayout_floating.setVisibility(View.INVISIBLE);
         ll_controller_floating.setVisibility(View.INVISIBLE);
-
         //}
     }
 
-    private void showFloatingController(){
+    private void showFloatingController() {
         if (CommonStaticData.handoverMode == 1) {
-
         } else {
             status_bar_floating.setVisibility(View.VISIBLE);
             channelLayout_floating.setVisibility(View.VISIBLE);
@@ -2318,9 +2304,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
             postEvent(E_HIDE_FLOATING_CONTROLLER, CONTROLLER_HIDE_TIME);
         }
-
         //MainActivity.getInstance().postEvent(E_HIDE_FLOATING_CONTROLLER, CONTROLLER_HIDE_TIME);
-
     }
 
     public void sendEvent(TVEVENT _Event) {
@@ -2374,7 +2358,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         Floating_Handler.removeMessages(m);
     }
 
-    /*static class ViewHolder {
+    /*
+    static class ViewHolder {
         SurfaceView sv_floatingView;
         SurfaceHolder floatingVideoSurfaceHolder;
     }*/
@@ -2392,17 +2377,16 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         if (floating_progressingChange != null) {
         floating_progressingChange.setVisibility(View.VISIBLE);
         }
-        if(_cas == false) {
+        if (_cas == false) {
             floating_loadingChannel.setVisibility(View.VISIBLE);
-        }
-        else{   // call from playback
+        } else {   // call from playback
             floating_loadingChannel.setVisibility(GONE);
         }
     }
 
     private void channelChangeEndView(boolean _keepBG)
     {
-        if(_keepBG ==false)
+        if (_keepBG ==false)
         {
             floating_channelChangeBG.setVisibility(View.INVISIBLE);
         }
@@ -2425,7 +2409,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
     public void scanNotify_floating(int idx, String desc, byte type, byte vFormat, byte aFormat, byte iFree, int remoteKey, int svcNum, int freqKHz, byte bLast) {
         ContentValues values = new ContentValues();
-        if(bLast==2) {
+        if (bLast==2) {
             if (MainActivity.getInstance().mCursor != null) {
                 int cursorCount = MainActivity.getInstance().mCursor.getCount();
                 if (cursorCount > 0 && cursorCount > MainActivity.getInstance().mCursor.getPosition()) {
@@ -2434,8 +2418,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     TVBridge.setLastListCount(cursorCount);
                     TVBridge.setLastFreq(MainActivity.getInstance().mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREQ));
                     CommonStaticData.isProcessingUpdate = true;
-                }
-                else {
+                } else {
                     if (cursorCount > 0) {
                         //TVlog.i("FCIISDBT::", ">>> exception: current pos invalid >>> pos="+mCursor.getPosition()+"of count="+cursorCount);
                     }
@@ -2463,5 +2446,4 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             }
         }
     }
-
 }

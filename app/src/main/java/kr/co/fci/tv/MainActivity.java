@@ -129,8 +129,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private static String TAG = "FCITvApp ";
     private static String TAG_Debug = "Debugging ";
 
-    /*public static boolean badSignalFlag = false;
-    public static boolean encryptFlag = false;*/
+    /*
+    public static boolean badSignalFlag = false;
+    public static boolean encryptFlag = false;
+    */
 
     public static int pxWidth;
     public static int pxHeight;
@@ -142,11 +144,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private final static int RECORDING_UPDATE_TIME = 200;
     private final static int CAPTION_CLEAR_TIME = 15000;
     private final static int SUPERIMPOSE_CLEAR_TIME = 15000;
-    private final static int    _TIME = 7000;
+    private final static int _TIME = 7000;
     private final static int SCALEMODE_NORMAL =0;
-    private final static int SCALEMODE_16_9=1;
-    private final static int SCALEMODE_4_3=2;
-    private final static int DOUBLE_CLICK_TOLERANCE=1000;	// 3000;
+    private final static int SCALEMODE_16_9 = 1;
+    private final static int SCALEMODE_4_3 = 2;
+    private final static int DOUBLE_CLICK_TOLERANCE = 1000;   // 3000;
 
     private final static int GESTURE_HIDE_TIME = 3000;  // live add
     private final static int NO_SIGNAL_MSG_TIME = 5000;  // live add
@@ -156,20 +158,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     static float density;
     static float densityDpi;
     public static String dpiName = "";
-    static String screenSize="";
+    static String screenSize = "";
 
     // onoff flag
     private static boolean captureOn = true;
     private static boolean SurfaceRotationOn = false;
-    public static boolean toggleTest= false;
+    public static boolean toggleTest = false;
     private static boolean isLoading = false;
     private boolean isRec = false;
     private boolean mIsRecStarted = false;
-    private boolean captureFlag =false;
-    static private boolean TVON =false;
+    private boolean captureFlag = false;
+    static private boolean TVON = false;
     private boolean SignalStatFlag =false;
-    private int signal_check_cnt=0;
-    public static boolean isChannelListViewOn =false;
+    private int signal_check_cnt = 0;
+    public static boolean isChannelListViewOn = false;
     public static boolean dumpTVLog = false;
 
     // capture
@@ -193,9 +195,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private int screenHeight;
     private int currentVideoMode =SCALEMODE_NORMAL;
 
-    private int AudioFormat=0x00;        // recording 0x60(HEAAV), 0x40(AAC)
-    private int VideoFormat=0x00;        // recording 0x04(H.264)
-    public int Scrambled = 1;             // 0: scramble ch, 1: free ch
+    private int AudioFormat= 0x00;        // recording 0x60(HEAAV), 0x40(AAC)
+    private int VideoFormat= 0x00;        // recording 0x04(H.264)
+    public  int Scrambled  = 1;           // 0: scramble ch, 1: free ch
     private int mRemoteKey = 0;
     private int mSvcNumber = 0;
 
@@ -323,7 +325,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     public static Uri mUri;
 
     // ADD_GINGA_NCL[[
-    private boolean mRunDemuxThread=true;
+    private boolean mRunDemuxThread = true;
     //]]ADD_GINGA_NCL
 
     //JAPAN_CAPTION[[
@@ -538,7 +540,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         public void handleMessage(Message msg) {
 
             TVEVENT event = TVEVENT.values()[msg.what];
-            if(TVON==false)
+            if (TVON == false)
             {
                 TVlog.i(TAG, "---------------- TV OFF -------------------");
                 return;
@@ -693,6 +695,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     channelChangeStartView(false);
                 }
                 break;
+
                 case E_FIRSTVIDEO: {
                     removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                     removeEvent(E_SIGNAL_NOTI_MSG);
@@ -845,7 +848,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     TVlog.i(TAG, "---------------- E_SCAN_COMPLETED-------------------");
                     CommonStaticData.scanningNow = false;
 
-                    if(CommonStaticData.scanCHnum > 0) {
+                    if (CommonStaticData.scanCHnum > 0) {
 
                         //postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME);  //live remove
 
@@ -920,7 +923,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
                                 switch (CommonStaticData.receivemode){
                                     case 0:     // 1seg
-                                        if(mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=0) {
+                                        if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=0) {
                                             for (int i=0; i < mCursor.getCount(); i++) {
                                                 mCursor.moveToPosition(i);
                                                 if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 0) {
@@ -928,7 +931,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                                     break;
                                                 }
                                             }
-                                            if(mChannelIndex==0){   // not found channel
+                                            if (mChannelIndex==0){   // not found channel
                                                 TVBridge.stop();
                                                 channelChangeEndView(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
@@ -938,7 +941,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         }
                                         break;
                                     case 1:     // fullseg
-                                        if(mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1) {
+                                        if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1) {
                                             for (int i=0; i < mCursor.getCount(); i++) {
                                                 mCursor.moveToPosition(i);
                                                 if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 1) {
@@ -946,7 +949,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                                     break;
                                                 }
                                             }
-                                            if(mChannelIndex==0) {      // not found channel
+                                            if (mChannelIndex==0) {      // not found channel
                                                 TVBridge.stop();
                                                 channelChangeEndView(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
@@ -956,8 +959,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         }
                                         break;
                                     case 2:     // auto
-									case 3:		// off
-
+                                    case 3:     // off
                                         break;
 
                                 }
@@ -973,7 +975,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 mChannelIndex = CommonStaticData.lastCH;
                                 CommonStaticData.returnMainFromFloating = false;
                             } else {
-                                if(buildOption.CUSTOMER.contains("Myphone")) {
+                                if (buildOption.CUSTOMER.contains("Myphone")) {
                                     if (setDefaultChannel) {
                                         for (int i = 0; i < mCursor.getCount(); i++) {
                                             mCursor.moveToPosition(i);
@@ -1057,12 +1059,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                                     // checking TS playback running...
 
-                                    if(isCheckingPlayback())
+                                    if (isCheckingPlayback())
                                     {
                                         TVlog.i(TAG, " playback running  ");
                                         break;
                                     }
-                                    if(buildOption.LOG_CAPTURE_MODE==3)
+                                    if (buildOption.LOG_CAPTURE_MODE==3)
                                     {
                                         TVBridge.serviceID_start(0);
                                         postEvent(TVEVENT.E_AUTO_CHANGE_CHANNEL_TEST, 20 * 1000);
@@ -1076,7 +1078,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     loadingChannel.setVisibility(View.INVISIBLE);
                                 }
                             } else {
-
                                 TVlog.i(TAG, " =====  screen off =========");
                                 SolutionStop();
                             }
@@ -1085,7 +1086,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         }
                         ll_noSignal.setVisibility(View.INVISIBLE);
                     } else {
-
                         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
                         boolean isScreenOn;
                         if (SDK_INT <= 19) {
@@ -1094,9 +1094,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             isScreenOn = pm.isInteractive();
                         }
 
-                        if(isScreenOn)
+                        if (isScreenOn)
                         {
-
                             TVlog.i(TAG, " =====  no scan =========");
                             if (currChNo != null && currCH != null) {
                                 currChNo.setText("- -ch");
@@ -1118,7 +1117,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 //}
                             }
 
-                            if(isCheckingPlayback())
+                            if (isCheckingPlayback())
                             {
                                 TVlog.i(TAG, " playback running  ");
                                 break;
@@ -1127,8 +1126,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             if (buildOption.ADD_TS_CAPTURE != true) {
                                 new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
                             }
-                        } else
-                        {
+                        } else {
                             TVlog.i(TAG, " =====  no scan and screen off =========");
                             SolutionStop();
                         }
@@ -1138,7 +1136,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                         setDefaultChannel = true;  // live add
                     }
-
                     break;
 
                 case E_SCAN_START:
@@ -1238,9 +1235,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
                     getContentResolver().delete(mUri, null, null);  // justin DB
                     CommonStaticData.scanCHnum =0;
-                    if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                    if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                         currChNo.setText("- -ch");
-                    }else{
+                    } else {
                         currChNo.setText("CH - -");
                     }
                     currRemoteNo.setText("- - -");
@@ -1249,7 +1246,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     break;
 
                 case E_SCAN_MONITOR:
-                    if(CommonStaticData.scanCHnum != 0) {
+                    if (CommonStaticData.scanCHnum != 0) {
                         removeEvent(TVEVENT.E_SCAN_MONITOR);
                     } else {
                         if (buildOption.ADD_TS_CAPTURE != true) {
@@ -1262,7 +1259,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 case E_RATING_MONITOR:
                     TVlog.e("main_justin", " E_RATING_MONITOR ====> CommonStaticData.ageLimitFlag " + CommonStaticData.ageLimitFlag);
                     curr_rate = FCI_TVi.GetCurProgramRating();
-                    if(!CommonStaticData.passwordVerifyFlag
+                    if (!CommonStaticData.passwordVerifyFlag
                             && CommonStaticData.ageLimitFlag
                             && curr_rate >= (CommonStaticData.PG_Rate+1)
                             && (CommonStaticData.PG_Rate!=0)) {
@@ -1270,7 +1267,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             sv.setBackgroundColor(getResources().getColor(R.color.black));
                         }
 
-                        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                             if (svSub != null) {
                                 svSub.setBackgroundColor(getResources().getColor(R.color.black));
                             }
@@ -1331,7 +1328,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             sv.setBackgroundColor(getResources().getColor(R.color.transparent));
                         }
 
-                        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                             if (svSub != null) {
                                 svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
                             }
@@ -1355,7 +1352,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     break;
 
                 case E_SIGNAL_MONITER:
-                    if(signalMoniter!=null)
+                    if (signalMoniter!=null)
                     {
                         int segType;
 
@@ -1372,7 +1369,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             // justin 20170526
                             curr_rate = FCI_TVi.GetCurProgramRating();  // curr_rate 2~6, PG_Rate 1~5
                             TVlog.e("justin", " ====> currRate " + curr_rate + " , Set PG-rate" + CommonStaticData.PG_Rate);
-                            if((curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+                            if ((curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                                     && (CommonStaticData.passwordVerifyFlag == false)
                                     && (CommonStaticData.ratingsetSwitch == true)) {
                                 CommonStaticData.ageLimitFlag = true;
@@ -1390,7 +1387,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         } else {
                             postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME);
                         }
-
                     }
                     break;
 
@@ -1401,7 +1397,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
                     switch (stat){
                         case 1: // low buffer
-                            if(SignalStatFlag==false) {
+                            if (SignalStatFlag==false) {
                                 postEvent(E_SIGNAL_NOTI_MSG, NO_SIGNAL_MSG_TIME);     // 10sec
                                 if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
                                     ll_mainAutoSearch.setVisibility(View.INVISIBLE);
@@ -1448,13 +1444,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
                                 ll_mainAutoSearch.setVisibility(View.INVISIBLE);
                             }
-                            if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
+                            if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
                                 //new InputDialog(instance, InputDialog.TYPE_SIGNALSTAT_NOTI, null, null, null);
 
                                 if (sv != null) {
                                     sv.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
-                                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                                     if (svSub != null) {
                                         svSub.setBackgroundColor(getResources().getColor(R.color.black));
                                     }
@@ -1494,18 +1490,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
                                 ll_mainAutoSearch.setVisibility(View.INVISIBLE);
                             }
-                            if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
+                            if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
                                 channelChangeEndView(false);
-                                /*CustomToast toast7 = new CustomToast(getApplicationContext());
+                                /*
+                                CustomToast toast7 = new CustomToast(getApplicationContext());
                                 toast7.showToast(getApplicationContext(),
                                         getApplicationContext().getString(R.string.no_signal_msg)+"\n"+
-                                                getApplicationContext().getString(R.string.program_not_available), Toast.LENGTH_SHORT);*/
+                                                getApplicationContext().getString(R.string.program_not_available), Toast.LENGTH_SHORT);
+                                */
 
 
                                 if (sv != null) {
                                     sv.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
-                                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                                     if (svSub != null) {
                                         svSub.setBackgroundColor(getResources().getColor(R.color.black));
                                     }
@@ -1577,19 +1575,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (SettingActivity.getInstance() != null) {
                             SettingActivity.getInstance().bcas_update();
                         }
-
-                            /*if (CommonStaticData.receivemode == 2) {
-                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
-                                //CommonStaticData.receivemode = 1;
-                            }*/
-
-                        //test code
-/*
-                            TVlog.i(TAG, "BCAS test routine called..");
-                            if (CommonStaticData.scanningNow==false) {
-                                FCI_TVi.bcasTest();
-                            }
-*/
                     }
                 }
                 break;
@@ -1630,7 +1615,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 break;
 
                 case E_SIGNAL_NOTI_MSG:
-                    if(CommonStaticData.scanningNow==false) {
+                    if (CommonStaticData.scanningNow==false) {
                         TVlog.i("live", " === E_SIGNAL_NOTI_MSG ===");
                         CustomToast toast8 = new CustomToast(getApplicationContext());
                         toast8.showToast(getApplicationContext(), getApplicationContext().getString(R.string.signal_weak), Toast.LENGTH_SHORT);
@@ -1639,7 +1624,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
                     break;
                 case E_NOSIGNAL_SHOW:
-                    if(CommonStaticData.scanningNow==false) {
+                    if (CommonStaticData.scanningNow==false) {
                         TVlog.i("live", " === E_NOSIGNAL_SHOW ===");
                         sendEvent(TVEVENT.E_BADSIGNAL_CHECK, 3, 0, null);
                     }
@@ -1671,23 +1656,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_SURFACE_RESIZE:
                 {
-                    Rect rec =(Rect) msg.obj;
+                    Rect rec = (Rect) msg.obj;
                     android.view.ViewGroup.LayoutParams lp = sv.getLayoutParams();
                     sv.setX(rec.left);
                     sv.setY(rec.top);
-                    lp.height= rec.bottom-rec.top;
-                    lp.width=rec.right -rec.left;
+                    lp.height = rec.bottom-rec.top;
+                    lp.width  = rec.right -rec.left;
                     TVlog.i(TAG, "A/V EPG mode : X =" +rec.left + " Y = " +rec.top + " W = " + lp.width + " H = "+ lp.height);
                     sv.setLayoutParams(lp);
 
-                    if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                         if (svSub != null) {
                             svSub.setX(rec.left);
                             svSub.setY(rec.top);
                             svSub.setLayoutParams(lp);
                         }
                     }
-
                 }
                 break;
 
@@ -1697,25 +1681,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     sv.setY(0);
                     SetVideoScale(currentVideoMode);
                     TVlog.i(TAG, " Return A/V full mode");
-                    if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                         if (svSub != null) {
                             svSub.setX(0);
                             svSub.setY(0);
                         }
                     }
-
-
                 }
                 break;
 
                 case E_SURFACE_SUB_ONOFF: {
                     int onoff = (int) msg.arg1;
-                    if(onoff==1)
+                    if (onoff == 1)
                     {
                         TVlog.i(TAG, " E_SURFACE_SUB_ON  On ") ;
                         setSubSurfaceVisible(true);
-                    }else
-                    {
+                    } else {
                         TVlog.i(TAG, " E_SURFACE_SUB_ON  Off ") ;
                         setSubSurfaceVisible(false);
                     }
@@ -1731,12 +1712,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     break;
 
                 case E_RECORDING_TIME_UPDATE :
-                    if(isRec)
+                    if (isRec)
                     {
                         long elapsed;
                         elapsed = ((System.currentTimeMillis() - recStartTime) / 1000);
                         String display = String.format("%02d:%02d:%02d", elapsed / 3600, (elapsed % 3600) / 60, (elapsed % 60));
-                        if(recTimeview!=null) recTimeview.setText(display);
+                        if (recTimeview!=null) recTimeview.setText(display);
                         TVlog.i(TAG, " recording time = " + display);
 
                         postEvent(TVEVENT.E_RECORDING_TIME_UPDATE, RECORDING_UPDATE_TIME);
@@ -1751,7 +1732,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     isRec = false;
                     TVlog.i(TAG, "=E_RECORDING_FAIL  errorType = " + errorType);
                     recB.setImageResource(R.drawable.rec_color_f);
-                    if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+                    if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                         rightB.setVisibility(View.VISIBLE);
                         leftB.setVisibility(View.VISIBLE);
                     }
@@ -1770,7 +1751,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_RECORDING_OK:
                 {
-                    if(buildOption.GUI_STYLE != 2) {
+                    if (buildOption.GUI_STYLE != 2) {
                         File chkFile = new File(recordingFileName);
                         boolean fileExist = chkFile.exists();
 
@@ -1784,9 +1765,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_BATTERY_LIMITED_CHECK:
                 {
-                    float level= getBatteryLevel();
-                    int setting= CommonStaticData.battMonitorSet;
-                    float settingLevel=0;
+                    float level = getBatteryLevel();
+                    int setting = CommonStaticData.battMonitorSet;
+                    float settingLevel = 0;
 
                     TVlog.i(TAG, " bettey level  = "+level+ " Setting = "+ setting);
 
@@ -1800,20 +1781,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         case 3:settingLevel = 15;  break;
                         case 4:settingLevel = 10;  break;
                     }
-                    if(settingLevel>level)
+                    if (settingLevel>level)
                     {
                         //pop_up
                         InputDialog dig = new InputDialog(instance, InputDialog.TYPE_BATTERY_NOTIFY,(int)level, null, null);
-                    }else
-                    {
-                        if(setting !=0) {
+                    } else {
+                        if (setting !=0) {
                             postEvent(TVEVENT.E_BATTERY_LIMITED_CHECK, 5000);
                         }
                     }
 
                 }
                 break;
-                case   E_CONFIRMED_PASSWORD:
+                case E_CONFIRMED_PASSWORD:
                 {
                     CommonStaticData.ageLimitFlag = false;
                     sendEvent(TVEVENT.E_RATING_MONITOR);
@@ -1821,14 +1801,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 break;
 
-                case   E_SLEEP_TIMER:
+                case E_SLEEP_TIMER:
                 {
                     new InputDialog(instance,InputDialog.TYPE_SLEEP_NOTIFY, null, null, null);
                 }
                 break;
 
                 case E_SLEEP_TIMER_EXPIRED:
-                case  E_TERMINATE:
+                case E_TERMINATE:
                 {
                     TVTerminate();
                 }
@@ -1837,11 +1817,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_CHANNEL_NAME_UPDATE:
                 {
-                    mChannelIndex=CommonStaticData.lastCH;
-                    if (mCursor != null) {		// elliot
+                    mChannelIndex = CommonStaticData.lastCH;
+                    if (mCursor != null) {      // elliot
                         mCursor.moveToPosition(mChannelIndex);
                     }
-                    if(CommonStaticData.scanCHnum != 0) {
+                    if (CommonStaticData.scanCHnum != 0) {
                         if (mCursor != null) {
                             int freq = Integer.parseInt(mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_FREQ));
                             TVlog.i(TAG, " >>>>> current freq = " + freq);
@@ -1888,13 +1868,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                             TVlog.i (TAG, " >>>>> Scrambled2 = "+String.valueOf(Scrambled));
 
-                            if(Scrambled == 0) {
+                            if (Scrambled == 0) {
                                 sendEvent(TVEVENT.E_BADSIGNAL_CHECK, 2, 0, null);
                             }
                         }
                     }
                 }
                 break;
+
                 case E_MAINACTIVITY_VIEW_TOASTS:
                 {
                     String viewText=null;
@@ -1911,15 +1892,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     toast11.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_decoder), Toast.LENGTH_SHORT);
                 }
                 break;
+
                 case E_AUTO_CHANGE_CHANNEL_TEST:
                 {
-
-                    if(buildOption.LOG_CAPTURE_MODE ==3)
+                    if (buildOption.LOG_CAPTURE_MODE == 3)
                     {
                         int currentChannel = TVBridge.getCurrentChannel();
 
                         TVlog.i(TAG, " E_AUTO_CHANGE_CHANNEL_TEST  currentID = " + currentChannel + " ChannelCount = "+CommonStaticData.scanCHnum );
-                        if(currentChannel < (CommonStaticData.scanCHnum -1)) {
+                        if (currentChannel < (CommonStaticData.scanCHnum -1)) {
                             CommonStaticData.passwordVerifyFlag = false;
                             CommonStaticData.ageLimitFlag = false;
                             //CommonStaticData.screenBlockFlag = false;
@@ -1932,17 +1913,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             TVBridge.AVStartPlus();
 
                             postEvent(TVEVENT.E_AUTO_CHANGE_CHANNEL_TEST,20*1000);
-                        }else
-                        {
+                        } else {
                             TVlog.i(TAG, " E_AUTO_CHANGE_CHANNEL_TEST  END ~~~~~~~~~~~");
                             TVTerminate();
                         }
                     }
-
                 }
                 break;
                 case E_CHANNEL_CHANGE_TIMEOVER:
-                    if(CommonStaticData.tuneTimeOver==true && CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
+                    if (CommonStaticData.tuneTimeOver==true && CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
                         //TVBridge.stop();
                         //sendEvent(TVEVENT.E_CHANNEL_CHANGE_FAIL);
                         sendEvent(TVEVENT.E_BADSIGNAL_CHECK, 4, 0, null);
@@ -1973,21 +1952,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         editor6.commit();
 
                         if (isMainActivity) {
-                        removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG);
-                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
-                        removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
-
-                        //removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
-                        //removeEvent(E_SIGNAL_NOTI_MSG);
-                        removeEvent(TVEVENT.E_NOSIGNAL_SHOW);
-                        removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER);
-                        ll_noSignal.setVisibility(View.INVISIBLE);
-                            hideController();
-                        ll_mainAutoSearch.setVisibility(View.VISIBLE);
-
-                        //doScan = new ScanProcess(instance);
-                        TVBridge.scan((byte) 0);
-                        //doScan.showProgress(1, 0, 473143, doScan.SHOW_PRGRESS_ON);
+                            removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG);
+                            removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
+                            removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
+    
+                            //removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
+                            //removeEvent(E_SIGNAL_NOTI_MSG);
+                            removeEvent(TVEVENT.E_NOSIGNAL_SHOW);
+                            removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER);
+                            ll_noSignal.setVisibility(View.INVISIBLE);
+                                hideController();
+                            ll_mainAutoSearch.setVisibility(View.VISIBLE);
+    
+                            //doScan = new ScanProcess(instance);
+                            TVBridge.scan((byte) 0);
+                            //doScan.showProgress(1, 0, 473143, doScan.SHOW_PRGRESS_ON);
                         } else if (FloatingWindow.isFloating) {
                             removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG_FLOATING);
                             removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
@@ -2005,8 +1984,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             TVBridge.scan_floating((byte) 0);
                             //doScan.showProgress(1, 0, 473143, doScan.SHOW_PRGRESS_ON);
                         }
-
-
                     }
                     break;
 
@@ -2060,12 +2037,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     switch (tomove) {
                         case 0:     // move to 1seg   brzail 1seg seriveID + 0x18 = fullseg serviceID, Japan 1seg seriveID + 0x180 =  fullseg serviceID
                             TVlog.i("Switching Test ", ">>>>> E_CHANNEL_SWITCHING to 1seg");
-                            if(buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {    // japan
                                 if (mCursor != null) {
                                     moveSvId = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);// + 0x180;
                                     remoteKey = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
-                                    if(mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0) {
+                                    if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0) {
                                         for (findpos = 0; findpos < mCursor.getCount(); findpos++) {
                                             mCursor.moveToPosition(findpos);
                                             if ((mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER) >= moveSvId)
@@ -2086,18 +2063,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         }
                                     }
                                 }
-
                             }
 
                             break;
                         case 1:     // move to Fullseg  brzail Fullseg seriveID - 0x18 = 1seg serviceID, Japan Fullseg seriveID - 0x180 =  1seg serviceID,
                             TVlog.i("Switching Test ", ">>>>> E_CHANNEL_SWITCHING to fullseg");
-                            if(buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {    // japan
                                 if (mCursor != null) {
                                     moveSvId = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);//-0x180;
                                     remoteKey = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY);
-                                    if(mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 1) {
+                                    if (mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 1) {
                                         for (findpos = 0; findpos < mCursor.getCount(); findpos++) {
                                             mCursor.moveToPosition(findpos);
                                             if ((mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER) <= moveSvId)
@@ -2108,7 +2084,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                                 TVBridge.serviceID_start(mChannelIndex);
                                                 break;
                                             }
-
                                         }
                                     }
                                     if (findpos != mChannelIndex) {
@@ -2123,6 +2098,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
                     //TVBridge.serviceID_start(mChannelIndex);
                     break;
+
                 //ADD_GINGA_NCL[[
                 case E_INTERACTIVE_ENABLE: {
                     if (buildOption.ADD_GINGA_NCL == true) {
@@ -2133,6 +2109,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
                 }
                 break;
+
                 case E_INTERACTIVE_DISABLE: {
                     if (buildOption.ADD_GINGA_NCL == true) {
                         if (mRunDemuxThread == true) {
@@ -2154,9 +2131,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     recordingStop(true);
                 }
                 break;
+
                 case E_DEBUG_SCREEN_DISPLAY:
                 {
-                    if(DebugMode.getDebugMode().checkingDebugOn()) {
+                    if (DebugMode.getDebugMode().checkingDebugOn()) {
                         String testMsg = (String) msg.obj;
                         DebugScreenDisplay(testMsg);
                     }
@@ -2199,8 +2177,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     //rootPath = buildOption.SECOND_DRIVE_PATH+"FCI_LOG";
                     rootPath = MainActivity.getInstance().getExternalSDPath()+"FCI_LOG";
 
-                } else                        // phone
-                {
+                } else { // phone
                     //rootPath = buildOption.PHONE_DRIVE_PATH+"FCI_LOG";
                     rootPath = MainActivity.getInstance().getInternalSDPath()+"FCI_LOG";
                 }
@@ -2215,11 +2192,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             TVlog.i(TAG, "==== make new folder ====  "+rootPath);
         }
 
-
         Time today = new Time(Time.getCurrentTimezone());
         today.setToNow();
 
-        String localDate= today.year+ "-" +
+        String localDate = today.year+ "-" +
                 (today.month + 1) + "-" +
                 today.monthDay + "_" +
                 today.format("%H:%M:%S").replaceAll(":", "-");
@@ -2231,8 +2207,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         TVlog.i(TAG, "saveLogcatToFile outputFile = " + outputFile);
 
-        try{
-            //  @SuppressWarnings("unused");
+        try {
+            // @SuppressWarnings("unused");
             processLog = Runtime.getRuntime().exec("logcat -f "+outputFile.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
@@ -2244,17 +2220,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     public void viewToastMSG(String _viewText,boolean _isLong)
     {
-
-        if(mMainToast ==null )
+        if (mMainToast ==null )
         {
             mMainToast = Toast.makeText(instance, _viewText, Toast.LENGTH_SHORT);
         }
 
-        if( true==_isLong ) {
-
+        if (true == _isLong) {
             mMainToast.setDuration(Toast.LENGTH_LONG);
-        }else
-        {
+        } else {
             mMainToast.setDuration(Toast.LENGTH_SHORT);
             //   mMainToast = Toast.makeText(instance, _viewText, Toast.LENGTH_LONG);
         }
@@ -2263,7 +2236,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         //mMainToast.setGravity(Gravity.CENTER, 0, 200); // for normal
         mMainToast.show();
     }
-
 
     public static int DayFun( int y, int m, int d ) {
         int c;
@@ -2280,7 +2252,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         return w;
     }
 
-
     public void sendEvent(TVEVENT _Event) {
         int m;
         m = _Event.ordinal();
@@ -2296,7 +2267,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         TVUI_Handler.sendMessage(msg);
     }
 
-    public  void sendEvent(TVEVENT _Event, int _arg1, int _arg2, Object _obj) {
+    public void sendEvent(TVEVENT _Event, int _arg1, int _arg2, Object _obj) {
         int m;
         m = _Event.ordinal();
         Message msg = TVUI_Handler.obtainMessage(m);
@@ -2332,14 +2303,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         TVUI_Handler.removeMessages(m);
     }
 
-    public  void sendSubtitle(String capContents) {
+    public void sendSubtitle(String capContents) {
         Bundle caption = new Bundle();
         caption.putString("caption_info", capContents);
         caption.putString("clear", "");
         sendEvent(TVEVENT.E_CAPTION_NOTIFY, 0, 0, caption);
     }
 
-    public  void sendSuperimpose(String superContents) {
+    public void sendSuperimpose(String superContents) {
         Bundle superimpose = new Bundle();
         superimpose.putString("superimpose_info", superContents);
         superimpose.putString("clear", "");
@@ -2392,9 +2363,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         onStart_TV();
         FCI_TVi.setSuface(holder.getSurface());
 
-//        if (CommonStaticData.returnMainFromChat) {
-//            notifyFirstVideo();
-//        }		// eliot
+//      if (CommonStaticData.returnMainFromChat) {
+//          notifyFirstVideo();
+//      } // eliot
 
         isMainActivity = true;
         FloatingWindow.isFloating = false;
@@ -2404,12 +2375,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
-        if(frameWidth ==0 || frameHeight ==0) {
+        if (frameWidth == 0 || frameHeight == 0) {
 
-            frameWidth =width;
-            frameHeight=height;
+            frameWidth = width;
+            frameHeight= height;
         }
-        TVlog.i(TAG  , "===== surfaceChanged============ width = " + width + " height =" + height);
+        TVlog.i(TAG, "===== surfaceChanged============ width = " + width + " height =" + height);
         getCurrentDeviceResolution();
         getCurrentDeviceDpi();
         getCurrentDeviceSize();
@@ -2431,7 +2402,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
 
-        /*if (!ChatMainActivity.isChat) {
+        /*
+        if (!ChatMainActivity.isChat) {
             SolutionStop();
         }*/
 
@@ -2443,8 +2415,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {        super.onConfigurationChanged(newConfig);
-
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
 
         // live add
         /*SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -2471,7 +2443,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-        if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+        if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
             AudioManager audMgr = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
             View decorView = getWindow().getDecorView();
             uiOptions =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE;
@@ -2507,7 +2479,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 default:
                     return super.onKeyDown(keyCode, event);
-
             }
         }
         //TVlog.i(TAG, "=== KEYCODE_NOT_Valid *********  ");
@@ -2522,10 +2493,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         //TVlog.i(TAG, "===onTouchEvent *********= "+ result + " controllerLayout.isShown() = "+ controllerLayout.isShown());
         if (!isUiLocked) {
             if (!result) {
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1)  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1)  {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
-
                             uiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
                             decorView.setSystemUiVisibility(uiOptions);
                             return true;
@@ -2581,7 +2551,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     float coefx = Math.abs(x_changed / y_changed);
                     float xgesturesize = ((x_changed / screen.xdpi) * 2.54f);
 
-
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             TVlog.i(TAG, "=== MotionEvent.ACTION_DOWN *********= ");
@@ -2594,20 +2563,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             //mIsAudioOrBrightnessChanged = false;
 
                             mTouchX = event.getRawX();
-                            //if (mAudio != true && mBrightnessChanged != true) {
-                                /*if (mIsTouchFlag == true) {
-                                    mIsTouchFlag = false;
-                                    sendEvent(TVEVENT.E_HIDE_CONTROLER);
-                                } else {
-                                    removeEvent(TVEVENT.E_HIDE_CONTROLER);  // add justin
-                                    sendEvent(TVEVENT.E_SHOW_CONTROLER);
-                                }*/
                             uiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
                             decorView.setSystemUiVisibility(uiOptions);
-                            //}
-
                             return true;
-                        // break;
 
                         case MotionEvent.ACTION_MOVE:
                             //TVlog.i(TAG, "=== ACTION_MOVE ********* y=  " + coefy +", x = "+coefx);
@@ -2617,7 +2575,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             final int deltaX = Math.abs((int) (mLastMotionX - x));
                             final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-                            //  TVlog.i(TAG, "=== ACTION_MOVE ****deltaX=  " + deltaX+", deltaY = "+deltaY);
+                            // TVlog.i(TAG, "=== ACTION_MOVE ****deltaX=  " + deltaX+", deltaY = "+deltaY);
 
                             if (coefy > 4) {
                                 mEnableBrightnessGesture = true;
@@ -2636,10 +2594,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     brightbarLayout.setVisibility(View.INVISIBLE);
                                     doVolumeTouch(y_changed);
                                 }
-                            }/* else {      // remove justin
-                            TVlog.i(TAG, "=== ACTION_MOVE Controll *********  ");
-                            showController();
-                        }*/
+                            }
 
                             //if (xgesturesize > 2 && deltaX < 300 && (mTouchX < (screen.widthPixels / 2))) {       // channel list call
                             if (xgesturesize > 2 && (mTouchX < (screen.widthPixels / 2))) {       // channel list call
@@ -2651,7 +2606,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         CustomToast toast12 = new CustomToast(getApplicationContext());
                                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                                     }
-                                }else {
+                                } else {
                                     if (mIsTouchCHList == false && mEnableChannellist == false) {
                                         TVlog.i(TAG, "=== ACTION_MOVE Channel List *********  ");
                                         mIsTouchCHList = true;
@@ -2662,11 +2617,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 }
                             }
                             return true;
-                        // break;
 
                         case MotionEvent.ACTION_UP:
                             TVlog.i(TAG, "=== MotionEvent.ACTION_UP *********= ");
-
                             if (mEnableBrightnessGesture == true) {
                                 mEnableBrightnessGesture = false;
                                 postEvent(TVEVENT.E_HIDE_GESTURE, GESTURE_HIDE_TIME);
@@ -2675,16 +2628,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             postEvent(TVEVENT.E_HIDE_CONTROLER, CONTROLLER_HIDE_TIME);
                             mEnableChannellist = false;
                             return false;
-                        // break;
-                        //break;
+
                         case MotionEvent.ACTION_CANCEL:
                             TVlog.i(TAG, "=== MotionEvent.ACTION_CANCEL *********= ");
                             return false;
-                        //break;
+
                         case MotionEvent.ACTION_OUTSIDE:
                             TVlog.i(TAG, "=== MotionEvent.ACTION_OUTSIDE *********= ");
                             return false;
-                        //break;
+
                         default:
                             return super.onTouchEvent(event);
                     }
@@ -2692,7 +2644,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         } else {
             if (!result) {
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1) {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1) {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             uiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
@@ -2729,23 +2681,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
 
-        //return result;
         return false;
     }
 
     public void removeStatusBar(boolean remove){
-        if(remove){
+        if (remove){
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }else{
+        } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
 
-
     public void setSubSurfaceVisible(boolean _onoff) {
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-            if (svSub !=null) {
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (svSub != null) {
                 if (_onoff) {
                     TVlog.i(TAG, "= Sub surface visible = ");
                     svSub.setVisibility(View.VISIBLE);
@@ -2761,7 +2711,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
-
     public void SetVideoScale(int _mode)
     {
         android.view.ViewGroup.LayoutParams lp = sv.getLayoutParams();
@@ -2771,10 +2720,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             lp.height = (int) frameWidth * 9 / 16;
 
             int positionY = frameHeight-  lp.height;
-            if(  positionY>0) {
+            if (  positionY>0) {
                 sv.setX(positionY / 2);
-                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                    if(svSub!= null)
+                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (svSub != null)
                     {
                         svSub.setX(positionY / 2);
                     }
@@ -2790,10 +2739,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             lp.width = (int) frameHeight * 4 / 3;
             lp.height = (int) frameHeight;
             int positionX = frameWidth-  lp.width;
-            if(  positionX>0) {
+            if (  positionX>0) {
                 sv.setX(positionX / 2);
-                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                    if(svSub!= null)
+                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (svSub != null)
                     {
                         svSub.setX(positionX / 2);
                     }
@@ -2813,8 +2762,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             sv.setX(0);
             sv.setY(0);
 
-            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                if(svSub!= null)
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                if (svSub != null)
                 {
                     svSub.setX(0);
                     svSub.setY(0);
@@ -2829,13 +2778,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         sv.setLayoutParams(lp);
 
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-            if(svSub!= null)
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (svSub != null)
             {
                 svSub.setLayoutParams(lp);
             }
         }
-
     }
 
     public recordAndCapturePath getCurrentRecordingPath()
@@ -2994,9 +2942,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
                 }
             }
-
-
-
         } else {
             //SD card UNMOUNTED
             TVlog.i(TAG, " >>>>> sdcard unmounted");
@@ -3047,18 +2992,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     boolean isCheckingPlayback()
     {
-        if(buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE)
+        if (buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE)
         {
-            if(MainActivity.isPlayBackActivity==true) {
+            if (MainActivity.isPlayBackActivity==true) {
                 CommonStaticData.loadingNow=false;
                 TVlog.i(TAG, " =====  PlayBackActivity  running =========");
                 channelChangeStartView(true);  // justin add for start from power key or home key
 
-                if(PlayBackActivity.getInstance()!=null)
+                if (PlayBackActivity.getInstance()!=null)
                 {
                     PlayBackActivity.getInstance().Start();
                     return true;
-                }else
+                } else
                 {
                     TVlog.i(TAG, " Playback running...but start fail...");
                 }
@@ -3066,6 +3011,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
         return false;
     }
+
     @Override
     protected void onDestroy(){
         TVlog.i(TAG, "==== onDestroy ======");
@@ -3092,33 +3038,29 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 editor.putInt(CommonStaticData.countIntroKey, CommonStaticData.countIntro);
                 editor.commit();
 
-                android.os.Process.killProcess(android.os.Process.myPid());	// elliot
+                android.os.Process.killProcess(android.os.Process.myPid()); // elliot
             }
         }
         // ]]usbdongle
 
         super.onDestroy();
-
     }
 
     @Override
     public void onBackPressed() {
         TVlog.i(TAG, "==== onBackPressed======");
         InputDialog dig = new InputDialog(MainActivity.this, InputDialog.TYPE_TV_TERMINATE, null, null, null);  // live modify
-
     }
-
 
     public void recordingStop(boolean _isOtherEvent)
     {
         String[] filename = null;
 
-        if(isRec)
+        if (isRec)
         {
-
             TVlog.i(TAG, "==== recordingStop======");
             recB.setImageResource(R.drawable.rec_color_f);
-            if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3){
+            if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3){
                 rightB.setVisibility(View.VISIBLE);
                 leftB.setVisibility(View.VISIBLE);
             }
@@ -3126,17 +3068,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             ll_recTimeview.setVisibility(View.INVISIBLE);
             recTimeview.setText("");
             FCI_TVi.RecStop(false);
-            if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+            if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                 thumbNailUpdate.getThhumbNailUpdateTask().sendEvent(TVEVENT.E_UPDATE_THUMBNAIL, 1000);
             }
 
             instance.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
                     Uri.parse("file://" + recordingFileName)));
 
-
-            if(mIsRecStarted)
+            if (mIsRecStarted)
             {
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                     File chkFile = new File(recordingFileName);
                     boolean fileExist = chkFile.exists();
 
@@ -3144,7 +3085,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast15 = new CustomToast(getApplicationContext());
                         toast15.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recorded) + " : " + recordingFileName, Toast.LENGTH_SHORT);
                     }
-                }else{
+                } else {
                     recordAndCapturePath filePath = getCurrentRecordingPath();
 
                     if (recordingFileName != null) {
@@ -3169,30 +3110,25 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 + filename[filename.length-1], Toast.LENGTH_LONG);
                     }
                 }
-            }
-            else
-            {
-                if(_isOtherEvent ==false) {
+            } else {
+                if (_isOtherEvent ==false) {
                     CustomToast toast16 = new CustomToast(getApplicationContext());
                     toast16.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recorded_fail_too_shot), Toast.LENGTH_SHORT);
                 }
-
             }
         }
     }
 
     public void TVTerminate()
     {
-
         SolutionStop();
         TVlog.i(TAG, "==== call finish ======");
         finish();
-
     }
 
     public void SolutionStop() {
         TVlog.i(TAG, "==== SolutionStop ======");
-        if(TVON==false)
+        if (TVON==false)
         {
             TVlog.i(TAG, "==== already Stop ======");
             return;
@@ -3201,7 +3137,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         InputDialog.nosignalNotiClear();
         recordingStop(true);
 
-        TVON= false;
+        TVON = false;
 
         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -3227,10 +3163,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             audioOut.audioModeReturn();
         }
 
-        if((buildOption.LOG_CAPTURE_MODE ==1) ||  (dumpTVLog ==true))
+        if ((buildOption.LOG_CAPTURE_MODE ==1) ||  (dumpTVLog ==true))
         {
             TVlog.i(TAG, "==== LOG_CAPTURE_MODE  OFF ======");
-            if(processLog !=null)
+            if (processLog !=null)
             {
                 processLog.destroy();
                 processLog=null;
@@ -3262,8 +3198,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     protected void onResume() {
+        // send broadcast to make music paused
+        sendBroadcast(new Intent("com.android.music.musicservicecommand.pause"));
 
-       /* if (isWarmReset && CommonStaticData.scanCHnum < 1) {
+        /*
+        if (isWarmReset && CommonStaticData.scanCHnum < 1) {
             sendEvent(TVEVENT.E_SCAN_COMPLETED);
             isWarmReset = false;
         }*/
@@ -3272,7 +3211,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         FloatingWindow.isFloating = false;
         ChatMainActivity.isChat = false;
         // live add
-        if(buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE || buildOption.RECORD_FUNCTION_USE == false) {
             recB.setVisibility(View.GONE);
@@ -3281,7 +3220,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             recB.setVisibility(View.VISIBLE);
             recB.setEnabled(true);
         }
-        if(buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE || buildOption.RECORD_FUNCTION_USE == false) {
             recfileB.setVisibility(View.GONE);
@@ -3292,7 +3231,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
         //
 
-        if((mUsbChipType != USB_CHIP_TYPE_NONE) && (CommonStaticData.scanCHnum < 1)){
+        if ((mUsbChipType != USB_CHIP_TYPE_NONE) && (CommonStaticData.scanCHnum < 1)){
             isBBFail = false;
             sendEvent(TVEVENT.E_SCAN_COMPLETED);
         }
@@ -3363,37 +3302,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             TVlog.i("FCIISDBT::", "onResume() call seupUsbDevice() 2222");
             if (mUsbFd == -1) {
                 TVlog.i("FCIISDBT::", "usb dongle closed ! (by device not attached)");
-                //viewToastMSG("USB device not attached & TV close...", true);
-/*org
-                CustomToast toast = new CustomToast(getApplicationContext());
-                toast.showToast(getApplicationContext(), "USB dongle was not attached.\nTV app was terminated.", Toast.LENGTH_LONG);
-                finish();
-*/
-//device init failed[[
-
                 // live chage toast message to dialog
                 CustomToast toast = new CustomToast(getApplicationContext());
                 toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_LONG);
                 ll_noSignal.setVisibility(View.INVISIBLE);
                 ll_file_play_mode_usb.setVisibility(View.VISIBLE);
                 //
-//]]device init failed
             }
             else {
                 UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
                 if (manager != null && mUsbDevice != null) {
                     if (manager.hasPermission(mUsbDevice) != true) {
                         TVlog.i("FCIISDBT::", "usb dongle closed ! (by permission not granted)");
-/*org
-                        //viewToastMSG("USB permission not granted & TV close...", true);
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), "USB permission was not granted.\nTV app was terminated.", Toast.LENGTH_LONG);
-                    finish();
-*/
-//device init failed[[
                         CustomToast toast = new CustomToast(getApplicationContext());
                         toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_permission_not_granted), Toast.LENGTH_LONG);
-//]]device init failed
                     }
                     else {
                         openUsbDevice(mUsbDevice);
@@ -3420,7 +3342,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
             TVlog.i(TAG, "onResume():: solution to be re-initialed...");
 
-            if(buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1 )  {
+            if (buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1 )  {
                 FCI_TVi.init(this.getPackageName(), null, mUsbFd, mUsbDeviceName, getVersionForDongle());
             }
             else {
@@ -3435,7 +3357,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
                 buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
             //  CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
-            //   CommonStaticData.countIntro = CommonStaticData.settings.getInt(CommonStaticData.countIntroKey, 0);
+            //  CommonStaticData.countIntro = CommonStaticData.settings.getInt(CommonStaticData.countIntroKey, 0);
             //  SharedPreferences.Editor editor = CommonStaticData.settings.edit();
             if (CommonStaticData.countIntro == 2) {
                 CommonStaticData.countIntro = 3;
@@ -3463,26 +3385,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
 
-        /*if (ll_scramble_msg.getVisibility() == View.VISIBLE || noSignal.getVisibility() == View.VISIBLE) {
+        /*
+        if (ll_scramble_msg.getVisibility() == View.VISIBLE || noSignal.getVisibility() == View.VISIBLE) {
             ll_multiWindow.setVisibility(View.GONE);
         } else {
             ll_multiWindow.setVisibility(View.VISIBLE);
         }*/
 
-        /*if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-        if (buildOption.USE_MULTI_WINDOW) {
-            if (changeChannelView.getVisibility() == View.VISIBLE) {
-                    ll_multiWindow.setVisibility(View.GONE);
-                } else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                    ll_multiWindow.setVisibility(View.GONE);
-            } else {
-                ll_multiWindow.setVisibility(View.VISIBLE);
+        /*
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
+            if (buildOption.USE_MULTI_WINDOW) {
+                if (changeChannelView.getVisibility() == View.VISIBLE) {
+                        ll_multiWindow.setVisibility(View.GONE);
+                    } else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
+                        ll_multiWindow.setVisibility(View.GONE);
+                } else {
+                    ll_multiWindow.setVisibility(View.VISIBLE);
+                }
             }
-        }
         }*/
 
         View decorView = getWindow().getDecorView();
-//        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE;
+//      int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE;
         uiOptions =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE;    // justin
         //TVlog.i("decorView", "onResume uiOptions = "+ uiOptions);
         decorView.setSystemUiVisibility(uiOptions);
@@ -3506,7 +3430,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
 
         // live add
-        /*if (ll_multiWindow.getVisibility() == View.VISIBLE) {
+        /*
+        if (ll_multiWindow.getVisibility() == View.VISIBLE) {
             ll_multiWindow.setVisibility(View.GONE);
         }*/
         //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
@@ -3538,10 +3463,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
 
 
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
             channelLayout.setVisibility(View.INVISIBLE);
         }
-        //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+        //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
         status_bar.setVisibility(View.INVISIBLE);
         //}
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
@@ -3590,11 +3515,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             if (mUsbFd == -1) {
                                 TVlog.i("FCIISDBT::", "usb dongle closed ! (by device not attached)");
                                 //viewToastMSG("USB device not attached & TV close...", true);
-/*org
-                CustomToast toast = new CustomToast(getApplicationContext());
-                toast.showToast(getApplicationContext(), "USB dongle was not attached.\nTV app was terminated.", Toast.LENGTH_LONG);
-                finish();
-*/
 //device init failed[[
 
                                 // live chage toast message to dialog
@@ -3610,18 +3530,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 if (manager != null && mUsbDevice != null) {
                                     if (manager.hasPermission(mUsbDevice) != true) {
                                         TVlog.i("FCIISDBT::", "usb dongle closed ! (by permission not granted)");
-/*org
-                        //viewToastMSG("USB permission not granted & TV close...", true);
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), "USB permission was not granted.\nTV app was terminated.", Toast.LENGTH_LONG);
-                    finish();
-*/
 //device init failed[[
                                         CustomToast toast = new CustomToast(getApplicationContext());
                                         toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_permission_not_granted), Toast.LENGTH_LONG);
 //]]device init failed
-                                    }
-                                    else {
+                                    } else {
                                         openUsbDevice(mUsbDevice);
                                         if (bb_fail_dialog != null) {
                                             if (bb_fail_dialog.getView().getVisibility() == View.VISIBLE) {
@@ -3697,10 +3610,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
         TVlog.i("FCIISDBT::", "usb dev list: " + usbDeviceString);
 
-        while(deviceIterator.hasNext()) {
+        while (deviceIterator.hasNext()) {
             UsbDevice device = (UsbDevice)deviceIterator.next();
             TVlog.i("FCIISDBT:: name=", device.getDeviceName() + ", vendor=" + Integer.toHexString(device.getVendorId()) + ", product=" + Integer.toHexString(device.getProductId()));
-            if(device.getVendorId() == USB_LME_VENDOR_ID) {
+            if (device.getVendorId() == USB_LME_VENDOR_ID) {
                 foundDevice = device;
                 break;
             }
@@ -3724,7 +3637,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
 */
-
             if (!manager.hasPermission(foundDevice)) {
                 while (!manager.hasPermission(foundDevice)) {
                     synchronized (manager) {
@@ -3760,12 +3672,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 } else {
                     TVlog.e("FCIISDBT::", "UsbManager openDevice failed!");
                 }
-            }
-            else {
+            } else {
                 TVlog.e("FCIISDBT::", "UsbManager permission denied!");
             }
-        }
-        else {
+        } else {
             TVlog.e("FCIISDBT::", "UsbManager can't get valid device");
         }
 
@@ -3780,7 +3690,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         if (mUsbDevice != null) {
             productId = mUsbDevice.getProductId();
         }
-        if(fd > 0) {
+        if (fd > 0) {
             if (mPermissionRequested == 0) {
                 mPermissionRequested = 1;
             }
@@ -3791,22 +3701,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 mylme_sdk.deletedevice(fd);
                 mUsbLMEMode = USB_LME_MODE_COLD;
                 mUsbConnected = false;
-            }
-            else if (productId == USB_LME_WARM_FULLSEG_PRODUCT_ID) {
+            } else if (productId == USB_LME_WARM_FULLSEG_PRODUCT_ID) {
                 TVlog.i("FCIISDBT::", "Detect LME USB Warm Mode.");
                 mUsbFd = fd;
                 mUsbDeviceName = devName;
                 mUsbLMEMode = USB_LME_MODE_WARM;
-            }
-            else {
+            } else {
                 TVlog.e("FCIISDBT::", "Detect LME USB: not supported product id = "+productId);
                 mUsbFd = fd;
                 mUsbDeviceName = devName;
                 //mUsbLMEMode = USB_LME_MODE_WARM;
                 mUsbLMEMode = USB_LME_MODE_COLD;
             }
-        }
-        else {
+        } else {
             mUsbConnected = false;
             mUsbLMEMode = USB_LME_MODE_NONE;
         }
@@ -3851,16 +3758,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     foundDevice = dev;
                     TVlog.i("FCIISDBT::", "NXP: vendorId="+vendorId+", productId="+productId);
                     break;
-                }
-                else if (vendorId == USB_ITE_VENDOR_ID && productId == USB_ITE_PRODUCT_ID) {
+                } else if (vendorId == USB_ITE_VENDOR_ID && productId == USB_ITE_PRODUCT_ID) {
                     TVlog.i("FCIISDBT::", "FCI TV dongle(ITE) found");
                     mUsbChipType = USB_CHIP_TYPE_ITE;
                     withoutUSB = false;
                     foundDevice = dev;
                     TVlog.i("FCIISDBT::", "ITE: vendorId="+vendorId+", productId="+productId);
                     break;
-                }
-                else if (vendorId == USB_LME_VENDOR_ID) {
+                } else if (vendorId == USB_LME_VENDOR_ID) {
                     TVlog.i("FCIISDBT::", "FCI TV dongle(LME) found!");
                     mUsbChipType = USB_CHIP_TYPE_LME;
                     withoutUSB = false;
@@ -3894,8 +3799,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             if (manager.hasPermission(foundDevice)) {
                 openUsbDevice(foundDevice);
             }
-        }
-        else if (mUsbChipType == USB_CHIP_TYPE_LME) {
+        } else if (mUsbChipType == USB_CHIP_TYPE_LME) {
             openUsbDevice(foundDevice);
         }
     }
@@ -3921,8 +3825,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             if (mUsbChipType == USB_CHIP_TYPE_NXP) {
                 mUsbDeviceName = "nxp" + mUsbDeviceName;
                 TVlog.i("FCIISDBT::", "usb device name: " + mUsbDeviceName);
-            }
-            else if (mUsbChipType == USB_CHIP_TYPE_ITE) {
+            } else if (mUsbChipType == USB_CHIP_TYPE_ITE) {
                 mUsbDeviceName = "ite" + mUsbDeviceName;
                 TVlog.i("FCIISDBT::", "usb device name: " + mUsbDeviceName);
             }
@@ -3941,7 +3844,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
         else if (mUsbChipType == USB_CHIP_TYPE_LME) {
-            while(LME_OpenUSBDongle(0) == USB_LME_MODE_COLD) {
+            while (LME_OpenUSBDongle(0) == USB_LME_MODE_COLD) {
                 TVlog.i("FCIISDBT::", "setupUsbDevice() ...LME dongle process");
                 try {
                     Thread.sleep(3000L);
@@ -3956,8 +3859,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         if (mUsbConnection != null) {
             if (mUsbChipType == USB_CHIP_TYPE_NXP || mUsbChipType == USB_CHIP_TYPE_ITE) {
                 mUsbConnection.releaseInterface(mUsbInterface);
-            }
-            else if (mUsbChipType == USB_CHIP_TYPE_LME) {
+            } else if (mUsbChipType == USB_CHIP_TYPE_LME) {
                 mylme_sdk.deletedevice(0);
             }
             mUsbConnection.close();
@@ -3984,7 +3886,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         TVlog.DeviceInfo(instance);
 
-        if((buildOption.LOG_CAPTURE_MODE ==1) || (dumpTVLog==true))
+        if ((buildOption.LOG_CAPTURE_MODE ==1) || (dumpTVLog==true))
         {
 
             TVlog.i(TAG, " ===========================");
@@ -4008,13 +3910,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         TVlog.i(TAG, "==== onStart ======");
 
         // [[ eddy 160706
-        if(TVON==true)
+        if (TVON==true)
         {
             TVlog.i(TAG, "==== already init  ======");
             return;
         }
         // ]] eddy 160706
-        TVON =true;
+        TVON = true;
 
         checkOnStart();
 
@@ -4047,8 +3949,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     CustomToast toast = new CustomToast(getApplicationContext());
                     toast.showToast(getApplicationContext(), "USB dongle was not attached.\nTV app was terminated.", Toast.LENGTH_LONG);
                     finish();
-                }
-                else {
+                } else {
                     UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
                     if (manager != null && mUsbDevice != null) {
                         if (manager.hasPermission(mUsbDevice) != true) {
@@ -4279,22 +4180,23 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                     || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
                 if (FloatingWindow.getInstance() != null) {
-                FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME_USB);
+                    FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME_USB);
                 }
             } else {
                 if (FloatingWindow.getInstance() != null) {
-                FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME);
+                    FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME);
+                }
             }
         }
-        }
 
-        /*if (ChatMainActivity.isChat) {
+        /*
+        if (ChatMainActivity.isChat) {
             ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
         } else {
         sendEvent(TVEVENT.E_SIGNAL_MONITER);
         }*/
 
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
             getCurrentRecordingPath();
             thumbNailUpdate.getThhumbNailUpdateTask().sendEvent(TVEVENT.E_UPDATE_THUMBNAIL, 0);
         }
@@ -4315,8 +4217,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             FCI_TVi.disableGingaNCL();
         }
 
-        //    super.onStart();
-
+        // super.onStart();
     }
 
     // [ Nexell de-intelace 20170120
@@ -4336,7 +4237,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         } catch (Exception e) {
             TVlog.i("PSTTSET ", "Exception during reflection: " + e.getMessage());
         }
-
     }
     // ]
 
@@ -4348,7 +4248,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     Button bGreen;
     Button bBlue;
     int debugScreenTextViewSize=20;
-
 
     EditText eResiter;
     EditText eResiterValue;
@@ -4383,7 +4282,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         bPlus.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 debugScreenTextViewSize+=5;
-                if(debugScreenTextViewSize>=100)
+                if (debugScreenTextViewSize>=100)
                 {
                     debugScreenTextViewSize=100;
                 }
@@ -4395,7 +4294,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         bMinus.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 debugScreenTextViewSize-=5;
-                if(debugScreenTextViewSize <=5)
+                if (debugScreenTextViewSize <=5)
                 {
                     debugScreenTextViewSize=5;
                 }
@@ -4432,29 +4331,23 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
-
         bRegisterWrite.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-
-
-
                 String editReg = eResiter.getText().toString();
                 String editRegval = eResiterValue.getText().toString();
 
-
-                if( editReg.length()==0)
+                if ( editReg.length()==0)
                 {
                     CustomToast toast = new CustomToast(getApplicationContext());
                     toast.showToast(getApplicationContext(), "Please put register address " , Toast.LENGTH_LONG);
                     return;
                 }
-                if( editRegval.length()==0)
+                if ( editRegval.length()==0)
                 {
                     CustomToast toast = new CustomToast(getApplicationContext());
                     toast.showToast(getApplicationContext(), "Please put register value " , Toast.LENGTH_LONG);
                     return;
                 }
-
 
                 debugScreenRRBB.append("Write : 0x" + editReg + " = 0x" + editRegval + "\n");
 
@@ -4467,17 +4360,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     debugScreenRRBB.scrollTo(0, scrollAmount);
                 else
                     debugScreenRRBB.scrollTo(0, 0);
-
             }
         });
 
         bRegisterRead.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-
-
                 String editReg = eResiter.getText().toString();
 
-                if( editReg.length()==0)
+                if ( editReg.length()==0)
                 {
                     CustomToast toast = new CustomToast(getApplicationContext());
                     toast.showToast(getApplicationContext(), "Please put register address " , Toast.LENGTH_LONG);
@@ -4510,7 +4400,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     @Override
     protected void onStop() {
         super.onStop();
-
     }
 
     @Override
@@ -4535,7 +4424,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
         CommonStaticData.solutionMode = CommonStaticData.settings.getInt(CommonStaticData.solutionModeKey, cReleaseOption.FCI_SOLUTION_MODE);
         buildOption.FCI_SOLUTION_MODE = CommonStaticData.solutionMode;
-
         // ]]
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -4623,7 +4511,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
         // ]]usbdongle
 
-        if(isRunningOnEmulator())
+        if (isRunningOnEmulator())
         {
             //emul
             capturePath= getExternalStorageDirectory().toString()+"/MobileTV";
@@ -4642,54 +4530,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
 
                         //  showController();
-                        if(MainActivity.isMainActivity ==true) {
+                        if (MainActivity.isMainActivity ==true) {
 
                             if (ll_mainAutoSearch.getVisibility() != View.VISIBLE) {
                                 removeEvent(TVEVENT.E_HIDE_CONTROLER);
 
                                 controllerLayout.setVisibility(View.VISIBLE);
-
-                                // live add
-                        /*if (ll_scramble_msg.getVisibility() == View.VISIBLE || noSignal.getVisibility() == View.VISIBLE) {
-                            ll_multiWindow.setVisibility(View.GONE);
-                        } else {
-                            ll_multiWindow.setVisibility(View.VISIBLE);
-                        }*/
-
-                        /*if (ll_age_limit.getVisibility() == View.VISIBLE) {
-                            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                                if (buildOption.USE_MULTI_WINDOW) {
-                                    ll_multiWindow.setVisibility(View.GONE);
-                                }
-                            }
-                        } else {
-                            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                                if (buildOption.USE_MULTI_WINDOW) {
-                                    if (changeChannelView.getVisibility() == View.VISIBLE) {
-                                        ll_multiWindow.setVisibility(View.GONE);
-                                    } else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                                        ll_multiWindow.setVisibility(View.GONE);
-                                    } else {
-                                        ll_multiWindow.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            }
-                        }*/
-
-                                //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                            /*if (buildOption.USE_MULTI_WINDOW) {
-                                if (changeChannelView.getVisibility() == View.VISIBLE) {
-                                    //ll_multiWindow.setVisibility(View.GONE);
-                                    ll_multiWindow.setVisibility(View.VISIBLE);
-
-                                } *//*else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                                        ll_multiWindow.setVisibility(View.GONE);
-                                    }*//* else {
-                                    ll_multiWindow.setVisibility(View.VISIBLE);
-                                }
-                            }*/
-                                //}
-                                //ll_multiWindow.setVisibility(View.VISIBLE);
 
                                 if (buildOption.USE_MULTI_WINDOW) {
                                     if (changeChannelView.getVisibility() == View.VISIBLE) {
@@ -4717,11 +4563,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     }
                                 }
 
-                                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                                     channelLayout.setVisibility(View.VISIBLE);
                                 }
 
-                                //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+                                //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                                 status_bar.setVisibility(View.VISIBLE);
                                 //}
                                 postEvent(TVEVENT.E_HIDE_CONTROLER, CONTROLLER_HIDE_TIME);
@@ -4733,15 +4579,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     removeEvent(TVEVENT.E_HIDE_CONTROLER);
                                     controllerLayout.setVisibility(View.INVISIBLE);
 
-                                    // live add
-                        /*if (ll_multiWindow.getVisibility() == View.VISIBLE) {
-                            ll_multiWindow.setVisibility(View.GONE);
-                        }*/
-                                    //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
                                     if (buildOption.USE_MULTI_WINDOW) {
                                         ll_multiWindow.setVisibility(View.GONE);
                                     }
-                                    //}
 
                                     //ll_chat.setVisibility(View.INVISIBLE);
                                     if (buildOption.USE_CHAT_FUNCTION) {
@@ -4751,12 +4591,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     if (buildOption.ADD_LOUD_SPEAKER) {
                                         earphoneLayout.setVisibility(View.INVISIBLE);
                                     }
-                                    if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                                    if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                                         channelLayout.setVisibility(View.INVISIBLE);
                                     }
-                                    //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                                     status_bar.setVisibility(View.INVISIBLE);
-                                    //}
                                     removeStatusBar(true);
                                 }
                             }
@@ -4765,15 +4603,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             removeEvent(TVEVENT.E_HIDE_CONTROLER);
                             controllerLayout.setVisibility(View.INVISIBLE);
 
-                            // live add
-                        /*if (ll_multiWindow.getVisibility() == View.VISIBLE) {
-                            ll_multiWindow.setVisibility(View.GONE);
-                        }*/
-                            //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
                             if (buildOption.USE_MULTI_WINDOW) {
                                 ll_multiWindow.setVisibility(View.GONE);
                             }
-                            //}
 
                             //ll_chat.setVisibility(View.INVISIBLE);
                             if (buildOption.USE_CHAT_FUNCTION) {
@@ -4783,29 +4615,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             if (buildOption.ADD_LOUD_SPEAKER) {
                                 earphoneLayout.setVisibility(View.INVISIBLE);
                             }
-                            if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                            if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                                 channelLayout.setVisibility(View.INVISIBLE);
                             }
-                            //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                             status_bar.setVisibility(View.INVISIBLE);
-                            //}
                             removeStatusBar(true);
                         }
 
                     } else {
-
                         removeEvent(TVEVENT.E_HIDE_CONTROLER);
                         controllerLayout.setVisibility(View.INVISIBLE);
 
-                        // live add
-                    /*if (ll_multiWindow.getVisibility() == View.VISIBLE) {
-                        ll_multiWindow.setVisibility(View.GONE);
-                    }*/
-                        //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
                         if (buildOption.USE_MULTI_WINDOW) {
                             ll_multiWindow.setVisibility(View.GONE);
                         }
-                        //}
 
                         //ll_chat.setVisibility(View.INVISIBLE);
                         if (buildOption.USE_CHAT_FUNCTION) {
@@ -4815,12 +4638,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (buildOption.ADD_LOUD_SPEAKER) {
                             earphoneLayout.setVisibility(View.INVISIBLE);
                         }
-                        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+                        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
                             channelLayout.setVisibility(View.INVISIBLE);
                         }
-                        //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
                         status_bar.setVisibility(View.INVISIBLE);
-                        //}
                         removeStatusBar(true);
                     }
                 } else {
@@ -4846,7 +4667,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         int display_mode = getResources().getConfiguration().orientation;
 
-        if(SurfaceRotationOn == false)
+        if (SurfaceRotationOn == false)
         {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);  // live
         }
@@ -5051,14 +4872,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 }
                             }
 
-
                             //20170526
                             //CommonStaticData.screenBlockFlag = false;
 
                             Intent intent = new Intent(MainActivity.this, ChatMainActivity.class);
                             //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
-                            //android.os.Process.killProcess(android.os.Process.myPid());	// live
+                            //android.os.Process.killProcess(android.os.Process.myPid());   // live
                         }
                     } else {
                         isMainActivity = true;
@@ -5114,7 +4934,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 return false;
             }
-
         });
 
         ll_multiWindow.setOnClickListener(new View.OnClickListener() {
@@ -5157,8 +4976,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         editor.commit();
 
-
-
                         //CommonStaticData.screenBlockFlag = false;
 
                         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
@@ -5172,11 +4989,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         startService(new Intent(MainActivity.this,FloatingWindow.class));
 
-
                         if (isServiceRunningCheck()) {
-                    /*if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC) {
-                        SolutionStop();
-                    }*/
                             TVlog.i(TAG, " >>>>> FloatingWindow Service is running!!");
                             //moveTaskToBack(true);
                             if (SDK_INT >= 21) {
@@ -5204,8 +5017,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         editor.commit();
 
-
-
                         //CommonStaticData.screenBlockFlag = false;
 
                         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
@@ -5219,11 +5030,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         startService(new Intent(MainActivity.this,FloatingWindow.class));
 
-
                         if (isServiceRunningCheck()) {
-                    /*if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC) {
-                        SolutionStop();
-                    }*/
                             TVlog.i(TAG, " >>>>> FloatingWindow Service is running!!");
                             //moveTaskToBack(true);
                             if (SDK_INT >= 21) {
@@ -5235,12 +5042,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
                     }
-                    //}
                 }
             }
-
         });
-        //}
 
         ll_uiLock = (LinearLayout) findViewById(R.id.ll_uiLock);
         iv_uiLock = (ImageView) findViewById(R.id.iv_uiLock);
@@ -5264,7 +5068,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 return false;
             }
-
         });
 
         ll_uiLock.setOnClickListener(new View.OnClickListener() {
@@ -5307,7 +5110,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     bcas_card_insert_msg.setTextColor(getResources().getColor(R.color.white));
                 }
             }
-            /*if (is_inserted_card) {
+            /*
+            if (is_inserted_card) {
                 bcas_card_insert_msg.setVisibility(View.INVISIBLE);
             } else {
                 bcas_card_insert_msg.setVisibility(View.VISIBLE);
@@ -5333,41 +5137,38 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             currChNo.setVisibility(View.GONE);
         }
 
-
         currRemoteNo = (TextView) findViewById(R.id.tv_remote_no);
         currCH = (TextView)findViewById(R.id.servicename);
         //if (buildOption.GUI_STYLE == 1) {
         currCH.setSelected(true);
         //}
 
-
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
             currProgram = (TextView) findViewById(R.id.tv_programname);
             currDuration = (TextView) findViewById(R.id.tv_duration);
         }
 
-     /*   if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+        /*
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
             //use free font
             mFont = Typeface.createFromAsset(getAssets(), "wlcmaru2004emoji.ttf");
             currCH.setTypeface(mFont);
-            if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+            if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
                 currProgram.setTypeface(mFont);
             }
-
-
         }*/
+
         signalMoniter = new SignalMonitor(signalImage);
 
         sv = (SurfaceView) findViewById(R.id.surfaceView);
 
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-            svSub =(SurfaceView) findViewById(R.id.surfaceView2);
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            svSub = (SurfaceView) findViewById(R.id.surfaceView2);
         }
 
-        scanB=(ImageButton)findViewById(R.id.button_scan);
-
+        scanB = (ImageButton)findViewById(R.id.button_scan);
         scanB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -5379,7 +5180,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         scanB.setScaleX(0.5f);
                         scanB.setScaleY(0.5f);
@@ -5395,16 +5196,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         scanB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
 
                         // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeScan < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }*/
-
                         // live add
                         if (sv != null) {
                             sv.setBackgroundColor(getResources().getColor(R.color.transparent));
                         }
-                        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                            if(svSub!= null)
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                            if (svSub != null)
                             {
                                 svSub.setBackgroundColor(getResources().getColor(R.color.transparent));
                             }
@@ -5436,43 +5233,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
-        /*scanB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                // mis-clicking prevention, using threshold of 1500 ms
-                if (SystemClock.elapsedRealtime() - mLastClickTimeScan < DOUBLE_CLICK_TOLERANCE){
-                    return;
-                }
-
-                // live add
-                if (sv != null) {
-                    sv.setBackgroundColor(getResources().getColor(R.color.transparent));
-                }
-                if (programNotMsg.getVisibility() == View.VISIBLE) {
-                    if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
-                        noSignal.setVisibility(View.INVISIBLE);
-                    }
-                    programNotMsg.setVisibility(View.INVISIBLE);
-                }
-                if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                    ll_scramble_msg.setVisibility(View.INVISIBLE);
-                }
-
-                if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
-                setDefaultChannel = true;  // live add
-                }
-
-                mLastClickTimeScan = SystemClock.elapsedRealtime();
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                    showDialog(DIALOG_SCANMODE);
-                } else {
-                    sendEvent(TVEVENT.E_SCAN_START);
-                }
-            }
-
-        });*/
-
-
-        listB=(ImageButton)findViewById(R.id.button_list);
+        listB = (ImageButton)findViewById(R.id.button_list);
         listB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -5484,7 +5245,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         listB.setScaleX(0.5f);
                         listB.setScaleY(0.5f);
@@ -5501,10 +5262,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         hideController();
                         // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeList < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeList = SystemClock.elapsedRealtime();*/
                         MainActivity.isMainActivity=true;
                         setChangeProcMemory();
                         setChangeProcShift();
@@ -5516,25 +5273,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 return false;
             }
         });
-        /*listB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                hideController();
-                // mis-clicking prevention, using threshold of 1500 ms
-                if (SystemClock.elapsedRealtime() - mLastClickTimeList < DOUBLE_CLICK_TOLERANCE){
-                    return;
-                }
-                mLastClickTimeList = SystemClock.elapsedRealtime();
-                isMainActivity=false;
-                setChangeProcMemory();
-                setChangeProcShift();
-                Intent intent = new Intent(MainActivity.this, ChannelMainActivity.class);
 
-                startActivity(intent);
-
-            }
-        });*/
-
-        leftB=(ImageButton)findViewById(R.id.button_down);
+        leftB = (ImageButton)findViewById(R.id.button_down);
         leftB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -5546,7 +5286,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         leftB.setScaleX(0.5f);
                         leftB.setScaleY(0.5f);
@@ -5564,78 +5304,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CommonStaticData.passwordVerifyFlag = false;
                         CommonStaticData.ageLimitFlag = false;
                         channelChangeStartView(false);
-                        // live add
                         if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
                             ll_scramble_msg.setVisibility(View.INVISIBLE);
                         }
 
                         ll_age_limit.setVisibility(View.INVISIBLE);
 
-                        //live
-                        //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                        /*if (buildOption.USE_MULTI_WINDOW) {
-                            if (changeChannelView.getVisibility() == View.VISIBLE) {
-                                //ll_multiWindow.setVisibility(View.GONE);
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-
-                            }*//* else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                                    ll_multiWindow.setVisibility(View.GONE);
-                                }*//* else {
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-                            }
-                        }*/
-                        //}
                         TVBridge.AVStartMinus();
                     }
                 }
                 return false;
             }
         });
-        /*leftB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
 
-                password_verify=false;
-                screenbl_enable = false;
-                channelChangeStartView(false);
-                // live add
-                if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                    ll_scramble_msg.setVisibility(View.INVISIBLE);
-                }
-
-                if (changeChannelView.getVisibility() == View.VISIBLE) {
-                    ll_multiWindow.setVisibility(View.GONE);
-                } else {
-                    ll_multiWindow.setVisibility(View.VISIBLE);
-                }
-
-                //
-                TVBridge.AVStartMinus();
-
-            }
-        });*/
-
-        // live add
-        /*ll_up = (LinearLayout) findViewById(R.id.ll_up);
-        ll_up.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // justin DB
-                password_verify=false;
-                screenbl_enable = false;
-                channelChangeStartView(false);
-                changeChannelView.setVisibility(View.VISIBLE);
-                // live add
-                if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                    ll_scramble_msg.setVisibility(View.INVISIBLE);
-                }
-                //
-                TVBridge.AVStartPlus();
-
-            }
-        });*/
-        //
-
-        rightB=(ImageButton)findViewById(R.id.button_up);
+        rightB = (ImageButton)findViewById(R.id.button_up);
         rightB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -5647,7 +5329,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         rightB.setScaleX(0.5f);
                         rightB.setScaleY(0.5f);
@@ -5676,52 +5358,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         }
 
                         ll_age_limit.setVisibility(View.INVISIBLE);
-
-                        //live
-                        //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                        /*if (buildOption.USE_MULTI_WINDOW) {
-                            if (changeChannelView.getVisibility() == View.VISIBLE) {
-                                //ll_multiWindow.setVisibility(View.GONE);
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-
-                            }*//* else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                                    ll_multiWindow.setVisibility(View.GONE);
-                                }*//* else {
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-                            }
-                        }*/
-                        //}
-                        //
                         TVBridge.AVStartPlus();
                     }
                 }
                 return false;
             }
         });
-        /*rightB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                // justin DB
-                password_verify=false;
-                screenbl_enable = false;
-                channelChangeStartView(false);
-                changeChannelView.setVisibility(View.VISIBLE);
-                // live add
-                if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                    ll_scramble_msg.setVisibility(View.INVISIBLE);
-                }
 
-                if (changeChannelView.getVisibility() == View.VISIBLE) {
-                    ll_multiWindow.setVisibility(View.GONE);
-                } else {
-                    ll_multiWindow.setVisibility(View.VISIBLE);
-                }
-                //
-                TVBridge.AVStartPlus();
-
-            }
-        });*/
-
-        epgB=(ImageButton)findViewById(R.id.button_epg);
+        epgB = (ImageButton)findViewById(R.id.button_epg);
         epgB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -5733,7 +5377,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         epgB.setScaleX(0.5f);
                         epgB.setScaleY(0.5f);
@@ -5749,11 +5393,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         epgB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
 
                         hideController();
-                        // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeEPG < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeEPG = SystemClock.elapsedRealtime();*/
 
                         MainActivity.isMainActivity=true;
                         setChangeProcMemory();
@@ -5767,26 +5406,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 return false;
             }
         });
-        /*epgB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                hideController();
-                // mis-clicking prevention, using threshold of 1500 ms
-                if (SystemClock.elapsedRealtime() - mLastClickTimeEPG < DOUBLE_CLICK_TOLERANCE){
-                    return;
-                    }
-                mLastClickTimeEPG = SystemClock.elapsedRealtime();
 
-                isMainActivity=false;
-                setChangeProcMemory();
-                setChangeProcShift();
-                Intent intent = new Intent(MainActivity.this, EPGActivity.class);
-                intent.putExtra("curIndex", mChannelIndex);
-
-                startActivity(intent);
-            }
-        });*/
-
-        scaleB=(ImageButton)findViewById(R.id.button_scale);
+        scaleB = (ImageButton)findViewById(R.id.button_scale);
         scaleB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -5798,7 +5419,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         scaleB.setScaleX(0.5f);
                         scaleB.setScaleY(0.5f);
@@ -5813,11 +5434,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         scaleB.setScaleY(1.0f);
                         scaleB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
 
-                        // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeScale < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeScale = SystemClock.elapsedRealtime();*/
                         android.view.ViewGroup.LayoutParams lp = sv.getLayoutParams();
                         if (currentVideoMode == SCALEMODE_NORMAL) {
                             TVlog.i(TAG, "video mode : Normal --> 16:9");
@@ -5832,38 +5448,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         } else {
                             TVlog.i(TAG, "video mode : 4:3 --> Normal");
                             SetVideoScale(SCALEMODE_NORMAL);
-
                         }
                     }
                 }
                 return false;
             }
         });
-        /*scaleB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                // mis-clicking prevention, using threshold of 1500 ms
-                if (SystemClock.elapsedRealtime() - mLastClickTimeScale < DOUBLE_CLICK_TOLERANCE){
-                    return;
-                }
-                mLastClickTimeScale = SystemClock.elapsedRealtime();
-                    android.view.ViewGroup.LayoutParams lp = sv.getLayoutParams();
-                    if (currentVideoMode == SCALEMODE_NORMAL) {
-                        TVlog.i(TAG, "video mode : Normal --> 16:9");
-                        SetVideoScale(SCALEMODE_16_9);
-
-                    } else if (currentVideoMode == SCALEMODE_16_9) {
-
-                        TVlog.i(TAG, "video mode : 16:9 --> 4:3");
-                        SetVideoScale(SCALEMODE_4_3);
-
-
-                    } else {
-                        TVlog.i(TAG, "video mode : 4:3 --> Normal");
-                        SetVideoScale(SCALEMODE_NORMAL);
-
-                    }
-                }
-        });*/
 
         captureB = (ImageButton) findViewById(R.id.button_capture);
         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
@@ -5900,10 +5490,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     captureB.setScaleX(1.0f);
                                     captureB.setScaleY(1.0f);
                                     captureB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
-
-                        /*if (SystemClock.elapsedRealtime() - mLastClickTimeRec < DOUBLE_CLICK_TOLERANCE) {
-                            return;
-                        }*/
 
                                     if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
                                         if (isStoragePermissionGranted() == true && mCursor != null) { // for Android M Permission
@@ -5976,7 +5562,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                                                 + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
                                                     }
                                                 }
-
                                             } else {
                                                 CustomToast toast = new CustomToast(getApplicationContext());
                                                 toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.capture_fail), Toast.LENGTH_SHORT);
@@ -5985,12 +5570,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                             CustomToast toast = new CustomToast(getApplicationContext());
                                             toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_for_capture), Toast.LENGTH_SHORT);
                                         }
-
                                     }
                                 }
                             }
                         }
-
                     } else if (ll_age_limit.getVisibility() == View.VISIBLE) {
                         CustomToast toast = new CustomToast(getApplicationContext());
                         toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.age_limit_title), Toast.LENGTH_SHORT);
@@ -6000,70 +5583,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             });
         }
 
-
-            /*captureB.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (SystemClock.elapsedRealtime() - mLastClickTimeRec < DOUBLE_CLICK_TOLERANCE) {
-                        return;
-                    }
-
-                    if (isStoragePermissionGranted() == true && mCursor != null) { // for Android M Permission
-                        mLastClickTimeRec = SystemClock.elapsedRealtime();
-                        //if (isRec == false) {  // available capture on recording
-                        // change rec image
-                        String channelName = mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
-                        int serviceID = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_ID);
-                        channelName = channelName.substring(4);
-                        channelName = channelName.replaceAll("[^a-zA-Z0-9]", "");
-
-
-                        Date now = new Date();
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-
-                        recordAndCapturePath filePath = getCurrentCapturePath();
-
-                        captureFileName = filePath.fullPath + sdf.format(now) + "_" + channelName + ".png";
-
-                        TVlog.i(TAG, " Capture Name = " + captureFileName);
-                        status_bar.setVisibility(View.INVISIBLE);
-                        controllerLayout.setVisibility(View.INVISIBLE);
-
-                        if (buildOption.USE_MULTI_WINDOW) {
-                            ll_multiWindow.setVisibility(View.GONE);
-                        }
-
-                        int isCaptured = FCI_TVi.DoCapture(captureFileName);
-
-                        instance.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-                                Uri.parse("file://" + captureFileName)));
-
-                        //int isCaptured = FCI_TVi.DoCapture(captureFileName);
-                        if (isCaptured == 1) {
-                            if (filePath.pathName.equalsIgnoreCase("SD")) {
-                                CustomToast toast = new CustomToast(getApplicationContext());
-                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
-                                        + getApplicationContext().getString(R.string.sd_storage_capture) + "\n"
-                                        + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
-                            } else {
-                                CustomToast toast = new CustomToast(getApplicationContext());
-                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
-                                        + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
-                                        + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
-                            }
-
-                        } else {
-                            CustomToast toast = new CustomToast(getApplicationContext());
-                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.capture_fail), Toast.LENGTH_SHORT);
-                        }
-                    } else {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_for_capture), Toast.LENGTH_SHORT);
-                    }
-
-                }
-            });*/
-
         ll_recTimeview = (LinearLayout) findViewById(R.id.ll_rectTimeView);
         ll_recTimeview.setVisibility(View.INVISIBLE);
 
@@ -6071,8 +5590,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         if (SDK_INT <= 19) {
             recTimeview.setTextColor(getResources().getColor(R.color.white));
         }
-        recB=(ImageButton)findViewById(R.id.button_rec);
-        if(buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+        recB = (ImageButton)findViewById(R.id.button_rec);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE || buildOption.RECORD_FUNCTION_USE == false) {
             recB.setVisibility(View.GONE);
@@ -6169,24 +5688,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                                 ll_multiWindow.setVisibility(View.GONE);
                                             }
                                             //}
-
-                                            // }
-                                    /*else{
-                                        Date now = new Date();
-                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-                                        //recordAndCapturePath filePath = getCurrentRecordingPath();
-
-                                        recordingFileName = filePath.fullPath + sdf.format(now)+ "_" + record_channelName + ".mp4";
-
-                                        TVlog.i(TAG," Recording Name = " + recordingFileName);
-                                        FCI_TVi.RecStart(instance, serviceID, recordingFileName, false);
-                                        isRec = true;
-                                        recTimeview.setText("");
-                                        recB.setImageResource(R.drawable.stop_color);
-                                        rightB.setVisibility(View.INVISIBLE);
-                                        leftB.setVisibility(View.INVISIBLE);
-                                    }*/
-
                                         } else {
                                             recordingStop(false);
 
@@ -6195,7 +5696,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         new InputDialog(instance, InputDialog.TYPE_NOT_SUPPORT_RECORD, null, null, null);
                                     }
                                 } else {
-
                                     recordingStop(false);
                                 }
                             } else {
@@ -6212,12 +5712,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.age_limit_title), Toast.LENGTH_SHORT);
                 }
             }
-
         });
 
 
         recfileB = (ImageButton)findViewById(R.id.button_recfile);
-        if(buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE || buildOption.RECORD_FUNCTION_USE == false) {
             recfileB.setVisibility(View.GONE);
@@ -6244,10 +5743,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     recfileB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
 
                     hideController();
-                    // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeRecF < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }*/
 
                     if (isStoragePermissionGranted() == true) {  // for Android M Permission
                         mLastClickTimeRecF = SystemClock.elapsedRealtime();
@@ -6263,41 +5758,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 return false;
             }
         });
-        /*recfileB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                hideController();
-                // mis-clicking prevention, using threshold of 1500 ms
-                if (SystemClock.elapsedRealtime() - mLastClickTimeRecF < DOUBLE_CLICK_TOLERANCE){
-                    return;
-                }
 
-                if (isStoragePermissionGranted() == true) {  // for Android M Permission
-                    mLastClickTimeRecF = SystemClock.elapsedRealtime();
-                    Intent intent = new Intent(MainActivity.this, RecordedFileListActivity.class);
-                    isMainActivity = false;
-                    isPlayBackActivity = true;
-                    startActivity(intent);
-                } else {
-                    CustomToast toast = new CustomToast(getApplicationContext());
-                    toast.showToast(getApplicationContext(), "Permission is needed for Play of Recorded files!", Toast.LENGTH_SHORT);
-                }
-            }
-        });*/
-
-        /*favB=(ImageButton)findViewById(R.id.button_fav);
-        favB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                hideController();
-                isMainActivity=false;
-                setChangeProcMemory();
-                setChangeProcShift();
-                Intent intent = new Intent(MainActivity.this, ChannelMainActivity.class);
-
-                startActivity(intent);
-            }
-        });*/
-
-        setB=(ImageButton)findViewById(R.id.button_set);
+        setB = (ImageButton)findViewById(R.id.button_set);
         setB.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -6325,11 +5787,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         setB.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
 
                         hideController();
-                        // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeSet < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeSet = SystemClock.elapsedRealtime();*/
 
                         //isMainActivity=false;
                         setChangeProcMemory();
@@ -6342,28 +5799,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 return false;
             }
         });
-        /*setB.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                hideController();
-                // mis-clicking prevention, using threshold of 1500 ms
-                if (SystemClock.elapsedRealtime() - mLastClickTimeSet < DOUBLE_CLICK_TOLERANCE){
-                    return;
-                }
-                mLastClickTimeSet = SystemClock.elapsedRealtime();
 
-                isMainActivity=false;
-                setChangeProcMemory();
-                setChangeProcShift();
-                Intent intent = new Intent(MainActivity.this, SettingActivity.class);
+        subTitleView = (TextView)findViewById(R.id.subTitleView);
 
-                startActivity(intent);
-
-            }
-        });*/
-
-        subTitleView=(TextView)findViewById(R.id.subTitleView);
-
-        superImposeView=(TextView)findViewById(R.id.superImposeView);
+        superImposeView = (TextView)findViewById(R.id.superImposeView);
         // live add
         if (CommonStaticData.superimposeSwitch == true) {
             superImposeView.setVisibility(View.VISIBLE);
@@ -6406,7 +5845,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             controllerLayout.setLayoutParams(param);
         }
 
-        //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+        //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
         status_bar = (LinearLayout) findViewById(R.id.status_bar);
         if (status_bar != null) {
             status_bar.setVisibility(View.VISIBLE);
@@ -6455,8 +5894,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                     audioOut.setSpeakerMode(false);
                     CommonStaticData.loudSpeaker = false;
-
-
                 }
             });
         }
@@ -6476,9 +5913,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         //CommonStaticData.brightness = CommonStaticData.settings.getInt(CommonStaticData.brightnessKey,15);
         player_bright = CommonStaticData.brightness;
-        if(player_bright < 1){
+        if (player_bright < 1){
             player_bright =1;
-        }else if(player_bright > 15){
+        } else if (player_bright > 15){
             player_bright = 15;
         }
         WindowManager.LayoutParams plp = this.getWindow().getAttributes();
@@ -6488,12 +5925,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         mVerticalBrightProgress.setMax(15);
         mVerticalBrightProgress.setProgress(player_bright);
 
-        if(mVerticalBrightProgress != null){
+        if (mVerticalBrightProgress != null){
             mVerticalBrightProgress.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener(){
 
                 @Override
                 public void onProgressChanged(kr.co.fci.tv.gesture.VerticalSeekBar seekBar, int progress, boolean fromUser) {
-                    if(!fromUser) {
+                    if (!fromUser) {
                         return;
                     }
                     CommonStaticData.brightness = progress;
@@ -6522,7 +5959,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         int vol = audMgr.getStreamVolume(AudioManager.STREAM_MUSIC);
         int max = audMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-        if(mVerticalVolumeProgress != null){
+        if (mVerticalVolumeProgress != null){
             mVerticalVolumeProgress.setMax(max);
             mVerticalVolumeProgress.setProgress(vol);
             mVerticalVolumeProgress.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
@@ -6546,7 +5983,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             });
         }
         ///////////////////////
-        if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3){
+        if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3){
             ll_ch_menu = (LinearLayout) findViewById(R.id.ll_ch_menu);
             ll_ch_menu.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -6559,7 +5996,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                         //  }
-                    }else {
+                    } else {
                         // mis-clicking prevention, using threshold of 1500 ms
                         if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE) {
                             return;
@@ -6591,7 +6028,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                         // }
-                    }else {
+                    } else {
                         // mis-clicking prevention, using threshold of 1500 ms
                         if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE) {
                             return;
@@ -6612,7 +6049,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             });
         }
 
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
             channelLayout = (LinearLayout) findViewById(R.id.channelLayout);
             channelLayout.setVisibility(View.VISIBLE);
         }
@@ -6629,7 +6066,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         ch_up.setScaleX(0.5f);
                         ch_up.setScaleY(0.5f);
@@ -6661,21 +6098,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         ll_age_limit.setVisibility(View.INVISIBLE);
 
-                        //live
-                        //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                        /*if (buildOption.USE_MULTI_WINDOW) {
-                            if (changeChannelView.getVisibility() == View.VISIBLE) {
-                                //ll_multiWindow.setVisibility(View.GONE);
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-
-                            }*//* else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                                    ll_multiWindow.setVisibility(View.GONE);
-                                }*//* else {
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-                            }
-                        }*/
-                        //}
-                        //
                         TVBridge.AVStartPlus();
                     }
                 }
@@ -6683,7 +6105,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
-        if(buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1) {
+        if (buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1) {
             ch_CherryMenu = (ImageButton) findViewById(R.id.button_tv);
             ch_CherryMenu.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -6696,7 +6118,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             CustomToast toast12 = new CustomToast(getApplicationContext());
                             toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                         }
-                    }else {
+                    } else {
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
                             ch_CherryMenu.setScaleX(0.5f);
                             ch_CherryMenu.setScaleY(0.5f);
@@ -6712,14 +6134,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             ch_CherryMenu.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
 
                             hideController();
-                            // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeCHMenu = SystemClock.elapsedRealtime();*/
-                            MainActivity.isMainActivity=true;
+
+                            MainActivity.isMainActivity = true;
                             setChangeProcMemory();
-                            isChannelListViewOn=true;
+                            isChannelListViewOn = true;
                             setChangeProcShift();
 
                             Intent intent = new Intent(MainActivity.this, ChannelMainActivity.class);
@@ -6730,26 +6148,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     return false;
                 }
             });
-            /*ch_CherryMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    hideController();
-                    // mis-clicking prevention, using threshold of 1500 ms
-                    *//*if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeCHMenu = SystemClock.elapsedRealtime();*//*
-                    isMainActivity=false;
-                    setChangeProcMemory();
-                    isChannelListViewOn=true;
-                    setChangeProcShift();
-
-                    Intent intent = new Intent(MainActivity.this, ChannelMainActivity.class);
-
-                    startActivity(intent);
-                }
-            });*/
-        } else if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+        } else if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
             ch_MyphoneMenu = (ImageButton) findViewById(R.id.button_tv);
             ch_MyphoneMenu.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -6762,7 +6161,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             CustomToast toast12 = new CustomToast(getApplicationContext());
                             toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                         }
-                    }else {
+                    } else {
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
                             ch_MyphoneMenu.setScaleX(0.5f);
                             ch_MyphoneMenu.setScaleY(0.5f);
@@ -6777,11 +6176,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             ch_MyphoneMenu.setScaleY(1.0f);
                             ch_MyphoneMenu.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.MULTIPLY);
 
-                            // mis-clicking prevention, using threshold of 1500 ms
-                    /*if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeCHMenu = SystemClock.elapsedRealtime();*/
                             MainActivity.isMainActivity=true;
                             setChangeProcMemory();
                             isChannelListViewOn=true;
@@ -6798,29 +6192,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     return false;
                 }
             });
-            /*ch_MyphoneMenu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    hideController();
-                    // mis-clicking prevention, using threshold of 1500 ms
-                    *//*if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE){
-                        return;
-                    }
-                    mLastClickTimeCHMenu = SystemClock.elapsedRealtime();*//*
-                    isMainActivity=false;
-                    setChangeProcMemory();
-                    isChannelListViewOn=true;
-                    setChangeProcShift();
-
-                    Intent intent = new Intent(MainActivity.this, ChannelMainActivity.class);
-
-                    startActivity(intent);
-
-                    hideController();
-                    overridePendingTransition(R.anim.pull_in_left, R.anim.push_out_right);  // live add
-
-                }
-            });*/
         }
 
         ch_down = (ImageButton) findViewById(R.id.button_down);
@@ -6835,7 +6206,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CustomToast toast12 = new CustomToast(getApplicationContext());
                         toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
                     }
-                }else {
+                } else {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         ch_down.setScaleX(0.5f);
                         ch_down.setScaleY(0.5f);
@@ -6860,22 +6231,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                         ll_age_limit.setVisibility(View.INVISIBLE);
 
-                        //live
-                        //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-                        /*if (buildOption.USE_MULTI_WINDOW) {
-                            if (changeChannelView.getVisibility() == View.VISIBLE) {
-                                //ll_multiWindow.setVisibility(View.GONE);
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-
-                            }*//* else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                                    ll_multiWindow.setVisibility(View.GONE);
-                                }*//* else {
-                                ll_multiWindow.setVisibility(View.VISIBLE);
-                            }
-                        }*/
-                        //}
-
-                        //
                         TVBridge.AVStartMinus();
                     }
                 }
@@ -6884,7 +6239,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         });
 
         videoSurfaceHolder = sv.getHolder();
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             if (svSub != null) {
                 videoSurfaceHolderSub = svSub.getHolder();
             }
@@ -6895,14 +6250,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         videoSurfaceHolder.setFixedSize(w, h);
         videoSurfaceHolder.addCallback(this);
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             if (svSub != null) {
                 videoSurfaceHolderSub.setFixedSize(w, h);
                 videoSurfaceHolderSub.addCallback(SubSurfaceSet.getSubSurfaceSet());
             }
         }
 
-        if(SurfaceRotationOn ==true) {
+        if (SurfaceRotationOn ==true) {
             sv.setOnTouchListener(new View.OnTouchListener() {
                 public boolean onTouch(View arg0, MotionEvent arg1) {
 
@@ -6927,8 +6282,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         lp.width = (int) height;
                         lp.height = (int) width;
                         sv.setLayoutParams(lp);
-                        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                            if(svSub!= null)
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                            if (svSub != null)
                             {
                                 svSub.setLayoutParams(lp);
                             }
@@ -6941,8 +6296,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         lp.width = (int) frameWidth;
                         lp.height = (int) frameHeight;
                         sv.setLayoutParams(lp);
-                        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                            if(svSub!= null)
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                            if (svSub != null)
                             {
                                 svSub.setLayoutParams(lp);
                             }
@@ -6966,12 +6321,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         postEvent(TVEVENT.E_HIDE_CONTROLER, CONTROLLER_HIDE_TIME);  // live add
 
     }
+
     // [[ solution switching mode 20170223
     public void envSet_JP() {
 
         mFont = Typeface.createFromAsset(getAssets(), "wlcmaru2004emoji.ttf");
         currCH.setTypeface(mFont);
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
             currProgram.setTypeface(mFont);
         }
 
@@ -7014,7 +6370,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     public void envSet_Normal() {
         mFont = Typeface.DEFAULT;
         currCH.setTypeface(mFont);
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
             currProgram.setTypeface(mFont);
         }
 
@@ -7083,16 +6439,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 epgStartNDuration = epgStartTime + EPG_TIME_STR_SEPARATOR + epgEndTime;
 
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                     //program name
                     currProgram.setText(progName);
                     currDuration.setText(epgStartNDuration);
                 }
 
             }
-        }
-        else {
-            if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+        } else {
+            if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                 currProgram.setText("- - -");
                 currDuration.setText("--:--~--:--");
             }
@@ -7144,25 +6499,23 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
-
     private void setChangeProcMemory()
     {
-        if(channelChangeProcLocation ==null)
+        if (channelChangeProcLocation ==null)
         {
             channelChangeProcLocation= new int[2];
             changeChannelView.getLocationInWindow(channelChangeProcLocation);
             TVlog.i(TAG, "== channelChangeProcLocation x =" + channelChangeProcLocation[0] + " y =" + channelChangeProcLocation[1]);
-            if(channelChangeProcLocation[0]==0 || channelChangeProcLocation[1]==0)
+            if (channelChangeProcLocation[0]==0 || channelChangeProcLocation[1]==0)
             {
                 channelChangeProcLocation = null;
             }
-
         }
     }
 
     private void setChangeProcShift()
     {
-        if(MainActivity.isMainActivity==true) {
+        if (MainActivity.isMainActivity==true) {
 
             TVlog.i(TAG, "== channelChangeStartView  channelListViewOn false ==");
             if (changeChannelView != null) {
@@ -7171,8 +6524,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     changeChannelView.setY(channelChangeProcLocation[1]);
                 }
             }
-        }
-        else {
+        } else {
             TVlog.i(TAG, "== channelChangeStartView  channelListViewOn true ==");
             if (changeChannelView != null) {
                 if (channelChangeProcLocation != null) {
@@ -7182,7 +6534,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
     }
-
 
     public void channelChangeStartView(boolean _cas)
     {
@@ -7211,18 +6562,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         changeChannelView.setVisibility(View.VISIBLE);
         channelChangeBG.setVisibility(View.VISIBLE);
         progressingChange.setVisibility(View.VISIBLE);
-        if(_cas == false) {
+        if (_cas == false) {
             loadingChannel.setVisibility(View.VISIBLE);
             loadingFilePlay.setVisibility(View.GONE);
-        }
-        else {   // call from playback
+        } else {   // call from playback
             loadingChannel.setVisibility(View.GONE);
             loadingFilePlay.setVisibility(View.VISIBLE);
         }
-
-        /*if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-            ll_scramble_msg.setVisibility(View.INVISIBLE);
-        }*/
 
          if (buildOption.USE_MULTI_WINDOW) {
              if (changeChannelView.getVisibility() == View.VISIBLE) {
@@ -7231,26 +6577,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                  ll_multiWindow.setVisibility(View.VISIBLE);
              }
          }
-
-        //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-        /*if (buildOption.USE_MULTI_WINDOW) {
-            if (changeChannelView.getVisibility() == View.VISIBLE) {
-                //ll_multiWindow.setVisibility(View.GONE);
-                ll_multiWindow.setVisibility(View.VISIBLE);
-            } *//*else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                ll_multiWindow.setVisibility(View.GONE);
-            }*//*else {
-                ll_multiWindow.setVisibility(View.VISIBLE);
-            }
-        }*/
-        //}
     }
 
 
     private void channelChangeEndView(boolean _keepBG)
     {
-        if(_keepBG ==false)
-        {
+        if (_keepBG == false) {
             channelChangeBG.setVisibility(View.INVISIBLE);
         }
         recTimeview.setVisibility(View.VISIBLE);
@@ -7258,18 +6590,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     private void hideController() {
-        //if(controllerLayout.isShown()) {
+        //if (controllerLayout.isShown()) {
 
         if (!isUiLocked) {
             TVlog.i(TAG, "== hideController ==");
             uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             decorView.setSystemUiVisibility(uiOptions);
 
-            //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2  || buildOption.GUI_STYLE == 3) {
+            //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2  || buildOption.GUI_STYLE == 3) {
             status_bar.setVisibility(View.INVISIBLE);
             //}
             controllerLayout.setVisibility(View.INVISIBLE);
-            if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+            if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
                 channelLayout.setVisibility(View.INVISIBLE);
             }
             if (buildOption.ADD_LOUD_SPEAKER) {
@@ -7295,14 +6627,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             decorView.setSystemUiVisibility(uiOptions);
             ll_uiLocked.setVisibility(View.INVISIBLE);
         }
-
         //}
     }
 
     private void showController() {
 
         if (!isUiLocked) {
-            //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+            //if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
             status_bar.setVisibility(View.VISIBLE);
             //}
             controllerLayout.setVisibility(View.VISIBLE);
@@ -7313,32 +6644,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     earphoneLayout.setVisibility(View.INVISIBLE);
                 }
             }
-            if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+            if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                 channelLayout.setVisibility(View.VISIBLE);
             }
 
-        /*if (ll_scramble_msg.getVisibility() == View.VISIBLE || noSignal.getVisibility() == View.VISIBLE) {
-            ll_multiWindow.setVisibility(View.GONE);
-        } else {
-            ll_multiWindow.setVisibility(View.VISIBLE);
-        }*/
-
-            //live
-            //if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
-            /*if (buildOption.USE_MULTI_WINDOW) {
-                if (changeChannelView.getVisibility() == View.VISIBLE) {
-                    //ll_multiWindow.setVisibility(View.GONE);
-                    ll_multiWindow.setVisibility(View.VISIBLE);
-
-                } *//*else if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                        ll_multiWindow.setVisibility(View.GONE);
-                    }*//* else {
-                    ll_multiWindow.setVisibility(View.VISIBLE);
-                }
-
-            }*/
-            //}
-            //ll_multiWindow.setVisibility(View.VISIBLE);
             if (buildOption.USE_MULTI_WINDOW) {
                 if (changeChannelView.getVisibility() == View.VISIBLE) {
                     ll_multiWindow.setVisibility(View.GONE);
@@ -7347,7 +6656,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
             }
 
-            //ll_chat.setVisibility(View.VISIBLE);
             if (buildOption.USE_CHAT_FUNCTION) {
                 if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
                     ll_chat.setVisibility(View.VISIBLE);
@@ -7395,7 +6703,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        /*int id = item.getItemId();
+        /*
+        int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -7406,7 +6715,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     // justin for DB
     public void scanNotify(int idx, String desc, byte type, byte vFormat, byte aFormat, byte iFree, int remoteKey, int svcNum, int freqKHz, byte bLast) {
         ContentValues values = new ContentValues();
-        if(bLast==2) {
+        if (bLast == 2) {
             if (mCursor != null) {
                 int cursorCount = mCursor.getCount();
                 if (cursorCount > 0 && cursorCount > mCursor.getPosition()) {
@@ -7448,16 +6757,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     //check emulator
     public static boolean isRunningOnEmulator()
     {
-        boolean result=//
+        boolean result =//
                 Build.FINGERPRINT.startsWith("generic")//
                         ||Build.FINGERPRINT.startsWith("unknown")//
                         ||Build.MODEL.contains("google_sdk")//
                         ||Build.MODEL.contains("Emulator")//
                         ||Build.MODEL.contains("Android SDK built for x86");
-        if(result)
+        if (result)
             return true;
         result|=Build.BRAND.startsWith("generic")&&Build.DEVICE.startsWith("generic");
-        if(result)
+        if (result)
             return true;
         result|="google_sdk".equals(Build.PRODUCT);
         return result;
@@ -7469,7 +6778,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
         // Error checking that probably isn't needed but I added just in case.
-        if(level == -1 || scale == -1) {
+        if (level == -1 || scale == -1) {
             return 50.0f;
         }
         //  return 40.0f; //for test
@@ -7482,7 +6791,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             getContentResolver().delete(mUri, null, null);
         }
 
-       /* if (buildOption.USE_ANALYTICS_FUNCTION) {
+        /*
+        if (buildOption.USE_ANALYTICS_FUNCTION) {
             GoogleAnalytics.getInstance(this).reportActivityStart(this);
         }*/
 
@@ -7491,7 +6801,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         // sharedpreference init check justin
         CommonStaticData.versionName = CommonStaticData.settings.getString(CommonStaticData.versionNameKey, "");
-        if(!CommonStaticData.versionName.equals(buildInformation.RELEASE_VERSION)){
+        if (!CommonStaticData.versionName.equals(buildInformation.RELEASE_VERSION)){
             SharedPreferences.Editor editor = CommonStaticData.settings.edit();
             editor.clear();
             editor.commit();
@@ -7514,7 +6824,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE){
             CommonStaticData.localeSet = 4;
 
-        }else if(buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
+        } else if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) { // Brazil
 
             // CommonStaticData.localeSet = CommonStaticData.settings.getInt(CommonStaticData.localeSetKey, 16);  // for Sri Lanka
@@ -7548,7 +6858,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         CommonStaticData.returnMainFromChat = CommonStaticData.settings.getBoolean(CommonStaticData.returnMainFromChatKey, false);
         CommonStaticData.returnMainFromFloating = CommonStaticData.settings.getBoolean(CommonStaticData.returnMainFromFloatingKey, false);
 
-		/*if (CommonStaticData.scanCHnum == 0) {
+        /*
+        if (CommonStaticData.scanCHnum == 0) {
             CommonStaticData.onesegCh = CommonStaticData.fullsegCh = new int [255];
         } else {
             CommonStaticData.onesegCh = CommonStaticData.fullsegCh = new int [CommonStaticData.scanCHnum];
@@ -7559,7 +6870,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         // battery check continue
         CommonStaticData.battMonitorSet=CommonStaticData.settings.getInt(CommonStaticData.definedbattMonitorKey,0);
-        if(CommonStaticData.battMonitorSet > 0) {
+        if (CommonStaticData.battMonitorSet > 0) {
             postEvent(TVEVENT.E_BATTERY_LIMITED_CHECK, 5000);
         }
 
@@ -7591,7 +6902,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         CommonStaticData.versionName = buildInformation.RELEASE_VERSION;        // add by justin
         editor.putString(CommonStaticData.versionNameKey, CommonStaticData.versionName);
         editor.commit();
-
     }
 
     private class SysBroadcastReceiver extends BroadcastReceiver {
@@ -7625,7 +6935,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             }
                             break;
                         }
-
                     default:
                         break;
                 }
@@ -7638,7 +6947,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             // [[ eddy 160706
             if (action.equals(Intent.ACTION_USER_PRESENT)) {
                 TVlog.i(TAG, " >>>>> Intent.ACTION_USER_PRESENT");
-                if(isRunningInForeground())
+                if (isRunningInForeground())
                 {
                     TVlog.i(TAG, " TV running fore ground");
                     if (!CommonStaticData.ageLimitFlag) {
@@ -7711,10 +7020,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 }
                             }
                         }
-
-                    } /*else {
-                        isWarmReset = true;
-                    }*/
+                    }
                 }
 
                 if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) && mUsbConnected == false) {
@@ -7801,7 +7107,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             debugScreen.setText(strtmp);
         }
     }
-
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -10429,7 +9734,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0) {
-            if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+            if (grantResults[0]== PackageManager.PERMISSION_GRANTED){
                 TVlog.i(TAG, " >>>>> Permission: " + permissions[0] + "was " + grantResults[0]);
                 //resume tasks needing this permission
             }
@@ -10451,7 +9756,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         ShowVolume();
 
-        if(delta != 0){
+        if (delta != 0){
             audMgr.setStreamVolume(AudioManager.STREAM_MUSIC, vol, 0);
             //mIsAudioOrBrightnessChanged = true;
             mAudio = true;
@@ -10517,7 +9822,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     private void doBrightnessTouch(float y_changed){
-        if(mIsFirstBrightnessGesture)
+        if (mIsFirstBrightnessGesture)
             initBrightnessTouch();
 
         //mIsAudioOrBrightnessChanged = true;
@@ -10531,15 +9836,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         CommonStaticData.brightness = CommonStaticData.settings.getInt(CommonStaticData.brightnessKey, 15);
         int player_bright = CommonStaticData.brightness;
 
-        if(player_bright < 1){
+        if (player_bright < 1){
             player_bright = 1;
-        } else if(player_bright > 15){
+        } else if (player_bright > 15){
             player_bright = 15;
         }
 
         ShowBright();
 
-        if(player_bright != Math.round(lp.screenBrightness * 15)){
+        if (player_bright != Math.round(lp.screenBrightness * 15)){
             getWindow().setAttributes(lp);
             mBrightnessChanged =  true;     // justin
             CommonStaticData.brightness = Math.round(lp.screenBrightness * 15);
@@ -10575,14 +9880,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public void run() {
                 int timeToBlink = 1000;    //in milissegunds
-                try{Thread.sleep(timeToBlink);}catch (Exception e) {}
+                try {Thread.sleep(timeToBlink);}catch (Exception e) {}
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         TextView txt = (TextView) findViewById(R.id.bcas_card_insert_msg);
-                        if(txt.getVisibility() == View.VISIBLE){
+                        if (txt.getVisibility() == View.VISIBLE){
                             txt.setVisibility(View.INVISIBLE);
-                        }else{
+                        } else {
                             txt.setVisibility(View.VISIBLE);
                         }
                         blink();
@@ -10628,7 +9933,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     {
         //TVlog.i(TAG, "[processGingaNCL] TSdata: ");
         //for (int i=0; i < 188; i++) {
-        //	TVlog.i(TAG, TSdata[i] + " ");
+        //  TVlog.i(TAG, TSdata[i] + " ");
         //}
         if (buildOption.ADD_GINGA_NCL
                 && (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_ONESEG
@@ -10646,7 +9951,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     //Process Ginga NCL TS here.
                     //TVlog.i(TAG, "ginga ts in+ ");
 /*
-					System.arraycopy(TSdata, 0, buffer, 0, TS_PACKET_SIZE);
+                    System.arraycopy(TSdata, 0, buffer, 0, TS_PACKET_SIZE);
 */
                 }
             }
@@ -10759,7 +10064,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         return null;
     }
 
-    /*public File getUsbDrive() {
+    /*
+    public File getUsbDrive() {
         File parent;
         parent = new File("/storage");
         try {
@@ -10783,15 +10089,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     // // [[ solution switching mode 20170223
     public void reStart_TV(){
         FCI_TVi.AVStop();
-        if(mCaptionView != null) {
+        if (mCaptionView != null) {
             mCaptionView.setText("");
             mCaptionView.invalidate();
         }
-        if(mSuperimposeView != null) {
+        if (mSuperimposeView != null) {
             mSuperimposeView.setText("");
             mSuperimposeView.invalidate();
         }
-        if(subTitleView != null)
+        if (subTitleView != null)
         {
             subTitleView.setText(Html.fromHtml(""));
         }
@@ -10806,13 +10112,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             envSet_Normal();
         }
 
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1)  {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1)  {
             FCI_TVi.init(this.getPackageName(), null, mUsbFd, mUsbDeviceName, getVersionForDongle());
         } else {
             recordAndCapturePath FixedRecPath=  getCurrentRecordingPath();
             FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle());
         }
-
     }
     // ]]
 
@@ -10822,7 +10127,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    /*public String[] getExternalStorageDirectories() {
+    /*
+    public String[] getExternalStorageDirectories() {
 
         List<String> results = new ArrayList<>();
 
@@ -10834,20 +10140,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 boolean addPath = false;
 
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     addPath = Environment.isExternalStorageRemovable(file);
                 }
-                else{
+                else {
                     addPath = Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file));
                 }
 
-                if(addPath){
+                if (addPath){
                     results.add(path);
                 }
             }
         }
 
-        if(results.isEmpty()) { //Method 2 for all versions
+        if (results.isEmpty()) { //Method 2 for all versions
             // better variation of: http://stackoverflow.com/a/40123073/5002496
             String output = "";
             try {
@@ -10863,7 +10169,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             } catch (final Exception e) {
                 e.printStackTrace();
             }
-            if(!output.trim().isEmpty()) {
+            if (!output.trim().isEmpty()) {
                 String devicePoints[] = output.split("\n");
                 for(String voldPoint: devicePoints) {
                     results.add(voldPoint.split(" ")[2]);
@@ -10872,7 +10178,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
 
         //Below few lines is to remove paths which may not be external memory card, like OTG (feel free to comment them out)
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             for (int i = 0; i < results.size(); i++) {
                 if (!results.get(i).toLowerCase().matches(".*[0-9a-f]{4}[-][0-9a-f]{4}")) {
                     Log.d(TAG, results.get(i) + " might not be extSDcard");
@@ -10893,5 +10199,5 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         return storageDirectories;
     }*/
-
 }
+

@@ -20,10 +20,10 @@
             android:layout_gravity="left|top"/>
 
         <SurfaceView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/surfaceView"
-             android:layout_gravity="left|top" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/surfaceView"
+            android:layout_gravity="left|top" />
 
         <ImageView
             android:layout_width="fill_parent"
@@ -76,7 +76,7 @@
                 android:gravity="center_horizontal"
                 android:layout_marginTop="10dp"
                 android:id="@+id/loading_channel" />
-                
+
              <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -86,10 +86,7 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
                 android:layout_marginTop="10dp"
-                android:id="@+id/loading_fileplay" />    
-
-
-
+                android:id="@+id/loading_fileplay" />
 
         </LinearLayout>
 
@@ -173,42 +170,9 @@
                     android:src="@drawable/ic_multi_window" />
             </LinearLayout>
 
-
         </LinearLayout>
 
-        <!--
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/prompt1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:textColor="@color/yellow"
-                    android:layout_gravity="center_horizontal"/>
-                   <TextView
-                    android:id="@+id/prompt2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:textColor="@color/yellow"
-                    android:layout_gravity="center_horizontal"/>
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/currtime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right"
-                android:textSize="30dip"
-                android:singleLine="true"/>
-                -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -310,7 +274,6 @@
                         android:marqueeRepeatLimit="marquee_forever"
                         android:focusable="true"
                         android:maxWidth="320dp" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -736,7 +699,7 @@
                 android:gravity="center"
                 android:id="@+id/tv_scramble_msg" />
         </LinearLayout>
-        
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -780,7 +743,8 @@
                     android:background="@drawable/circle_roundlayout"
                     android:padding="5dp"
                     android:src="@drawable/arrow_up_f" />
-                <!--<ImageButton
+                <!--
+                <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/button_tv"
@@ -790,7 +754,8 @@
                     android:layout_marginRight="10dp"
                     android:padding="5dp"
                     android:background="@drawable/circle_roundlayout"
-                    android:src="@drawable/tv_ch_f" />-->
+                    android:src="@drawable/tv_ch_f" />
+                -->
                 <ImageButton
                     android:id="@+id/button_tv"
                     android:layout_width="wrap_content"
@@ -1077,7 +1042,6 @@
                         android:textSize="18dp"
                         android:layout_weight="20" />
 
-
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -1107,3 +1071,4 @@
 
     </FrameLayout>
 </FrameLayout>
+
