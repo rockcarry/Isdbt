@@ -16,7 +16,7 @@ public class FloatingSubSurface implements SurfaceHolder.Callback {
     private static FloatingSubSurface floatingSubSurface = null;
     private static final String TAG = "FloatingSubSurface ";
 
-    private static Surface surface =null;
+    private static Surface surface = null;
     //private ScanProcess doScan;
 
     public static FloatingSubSurface getFloatingSubSurface() {
@@ -32,23 +32,19 @@ public class FloatingSubSurface implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
         TVlog.i(TAG, "Floating Sub surfaceCreated ******************************************************************** ");
         //MainActivity.getInstance().onStart_TV();
         FCI_TVi.setSubSurface(holder.getSurface());  //eddy strang
-        surface =holder.getSurface();
-
+        surface = holder.getSurface();
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
         TVlog.i(TAG, " Sub surfaceChanged ");
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
         TVlog.i(TAG, " Sub surfaceDestroyed ");
 
 /*
@@ -64,9 +60,7 @@ public class FloatingSubSurface implements SurfaceHolder.Callback {
 */
     }
 
-    Surface getFloatingSurface()
-    {
+    Surface getFloatingSurface() {
         return surface;
     }
-
 }

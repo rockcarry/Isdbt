@@ -1,12 +1,12 @@
-package kr.co.fci.tv;    
-/**      
- * Created by eddy.lee on 2015-09-25.      
- */      
+package kr.co.fci.tv;
+/**
+ * Created by eddy.lee on 2015-09-25.
+ */
 public class buildOption {
 
     // Define Country and Mode
-    public final static int JAPAN = 0;      
-    public final static int BRAZIL = 1;      
+    public final static int JAPAN = 0;
+    public final static int BRAZIL = 1;
     public final static int PHILIPPINES = 2;
     public final static int SRILANKA = 3;
     public final static int JAPAN_ONESEG = 4;
@@ -81,7 +81,7 @@ public class buildOption {
     // function
     public final static boolean ADD_LOUD_SPEAKER = cReleaseOption.ADD_LOUD_SPEAKER;
     public final static boolean INTRO_ANIMATION = cReleaseOption.INTRO_ANIMATION;  //true = PNG animation intro, false = One Pic intro
-	public final static boolean ADD_DEBUG_SCREEN = cReleaseOption.ADD_DEBUG_SCREEN;
+    public final static boolean ADD_DEBUG_SCREEN = cReleaseOption.ADD_DEBUG_SCREEN;
     public final static boolean ADD_TS_CAPTURE = cReleaseOption.ADD_TS_CAPTURE;
     public final static boolean ADD_GINGA_NCL = cReleaseOption.ADD_GINGA_NCL;
     public final static boolean VIEW_PHY_CH = cReleaseOption.VIEW_PHY_CH;
@@ -92,12 +92,12 @@ public class buildOption {
 
     // File system path
     //public final static String PHONE_DRIVE_PATH = cReleaseOption.PHONE_DRIVE_PATH;
-	//public final static String SECOND_DRIVE_PATH = cReleaseOption.SECOND_DRIVE_PATH;
+    //public final static String SECOND_DRIVE_PATH = cReleaseOption.SECOND_DRIVE_PATH;
     public final static String ROOT_RECORDED_PATH = cReleaseOption.ROOT_RECORDED_PATH;
     public final static String ROOT_CAPTURED_PATH = cReleaseOption.ROOT_CAPTURED_PATH;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
- 	 public final static boolean RECORD_FUNCTION_USE = cReleaseOption.RECORD_FUNCTION_USE;   // This option include recording and recorded file with playback
+     public final static boolean RECORD_FUNCTION_USE = cReleaseOption.RECORD_FUNCTION_USE;   // This option include recording and recorded file with playback
 
     public final static boolean SETTING_LOCALE_USE = cReleaseOption.SETTING_LOCALE_USE;
     public final static boolean SETTING_RESTORE_USE = cReleaseOption.SETTING_RESTORE_USE;
@@ -113,4 +113,4 @@ public class buildOption {
     // 3 : Automatic File mode
     public final static int LOG_CAPTURE_MODE = 0;
     public final static int REGISTER_DEBUG = 0;
-}      
+}

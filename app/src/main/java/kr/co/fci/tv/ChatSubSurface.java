@@ -15,7 +15,7 @@ public class ChatSubSurface implements SurfaceHolder.Callback {
     private static ChatSubSurface chatSubSurface = null;
     private static final String TAG = "ChatSubSurface ";
 
-    private static Surface surface =null;
+    private static Surface surface = null;
     //private ScanProcess doScan;
 
     public static ChatSubSurface getChatSubSurface() {
@@ -31,23 +31,19 @@ public class ChatSubSurface implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
         TVlog.i(TAG, "Chat Sub surfaceCreated ******************************************************************** ");
         //MainActivity.getInstance().onStart_TV();
         FCI_TVi.setSubSurface(holder.getSurface());  //eddy strang
-        surface =holder.getSurface();
-
+        surface = holder.getSurface();
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
         TVlog.i(TAG, " Sub surfaceChanged ");
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
         TVlog.i(TAG, " Sub surfaceDestroyed ");
 
 /*
