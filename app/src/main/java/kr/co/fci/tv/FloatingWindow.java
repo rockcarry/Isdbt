@@ -929,7 +929,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 case E_FLOATING_STOP_NOTIFY: {
                     TVlog.i(TAG, ">>>>> E_FLOATING_STOP_NOTIFY");
                     sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
-                    svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                    if (svSub_floatingView != null && svSub_floatingView.isShown()) {
+                        svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                    }
                 }
                 break;
 
@@ -1709,17 +1711,14 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                 case E_FLOATING_SURFACE_CREATED:
                 {
-
                     TVlog.i(TAG, " E_FLOATING_SURFACE_CREATED");
                     Surface subSurface = FloatingSubSurface.getFloatingSubSurface().getFloatingSurface();
-                    if (subSurface !=null) {
+                    if (subSurface != null) {
                         setDualSurface(subSurface);
-
                     } else {
                         TVlog.i(TAG, " Retry Create Surface  later Start TV");
                         postEvent(TVEVENT.E_FLOATING_SURFACE_CREATED, 100);
                     }
-
                 }
                 break;
 
@@ -1920,7 +1919,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
-
             svSub_floatingView =(SurfaceView) floating_view.findViewById(R.id.svSub_floating);
             if (svSub_floatingView != null && svSub_floatingView.isShown()) {
                 svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
@@ -3120,7 +3118,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         int mode = FCI_TVi.getDualMode();
 
         if (mode == FCI_TV.CHSTART_DUAL_O_SEG) {
-
             TVlog.i(TAG, "onStartCommand One-SEG mode ");
             svSub_floatingView.setVisibility(View.VISIBLE);
         } else {
@@ -3145,7 +3142,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             TVlog.i(TAG, " JAPAN , MEDIA, FLOATING Create Surface");
 
             Surface subSurface = FloatingSubSurface.getFloatingSubSurface().getFloatingSurface();
-            mainSurface =holder.getSurface();
+            mainSurface = holder.getSurface();
             if (subSurface != null) {
                 setDualSurface(subSurface);
             } else {
@@ -3473,19 +3470,18 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         floating_changeChannelView.setVisibility(View.VISIBLE);
         floating_channelChangeBG.setVisibility(View.VISIBLE);
         if (floating_progressingChange != null) {
-        floating_progressingChange.setVisibility(View.VISIBLE);
+            floating_progressingChange.setVisibility(View.VISIBLE);
         }
         if (_cas == false) {
             floating_loadingChannel.setVisibility(View.VISIBLE);
-        }
-        else{   // call from playback
+        } else {   // call from playback
             floating_loadingChannel.setVisibility(GONE);
         }
     }
 
     public void channelChangeEndView(boolean _keepBG)
     {
-        if (_keepBG ==false) {
+        if (_keepBG == false) {
             floating_channelChangeBG.setVisibility(View.INVISIBLE);
         }
         floating_changeChannelView.setVisibility(View.INVISIBLE);
@@ -3500,12 +3496,10 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
             TVlog.i(TAG, "Viewing Ch change view ");
             return 0;
-        } else
-        {
+        } else {
             TVlog.i(TAG, "No Viewing  Ch change view ");
             return 1;
         }
-
     }
 
     public void envSet_JP_floating() {
@@ -3580,7 +3574,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
     public void setFloatingSubSurfaceVisible(boolean _onoff) {
         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-            if (svSub_floatingView !=null) {
+            if (svSub_floatingView != null) {
                 if (_onoff) {
                     TVlog.i(TAG, "= Sub Floating surface visible = ");
                     svSub_floatingView.setVisibility(VISIBLE);
@@ -3593,7 +3587,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
-            if (svSub_floatingView !=null) {
+            if (svSub_floatingView != null) {
                 if (_onoff) {
                     TVlog.i(TAG, "= Sub Floating surface visible = ");
                     svSub_floatingView.setVisibility(VISIBLE);

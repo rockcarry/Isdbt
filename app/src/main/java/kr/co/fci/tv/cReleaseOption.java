@@ -21,12 +21,12 @@ public class cReleaseOption {
     public final static int BRAZIL_FILE = 13;
     public final static int PHILIPPINES_FILE = 14;
 
-    public final static int VIDEOCODEC_TYPE_MEDIACODEC =0;
-    public final static int VIDEOCODEC_TYPE_SWCODEC=1;
-    public final static int VIDEOCODEC_TYPE_AUTODETECT=2;
+    public final static int VIDEOCODEC_TYPE_MEDIACODEC = 0;
+    public final static int VIDEOCODEC_TYPE_SWCODEC = 1;
+    public final static int VIDEOCODEC_TYPE_AUTODETECT = 2;
 
-    public final static int SWCODEC_MAX_VIDEO_WIDTH =1920;
-    public final static int SWCODEC_MAX_VIDEO_HEIGHT =1088;
+    public final static int SWCODEC_MAX_VIDEO_WIDTH = 1920;
+    public final static int SWCODEC_MAX_VIDEO_HEIGHT = 1088;
 
     public final static int RECORDING_TYPE_MP4 = 0;
     public final static int RECORDING_TYPE_TS = 1;
@@ -52,7 +52,7 @@ public class cReleaseOption {
     //]]ADD_GINGA_NCL
 
 
-    public final static boolean FCI_SOLUTION_LOG_ON = true;
+    public final static boolean FCI_SOLUTION_LOG_ON = false;
     public final static boolean ADD_LOUD_SPEAKER = true;
     public final static boolean INTRO_ANIMATION = false;  //true = PNG animation intro, false = One Pic intro
     public final static boolean ADD_DEBUG_SCREEN = false;
@@ -60,9 +60,9 @@ public class cReleaseOption {
     public final static boolean ADD_GINGA_NCL = false;
     public final static boolean VIEW_PHY_CH = true;
     public final static boolean SKIP_AV_ERROR_DATA = true; //true = no mosaic / false = mosaic allowed
-    public final static  boolean USE_MULTI_WINDOW = true;
+    public final static boolean USE_MULTI_WINDOW = true;
 
-    public final static  boolean USE_CHAT_FUNCTION = false;
+    public final static boolean USE_CHAT_FUNCTION = false;
 
     public final static boolean USE_REF_TIME = false;  //true = use SystemTime , false = use TSNetTime
 

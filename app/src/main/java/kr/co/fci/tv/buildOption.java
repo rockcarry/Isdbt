@@ -22,9 +22,9 @@ public class buildOption {
     public final static int PHILIPPINES_FILE = 14;
 
     // Define SW or H/W
-    public final static int VIDEOCODEC_TYPE_MEDIACODEC =0;
-    public final static int VIDEOCODEC_TYPE_SWCODEC=1;
-    public final static int VIDEOCODEC_TYPE_AUTODETECT=2;
+    public final static int VIDEOCODEC_TYPE_MEDIACODEC = 0;
+    public final static int VIDEOCODEC_TYPE_SWCODEC = 1;
+    public final static int VIDEOCODEC_TYPE_AUTODETECT = 2;
 
     // Define Recording format
     public final static int RECORDING_TYPE_MP4 = 0;
@@ -43,8 +43,8 @@ public class buildOption {
     public final static int RECORDING_TYPE = cReleaseOption.RECORDING_TYPE;
 
     // support Resolution Size
-    public final static int SWCODEC_MAX_VIDEO_WIDTH =cReleaseOption.SWCODEC_MAX_VIDEO_WIDTH;
-    public final static int SWCODEC_MAX_VIDEO_HEIGHT =cReleaseOption.SWCODEC_MAX_VIDEO_HEIGHT;
+    public final static int SWCODEC_MAX_VIDEO_WIDTH = cReleaseOption.SWCODEC_MAX_VIDEO_WIDTH;
+    public final static int SWCODEC_MAX_VIDEO_HEIGHT = cReleaseOption.SWCODEC_MAX_VIDEO_HEIGHT;
 
     //Max Recording file Size
     public final static int RECORDING_CLIP_SIZE = cReleaseOption.RECORDING_CLIP_SIZE; //mb
@@ -87,8 +87,8 @@ public class buildOption {
     public final static boolean VIEW_PHY_CH = cReleaseOption.VIEW_PHY_CH;
     public final static boolean USE_REF_TIME = cReleaseOption.USE_REF_TIME;  //true = use SystemTime , false = use TSNetTime
     public final static boolean SKIP_AV_ERROR_DATA = cReleaseOption.SKIP_AV_ERROR_DATA; //true = no mosaic / false = mosaic allowed
-    public final static boolean USE_MULTI_WINDOW =  cReleaseOption.USE_MULTI_WINDOW;
-    public final static boolean USE_CHAT_FUNCTION =  cReleaseOption.USE_CHAT_FUNCTION;
+    public final static boolean USE_MULTI_WINDOW = cReleaseOption.USE_MULTI_WINDOW;
+    public final static boolean USE_CHAT_FUNCTION = cReleaseOption.USE_CHAT_FUNCTION;
 
     // File system path
     //public final static String PHONE_DRIVE_PATH = cReleaseOption.PHONE_DRIVE_PATH;
@@ -97,7 +97,7 @@ public class buildOption {
     public final static String ROOT_CAPTURED_PATH = cReleaseOption.ROOT_CAPTURED_PATH;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
-     public final static boolean RECORD_FUNCTION_USE = cReleaseOption.RECORD_FUNCTION_USE;   // This option include recording and recorded file with playback
+    public final static boolean RECORD_FUNCTION_USE = cReleaseOption.RECORD_FUNCTION_USE;   // This option include recording and recorded file with playback
 
     public final static boolean SETTING_LOCALE_USE = cReleaseOption.SETTING_LOCALE_USE;
     public final static boolean SETTING_RESTORE_USE = cReleaseOption.SETTING_RESTORE_USE;
@@ -106,7 +106,7 @@ public class buildOption {
 
 
     // Log on/off for Debugging
-    public final static boolean FCI_SOLUTION_LOG_ON = true;
+    public final static boolean FCI_SOLUTION_LOG_ON = false;
     // 0 : not support
     // 1 : Field capture mode for air or file
     // 2 : manual File mode

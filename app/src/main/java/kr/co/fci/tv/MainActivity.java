@@ -854,14 +854,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (ll_black != null) {
                             ll_black.setVisibility(View.VISIBLE);
                         }
-                        if (ll_audioOnlyChannel !=null) {
+                        if (ll_audioOnlyChannel != null) {
                             ll_audioOnlyChannel.setVisibility(View.VISIBLE);
                         }
                     } else {
                         if (ll_black != null) {
                             ll_black.setVisibility(View.INVISIBLE);
                         }
-                        if (ll_audioOnlyChannel !=null) {
+                        if (ll_audioOnlyChannel != null) {
                             ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                         }
                     }
@@ -1584,7 +1584,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     break;
 
                 case E_SIGNAL_MONITER:
-                    if (signalMoniter!=null)
+                    if (signalMoniter != null)
                     {
                         int segType;
 
@@ -1848,8 +1848,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 if (type == 0) {  //1-seg
                                     bcas_card_insert_msg.setVisibility(View.INVISIBLE);
                                 } else {
-                            bcas_card_insert_msg.setVisibility(View.VISIBLE);
-                        }
+                                    bcas_card_insert_msg.setVisibility(View.VISIBLE);
+                                }
                             }
                         }
                         //blink();
@@ -1989,7 +1989,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         long elapsed;
                         elapsed = ((System.currentTimeMillis() - recStartTime) / 1000);
                         String display = String.format("%02d:%02d:%02d", elapsed / 3600, (elapsed % 3600) / 60, (elapsed % 60));
-                        if (recTimeview!=null) recTimeview.setText(display);
+                        if (recTimeview != null) recTimeview.setText(display);
                         TVlog.i(TAG, " recording time = " + display);
 
                         postEvent(TVEVENT.E_RECORDING_TIME_UPDATE, RECORDING_UPDATE_TIME);
@@ -2045,16 +2045,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                     // setting 0 = off ,1 =50, 2= 30, 3, 15, 4=0
 
-                    switch(setting)
+                    switch (setting)
                     {
                         case 0:settingLevel = 0;  break;
-                        case 1:settingLevel = 50;  break;
-                        case 2:settingLevel = 30;  break;
-                        case 3:settingLevel = 15;  break;
-                        case 4:settingLevel = 10;  break;
+                        case 1:settingLevel = 50; break;
+                        case 2:settingLevel = 30; break;
+                        case 3:settingLevel = 15; break;
+                        case 4:settingLevel = 10; break;
                     }
-                    if (settingLevel>level)
-                    {
+                    if (settingLevel > level) {
                         //pop_up
                         InputDialog dig = new InputDialog(instance, InputDialog.TYPE_BATTERY_NOTIFY,(int)level, null, null);
                     } else {
@@ -2085,7 +2084,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     TVTerminate();
                 }
                 break;
-
 
                 case E_CHANNEL_NAME_UPDATE:
                 {
@@ -2811,7 +2809,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         super.onConfigurationChanged(newConfig);
 
         // live add
-        /*SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+        /*
+        SharedPreferences.Editor editor = CommonStaticData.settings.edit();
         editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
         editor.putInt(CommonStaticData.scanedChannelsKey, CommonStaticData.scanCHnum);
         editor.putBoolean(CommonStaticData.loudSpeakerKey, CommonStaticData.loudSpeaker);
@@ -2821,7 +2820,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         CommonStaticData.returnMainFromFloating = false;
         editor.putBoolean(CommonStaticData.returnMainFromChatKey, CommonStaticData.returnMainFromChat);
         editor.putBoolean(CommonStaticData.returnMainFromFloatingKey, CommonStaticData.returnMainFromFloating);
-        editor.commit();*/
+        editor.commit();
+        */
         //
 
         TVlog.i(TAG, "=== onConfigurationChanged is called !!! ===");
@@ -3424,12 +3424,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 TVlog.i(TAG, " =====  PlayBackActivity  running =========");
                 channelChangeStartView(true);  // justin add for start from power key or home key
 
-                if (PlayBackActivity.getInstance()!=null)
+                if (PlayBackActivity.getInstance() != null)
                 {
                     PlayBackActivity.getInstance().Start();
                     return true;
-                } else
-                {
+                } else {
                     TVlog.i(TAG, " Playback running...but start fail...");
                 }
             }
@@ -3625,7 +3624,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         if ((buildOption.LOG_CAPTURE_MODE ==1) ||  (dumpTVLog ==true))
         {
             TVlog.i(TAG, "==== LOG_CAPTURE_MODE  OFF ======");
-            if (processLog !=null)
+            if (processLog != null)
             {
                 processLog.destroy();
                 processLog=null;
@@ -3646,8 +3645,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
         //]]usbdongle
         TVlog.i(TAG, "==== SolutionStop end ======");
-
-
     }
 
     public static boolean getTVon()
@@ -3875,7 +3872,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         TVlog.i(TAG, "== setSystemUiVisibility onResume ==");
 //        }
         super.onResume();
-
     }
 
     @Override
@@ -3922,7 +3918,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 earphoneLayout.setVisibility(View.INVISIBLE);
             }
         }
-
 
         if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
             channelLayout.setVisibility(View.INVISIBLE);
@@ -4860,7 +4855,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             public void onClick(View v) {
                 String editReg = eResiter.getText().toString();
 
-                if ( editReg.length()==0)
+                if (editReg.length()==0)
                 {
                     CustomToast toast = new CustomToast(getApplicationContext());
                     toast.showToast(getApplicationContext(), "Please put register address " , Toast.LENGTH_LONG);
@@ -4939,7 +4934,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
         //}
 
-        instance=this;
+        instance = this;
         TVlog.i(TAG, "==== onCreate ======");
 
         scale_toast = new CustomToast(getApplicationContext());
@@ -5007,11 +5002,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         if (isRunningOnEmulator())
         {
             //emul
-            capturePath= getExternalStorageDirectory().toString()+"/MobileTV";
-        }
-        else
-        {
-            capturePath=devicePath;
+            capturePath = getExternalStorageDirectory().toString()+"/MobileTV";
+        } else {
+            capturePath = devicePath;
         }
 
         decorView = getWindow().getDecorView();
@@ -7109,7 +7102,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     return false;
                 }
             });
-
         }
 
         mGestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener()) {
