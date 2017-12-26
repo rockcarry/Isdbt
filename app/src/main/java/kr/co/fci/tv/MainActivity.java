@@ -170,7 +170,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     static float density;
     static float densityDpi;
     public static String dpiName = "";
-    public static String screenSize="";
+    public static String screenSize = "";
 
     // onoff flag
     private static boolean captureOn = true;
@@ -579,7 +579,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             switch (event) {
                 case E_CAPTION_NOTIFY: {
                     if (CommonStaticData.captionSwitch == true) {
-
                         try {
                             Bundle newCaption = (Bundle) msg.obj;
                             if (newCaption != null) {
@@ -1573,7 +1572,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             }
                         }
                         FCI_TVi.setVolume(1.0f);
-
                     }
                     break;
 

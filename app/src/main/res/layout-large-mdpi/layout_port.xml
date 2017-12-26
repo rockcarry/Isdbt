@@ -16,14 +16,16 @@
         <SurfaceView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="23dp"
+            android:layout_marginBottom="23dp"
             android:id="@+id/surfaceView2"
             android:layout_gravity="left|top"/>
 
         <SurfaceView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="13dp"
-            android:layout_marginBottom="13dp"
+            android:layout_marginTop="23dp"
+            android:layout_marginBottom="23dp"
             android:id="@+id/surfaceView"
             android:layout_gravity="left|top" />
 
@@ -105,7 +107,6 @@
                 android:gravity="center_horizontal"
                 android:layout_marginTop="10dp"
                 android:id="@+id/loading_channel" />
-
 
              <TextView
                 android:layout_width="wrap_content"

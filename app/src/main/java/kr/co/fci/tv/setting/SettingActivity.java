@@ -888,7 +888,7 @@ public class SettingActivity extends Activity {
         // justin
         lPassword = (LinearLayout)findViewById(R.id.password);
         btn11 = (Button)findViewById(R.id.btn11);
-        if(buildOption.SETTING_PASSWORD_USE==false){
+        if (buildOption.SETTING_PASSWORD_USE==false) {
             lPassword.setVisibility(View.GONE);
             btn11.setVisibility(View.GONE);
         }
@@ -916,7 +916,7 @@ public class SettingActivity extends Activity {
             }
         });
 
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
 
             ll_bcas_id = (LinearLayout) findViewById(R.id.ll_bcas_id);
             ll_bcas_test = (LinearLayout) findViewById(R.id.ll_bcas_test);
@@ -999,7 +999,7 @@ public class SettingActivity extends Activity {
         // justin
         lLocale = (LinearLayout)findViewById(R.id.locale);
         btn14 = (Button)findViewById(R.id.btn14);
-        if(buildOption.SETTING_LOCALE_USE==false){
+        if (buildOption.SETTING_LOCALE_USE==false) {
             lLocale.setVisibility(View.GONE);
             btn14.setVisibility(View.GONE);
         }
@@ -1014,11 +1014,11 @@ public class SettingActivity extends Activity {
         textView_caption = (TextView)findViewById(R.id.textView2);
         switchCaption = (Switch) findViewById(R.id.switchCaption);
 
-        textView_caption.setOnTouchListener(new View.OnTouchListener(){
+        textView_caption.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                if (event.getAction()==MotionEvent.ACTION_DOWN) {
                     TVlog.i("TEST", " textView_caption Down ");
                     DebugMode.getDebugMode().PressDebugMode();
                 }
@@ -1035,7 +1035,8 @@ public class SettingActivity extends Activity {
             }
         });
 
-        /*if (CommonStaticData.captionSwitch == true) {
+        /*
+        if (CommonStaticData.captionSwitch == true) {
             switchCaption.setEnabled(true);
             switchCaption.setChecked(true);
             switchCaption.getThumbDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
@@ -1120,11 +1121,11 @@ public class SettingActivity extends Activity {
         textView_superimpose = (TextView)findViewById(R.id.textView15);
         switchSuperimpose = (Switch) findViewById(R.id.switchSuperimpose);
 
-        textView_superimpose.setOnTouchListener(new View.OnTouchListener(){
+        textView_superimpose.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                if (event.getAction()==MotionEvent.ACTION_DOWN) {
                     TVlog.i("TEST", " textView_superimpose Down ");
                     DebugMode.getDebugMode().PressLogCaptureMode();
                 }
@@ -1141,7 +1142,8 @@ public class SettingActivity extends Activity {
             }
         });
 
-        /*if (CommonStaticData.superimposeSwitch == true) {
+        /*
+        if (CommonStaticData.superimposeSwitch == true) {
             switchSuperimpose.setEnabled(true);
             switchSuperimpose.setChecked(true);
             switchSuperimpose.getThumbDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
@@ -1188,7 +1190,6 @@ public class SettingActivity extends Activity {
                         switchSuperimpose.setChecked(CommonStaticData.superimposeSwitch);
                     }
                 }
-
             }
         });
 
@@ -1245,10 +1246,10 @@ public class SettingActivity extends Activity {
             password.setEnabled(true);
             password.setTextColor(Color.WHITE);
         }
+
         switchParental.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
-
                 if (isChecked == true) {
                     switchParental.getThumbDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
                     switchParental.getTrackDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
@@ -1269,7 +1270,7 @@ public class SettingActivity extends Activity {
                             +", CommonStaticData.mainPasswordVerifyFlag = "+CommonStaticData.mainPasswordVerifyFlag
                             +", CommonStaticData.ratingsetSwitch = "+CommonStaticData.ratingsetSwitch);
                     if (!CommonStaticData.mainPasswordVerifyFlag) {
-                        if((CommonStaticData.passwordVerifyFlag == false)
+                        if ((CommonStaticData.passwordVerifyFlag == false)
                                 && (CommonStaticData.ratingsetSwitch == true)) {
                             CommonStaticData.ageLimitFlag = true;
                         } else {
@@ -1304,14 +1305,16 @@ public class SettingActivity extends Activity {
                                 @Override
                                 public void onNegative(MaterialDialog dialog) {
                                     super.onNegative(dialog);
-                                    /*if((MainActivity.getInstance().curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+                                    /*
+                                    if ((MainActivity.getInstance().curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                                             && (CommonStaticData.passwordVerifyFlag == false)
                                             && (CommonStaticData.ratingsetSwitch == true)) {
                                         CommonStaticData.ageLimitFlag = true;
                                     } else {
                                         CommonStaticData.ageLimitFlag = false;
                                     }
-                                    MainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR);*/
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR);
+                                    */
                                     switchParental.setChecked(true);
                                     CommonStaticData.ratingsetSwitch = true;
                                     CommonStaticData.passwordVerifyFlag = false;
@@ -1326,15 +1329,17 @@ public class SettingActivity extends Activity {
                                     String save = input.toString();
                                     CommonStaticData.PassWord = CommonStaticData.settings.getString(CommonStaticData.passwordKey, null);
                                     if (CommonStaticData.PassWord == null) {
-                                        /*CommonStaticData.ratingsetSwitch = true;
-                                        if((MainActivity.getInstance().curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+                                        /*
+                                        CommonStaticData.ratingsetSwitch = true;
+                                        if ((MainActivity.getInstance().curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                                                 && (CommonStaticData.passwordVerifyFlag == false)
                                                 && (CommonStaticData.ratingsetSwitch == true)) {
                                             CommonStaticData.ageLimitFlag = true;
                                         } else {
                                             CommonStaticData.ageLimitFlag = false;
                                         }
-                                        MainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR);*/
+                                        MainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR);
+                                        */
                                         switchParental.setChecked(true);
                                         CommonStaticData.ratingsetSwitch = true;
                                         CommonStaticData.passwordVerifyFlag = false;
@@ -1346,7 +1351,7 @@ public class SettingActivity extends Activity {
                                     if (CommonStaticData.PassWord.equals(save)) {
 
                                         CommonStaticData.ratingsetSwitch = false;
-                                        CommonStaticData.passwordVerifyFlag = false;	// justin 20170523
+                                        CommonStaticData.passwordVerifyFlag = false;    // justin 20170523
                                         CommonStaticData.mainPasswordVerifyFlag = false;
                                         CommonStaticData.ageLimitFlag = false;
                                         //MainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR);
@@ -1402,7 +1407,7 @@ public class SettingActivity extends Activity {
         // justin
         lReset = (LinearLayout)findViewById(R.id.reset);
         btn13 = (Button)findViewById(R.id.btn13);
-        if(buildOption.SETTING_RESTORE_USE==false){
+        if (buildOption.SETTING_RESTORE_USE==false) {
             lReset.setVisibility(View.GONE);
             btn13.setVisibility(View.GONE);
         }
@@ -1433,17 +1438,16 @@ public class SettingActivity extends Activity {
                 finish();
             }
         });
-
     }
 
     // justin add for init load
-    protected void onResume(){
+    protected void onResume() {
         CommonStaticData.settingActivityShow = true;
 
         CommonStaticData.captionSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.captionSwitchKey, true);
         CommonStaticData.captionSelect= CommonStaticData.settings.getInt(CommonStaticData.captionSetKey, 0);
         int captionNum = FCI_TVi.GetSubtitleNum();
-        if(captionNum==0) {    // justin caption selection disable when no caption data
+        if (captionNum==0) {    // justin caption selection disable when no caption data
             textView_caption.setTextColor(Color.GRAY);
             switchCaption.setChecked(false);
             switchCaption.setEnabled(false);
@@ -1479,24 +1483,28 @@ public class SettingActivity extends Activity {
                 button_captionselect.setTypeface(null, Typeface.NORMAL);
                 //button_captionselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.TRANSPARENT);
             }
-            /*switchCaption.setEnabled(true);
+            /*
+            switchCaption.setEnabled(true);
             switchCaption.setChecked(CommonStaticData.captionSwitch);
             textView_captionselect.setTextColor(Color.WHITE);
-            button_captionselect.setEnabled(true);*/
-            /*button_captionselect.setTextColor(getResources().getColorStateList(R.color.cyan));
+            button_captionselect.setEnabled(true);
+            */
+            /*
+            button_captionselect.setTextColor(getResources().getColorStateList(R.color.cyan));
             button_captionselect.setTypeface(null, Typeface.BOLD);
-            button_captionselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);*/
+            button_captionselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);
+            */
 
             TVlog.i(TAG, " >>>>> caption cnt = " + captionNum);
             // max size 3 : eng, por, esp
-            if(captionNum > MAX_CAPTION_NUM) {
+            if (captionNum > MAX_CAPTION_NUM) {
                 captionNum = MAX_CAPTION_NUM;
             }
             capLanguage = new CharSequence[captionNum];
 
-            for(int j=0; j<captionNum; j++){
+            for (int j=0; j<captionNum; j++) {
                 capLanguage[j] = FCI_TVi.GetSubtitleInfo(j);
-                if(capLanguage[j].length()==0)
+                if (capLanguage[j].length()==0)
                     capLanguage[j] = getResources().getString(R.string.language) + (j+1);
             }
 
@@ -1521,7 +1529,7 @@ public class SettingActivity extends Activity {
         CommonStaticData.superimposeSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.superimposeSwitchKey, true);
         CommonStaticData.superimposeSelect= CommonStaticData.settings.getInt(CommonStaticData.superimposeSetKey, 0);
         int superimposeNum = FCI_TVi.GetSuperimposeNum();
-        if(superimposeNum==0){    // justin caption selection disable when no caption data
+        if (superimposeNum==0) {    // justin caption selection disable when no caption data
             textView_superimpose.setTextColor(Color.GRAY);
             switchSuperimpose.setChecked(false);
             switchSuperimpose.setEnabled(false);
@@ -1554,38 +1562,44 @@ public class SettingActivity extends Activity {
                 button_superimposeselect.setTypeface(null, Typeface.NORMAL);
                 //button_superimposeselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.TRANSPARENT);
             }
-            /*switchSuperimpose.setEnabled(true);
+            /*
+            switchSuperimpose.setEnabled(true);
             switchSuperimpose.setChecked(CommonStaticData.superimposeSwitch);
             textView_superimposeselect.setTextColor(Color.WHITE);
-            button_superimposeselect.setEnabled(true);*/
+            button_superimposeselect.setEnabled(true);
+            */
 
             TVlog.i(TAG, " >>>>> superimposeNum cnt = " + superimposeNum);
             // max size 3 : eng, por, esp
-            if(superimposeNum > MAX_CAPTION_NUM) {
+            if (superimposeNum > MAX_CAPTION_NUM) {
                 superimposeNum = MAX_CAPTION_NUM;
             }
             superimposeLanguage = new CharSequence[superimposeNum];
 
-            for(int j=0; j<superimposeNum; j++){
+            for (int j=0; j<superimposeNum; j++) {
                 superimposeLanguage[j] = FCI_TVi.GetSuperimposeInfo(j);
-                if(superimposeLanguage[j].length()==0)
+                if (superimposeLanguage[j].length()==0)
                     superimposeLanguage[j] = getResources().getString(R.string.language) + (j+1);
             }
 
             button_superimposeselect.setText(superimposeLanguage[CommonStaticData.superimposeSelect]);
-            /*button_superimposeselect.setTextColor(getResources().getColorStateList(R.color.cyan));
+            /*
+            button_superimposeselect.setTextColor(getResources().getColorStateList(R.color.cyan));
             button_superimposeselect.setTypeface(null, Typeface.BOLD);
-            button_superimposeselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);*/
+            button_superimposeselect.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);
+            */
         }
 
         CommonStaticData.scaleSet= CommonStaticData.settings.getInt(CommonStaticData.scaleSwitchKey, 0);
         button_screen.setText(arr_screen[CommonStaticData.scaleSet]);
 
-        /*CommonStaticData.brightness = CommonStaticData.settings.getInt(CommonStaticData.brightnessKey, 50);
+        /*
+        CommonStaticData.brightness = CommonStaticData.settings.getInt(CommonStaticData.brightnessKey, 50);
         seekBar1.setProgress(CommonStaticData.brightness);
 
         CommonStaticData.transparent = CommonStaticData.settings.getInt(CommonStaticData.transparentKey, 50);
-        seekBar2.setProgress(CommonStaticData.transparent);*/
+        seekBar2.setProgress(CommonStaticData.transparent);
+        */
 
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
@@ -1735,23 +1749,25 @@ public class SettingActivity extends Activity {
 
         CommonStaticData.audiomodeSet = CommonStaticData.settings.getInt(CommonStaticData.audiomodeSwitchKey,0);     // main =1, sub=2, main+sub(stereo)=0
         button_audio.setText(arr_audio[CommonStaticData.audiomodeSet]);
-        /*CommonStaticData.receivemode=CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey,0);     // 0=auto, 1=fullseg, 2=1seg
-        button_svcmodeswitch.setText(arr_svcmodeswitch[CommonStaticData.receivemode]);*/
+        /*
+        CommonStaticData.receivemode=CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey,0);     // 0=auto, 1=fullseg, 2=1seg
+        button_svcmodeswitch.setText(arr_svcmodeswitch[CommonStaticData.receivemode]);
+        */
 
         audioNum = FCI_TVi.GetAudioNum();
         TVlog.i(TAG, " >>>>> setAudiotrack cnt = " + audioNum);
         // max size 3 : eng, por, esp
-        if(audioNum > MAX_AUDIO_TRACK_NUM) {
+        if (audioNum > MAX_AUDIO_TRACK_NUM) {
             audioNum = MAX_AUDIO_TRACK_NUM;
         }
         language = new CharSequence[audioNum];
-        for(int j=0; j<audioNum; j++){
+        for (int j=0; j<audioNum; j++) {
             //language[j] = mContext.getResources().getString(R.string.language)+(j+1);
             language[j] = getResources().getString(R.string.language) + (j+1);
         }
 
         CommonStaticData.audiotrackSet= CommonStaticData.settings.getInt(CommonStaticData.audiotrackSwitchKey,0);
-        if(audioNum > 1){    // justin caption selection disable when no caption data
+        if (audioNum > 1) {    // justin caption selection disable when no caption data
             textView_audiotrack.setTextColor(Color.WHITE);
             button_audiotrack.setEnabled(true);
             button_audiotrack.setText(arr_audiotrack[CommonStaticData.audiotrackSet]);
@@ -1759,7 +1775,7 @@ public class SettingActivity extends Activity {
             button_audiotrack.setTypeface(null, Typeface.BOLD);
             //button_audiotrack.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);
         }
-        else{
+        else {
             textView_audiotrack.setTextColor(Color.GRAY);
             button_audiotrack.setEnabled(false);
             button_audiotrack.setText(arr_audiotrack[0]);
@@ -1770,15 +1786,15 @@ public class SettingActivity extends Activity {
 
         //video track
         videoNum = FCI_TVi.GetVideoNum();
-        if(videoNum > MAX_VIDEO_TRACK_NUM) {
+        if (videoNum > MAX_VIDEO_TRACK_NUM) {
             videoNum = MAX_VIDEO_TRACK_NUM;
         }
         selectableVideo = new CharSequence[videoNum];
-        for(int j=0; j < videoNum; j++){
+        for (int j=0; j < videoNum; j++) {
             selectableVideo[j] = arr_videotrack[j];
         }
         CommonStaticData.videotrackSet= CommonStaticData.settings.getInt(CommonStaticData.videotrackSwitchKey, 0);
-        if(videoNum > 1) {
+        if (videoNum > 1) {
             textView_videotrack.setTextColor(Color.WHITE);
             button_videotrack.setEnabled(true);
             button_videotrack.setText(arr_videotrack[CommonStaticData.videotrackSet]);
@@ -1812,10 +1828,11 @@ public class SettingActivity extends Activity {
         }
         //]]ADD_GINGA_NCL
 
-       /* CommonStaticData.storage=CommonStaticData.settings.getInt(CommonStaticData.storageSwitchKey, 0);
-        if(getMicroSDCardEnable()) {       // could external read/write from T
+        /*
+        CommonStaticData.storage=CommonStaticData.settings.getInt(CommonStaticData.storageSwitchKey, 0);
+        if (getMicroSDCardEnable()) {       // could external read/write from T
             button_storage.setText(arr_storage[CommonStaticData.storage]);
-        }else{
+        } else {
             button_storage.setText(arr_storage[0]);     // phone 0
             button_storage.setEnabled(false);
         }*/
@@ -1823,16 +1840,16 @@ public class SettingActivity extends Activity {
         CommonStaticData.ratingsetSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.parentalcontrolSwitchKey, true);
         switchParental.setChecked(CommonStaticData.ratingsetSwitch);
 
-        CommonStaticData.PG_Rate=CommonStaticData.settings.getInt(CommonStaticData.parentalRatingKey, 0);
+        CommonStaticData.PG_Rate = CommonStaticData.settings.getInt(CommonStaticData.parentalRatingKey, 0);
         button_age.setText(arr_age[CommonStaticData.PG_Rate]);
 
-        CommonStaticData.battMonitorSet=CommonStaticData.settings.getInt(CommonStaticData.definedbattMonitorKey,0);
+        CommonStaticData.battMonitorSet = CommonStaticData.settings.getInt(CommonStaticData.definedbattMonitorKey,0);
         button_battery.setText(arr_battery[CommonStaticData.battMonitorSet]);
 
         // [[ solution switching mode 20170223
 
-        CommonStaticData.localeSet=CommonStaticData.settings.getInt(CommonStaticData.localeSetKey, 4);
-        CommonStaticData.solutionMode=CommonStaticData.settings.getInt(CommonStaticData.solutionModeKey, cReleaseOption.FCI_SOLUTION_MODE);
+        CommonStaticData.localeSet = CommonStaticData.settings.getInt(CommonStaticData.localeSetKey, 4);
+        CommonStaticData.solutionMode = CommonStaticData.settings.getInt(CommonStaticData.solutionModeKey, cReleaseOption.FCI_SOLUTION_MODE);
 
         // TVlog.e("justin ","onResume CommonStaticData.localeSet " + CommonStaticData.localeSet);
         //]]
@@ -1841,12 +1858,12 @@ public class SettingActivity extends Activity {
 
         //eddy add password
 
-        CommonStaticData.PassWord=CommonStaticData.settings.getString(CommonStaticData.passwordKey, null);
+        CommonStaticData.PassWord = CommonStaticData.settings.getString(CommonStaticData.passwordKey, null);
         super.onResume();
     }
 
     // justi add for exit save
-    protected void onPause(){
+    protected void onPause() {
         CommonStaticData.settingActivityShow = false;
         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -1865,7 +1882,7 @@ public class SettingActivity extends Activity {
         editor.putInt(CommonStaticData.audiotrackSwitchKey, CommonStaticData.audiotrackSet);
         editor.putInt(CommonStaticData.videotrackSwitchKey, CommonStaticData.videotrackSet);
         editor.putInt(CommonStaticData.sleeptimerSwitchKey, CommonStaticData.sleeptime);
-        if (buildOption.ADD_GINGA_NCL==true) {
+        if (buildOption.ADD_GINGA_NCL == true) {
             editor.putBoolean(CommonStaticData.interactiveKey, CommonStaticData.interactiveSwitch);
         }
         // editor.putInt(CommonStaticData.storageSwitchKey, CommonStaticData.storage);
@@ -1886,11 +1903,10 @@ public class SettingActivity extends Activity {
 
         editor.commit();
 
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
             thumbNailUpdate.getThhumbNailUpdateTask().sendEvent(TVEVENT.E_UPDATE_THUMBNAIL, 0);
         }
         super.onPause();
-
     }
 
     @Override
@@ -4947,8 +4963,8 @@ public class SettingActivity extends Activity {
                 sleepDialog.show();
                 break;
 
-
-         /*   case DIALOG_STORAGE:
+                /*
+                case DIALOG_STORAGE:
                 return new AlertDialog.Builder(this, R.style.CustomDialog)
                         .setTitle(R.string.storage_location)
                         .setSingleChoiceItems(R.array.storage_location, CommonStaticData.storage, new DialogInterface.OnClickListener() {
@@ -4961,7 +4977,8 @@ public class SettingActivity extends Activity {
                             }
                         })
                         .setNegativeButton(R.string.cancel, null)
-                        .create();*/
+                        .create();
+                */
 
             case DIALOG_AGE:
                 MaterialDialog ageDialog = new MaterialDialog.Builder(SettingActivity.this)
@@ -4979,7 +4996,7 @@ public class SettingActivity extends Activity {
                                 CommonStaticData.PG_Rate = dialog_age_selected;    // justin db save
 
                                 // justin 20170523
-                                if((FCI_TVi.GetCurProgramRating() < (CommonStaticData.PG_Rate+1))
+                                if ((FCI_TVi.GetCurProgramRating() < (CommonStaticData.PG_Rate+1))
                                         && (CommonStaticData.PG_Rate != 0)
                                         && (CommonStaticData.ratingsetSwitch == true)) {
                                     MainActivity.getInstance().sendEvent(TVEVENT.E_CONFIRMED_PASSWORD);
@@ -5069,13 +5086,13 @@ public class SettingActivity extends Activity {
                                 imageView_flag.setImageResource(arr_localeflag[dialog_locale_selected]);
                                 //CommonStaticData.localeSet = dialog_locale_selected;
                                 // // [[ solution switching mode 20170223
-                                if(CommonStaticData.localeSet != dialog_locale_selected)
+                                if (CommonStaticData.localeSet != dialog_locale_selected)
                                 {
                                     CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                                     CommonStaticData.localeSet = dialog_locale_selected;
 
-                                    switch(CommonStaticData.localeSet){
+                                    switch(CommonStaticData.localeSet) {
                                         case 4:     //brazil
                                             //    MainActivity.getInstance().envSet_Normal();
                                             settingRestore();
@@ -5157,7 +5174,7 @@ public class SettingActivity extends Activity {
                                             postEvent(TVEVENT.E_SOLUTION_MODE_SWITCHING, SCAN_WAIT_TIME);
                                             break;
                                         default:    // default all Brazil
-                                            if(CommonStaticData.solutionMode != buildOption.BRAZIL && CommonStaticData.solutionMode != buildOption.BRAZIL_USB){
+                                            if (CommonStaticData.solutionMode != buildOption.BRAZIL && CommonStaticData.solutionMode != buildOption.BRAZIL_USB) {
                                                 //    MainActivity.getInstance().envSet_Normal();
                                                 if (cReleaseOption.FCI_SOLUTION_MODE >= 8 && cReleaseOption.FCI_SOLUTION_MODE <= 11) {
                                                     buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_USB;
@@ -5460,7 +5477,8 @@ public class SettingActivity extends Activity {
         editor.putInt(CommonStaticData.solutionModeKey, cReleaseOption.FCI_SOLUTION_MODE);
         editor.putInt(CommonStaticData.localeSetKey, 4);
 
-        /*if (cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.JAPAN
+        /*
+        if (cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.JAPAN
                 || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.JAPAN_ONESEG
                 || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.JAPAN_USB
                 || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.JAPAN_FILE) { // Japan
@@ -5468,9 +5486,9 @@ public class SettingActivity extends Activity {
         } else if (cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.BRAZIL
                 || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.BRAZIL_ONESEG
                 || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.BRAZIL_USB
-                || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.BRAZIL_FILE){
+                || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.BRAZIL_FILE) {
             editor.putInt(CommonStaticData.localeSetKey, 4);
-        } else if( cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.SRILANKA
+        } else if ( cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.SRILANKA
                 || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.SRILANKA_ONESEG
                 || cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.SRILANKA_USB) {
             editor.putInt(CommonStaticData.localeSetKey, 16);
@@ -5502,8 +5520,6 @@ public class SettingActivity extends Activity {
         getWindow().setAttributes(params);
     }
 
-
-
     private void setTransparent (int alpha_value) {
         if (alpha_value < 10) {
             alpha_value = 10;
@@ -5517,43 +5533,34 @@ public class SettingActivity extends Activity {
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.alpha = (float) alpha_value / 100;
         getWindow().setAttributes(params);
-
     }
-
-
-
 
     public class MyBrightnessChangeListener implements SeekBar.OnSeekBarChangeListener {
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-
         }
 
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             setBrightness(progress);
             //setTransparent(progress);
-
         }
+
         public void onStopTrackingTouch(SeekBar seekBar) {
-
         }
-
     }
 
     public class MyTransparentChangeListener implements SeekBar.OnSeekBarChangeListener {
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-
         }
 
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             setTransparent(progress);
 
         }
+
         public void onStopTrackingTouch(SeekBar seekBar) {
-
         }
-
     }
 
     public void bcas_update() {
@@ -5569,11 +5576,12 @@ public class SettingActivity extends Activity {
     }
 
 
-   /* public static boolean getMicroSDCardEnable() {
+    /*
+    public static boolean getMicroSDCardEnable() {
 
         boolean enable = false;
 
-//        String internal_sd_path = Environment.getExternalStorageDirectory().getPath();
+//      String internal_sd_path = Environment.getExternalStorageDirectory().getPath();
         String internal_sd_path = buildOption.PHONE_DRIVE_PATH;
         String micro_include_internal_sd_path = buildOption.SECOND_DRIVE_PATH;
 
@@ -5598,6 +5606,7 @@ public class SettingActivity extends Activity {
         return enable;
     }
 */
+
 /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -5621,21 +5630,15 @@ public class SettingActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 */
-/*
 
+/*
     public void aboutClicked (View v) {
         Intent intent = new Intent(getApplicationContext(), kr.co.fci.fci_player.AboutActivity.class);
         startActivity(intent);
     }
- */
-
-
-
-
+*/
 
 /*
-
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //Log.d(TAG, "keyCode:"+keyCode);
@@ -5644,12 +5647,12 @@ public class SettingActivity extends Activity {
         }
         return super.onKeyDown(keyCode, event);
     }
+*/
 
-    */
-/*
+    /*
      * USB
-     *//*
-
+     */
+    /*
     private void doIntentMessageHook() {
         mReceiver = new BroadcastReceiver() {
             @Override
@@ -5682,8 +5685,5 @@ public class SettingActivity extends Activity {
         super.onResume();
     }
     */
-
-
-
-
 }
+
