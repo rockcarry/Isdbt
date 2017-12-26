@@ -24,8 +24,6 @@ import kr.co.fci.tv.util.TVlog;
 import static kr.co.fci.tv.MainActivity.getExternalMounts;
 
 public class FCI_TVi {
-
-
     private static String TAG = "FCI_TVi";
     private static FCI_TV itv= null;
 
@@ -47,9 +45,9 @@ public class FCI_TVi {
 
     static FCI_TV getFCITV()
     {
-        if(null == itv){
+        if (null == itv){
             synchronized (FCI_TV.class) {
-                if(null == itv){
+                if (null == itv){
                     itv = new FCI_TV();
                 }
             }
@@ -76,7 +74,6 @@ public class FCI_TVi {
                         }
 
                         //TVBridge.firstVideoNoti();
-
                     }
                     break;
 
@@ -93,14 +90,12 @@ public class FCI_TVi {
                         }
 
                         //TVBridge.firstVideoNoti();
-
                     }
                     break;
 
                     case FCI_TV.MSG_LOW_BUFFER: {
-
                         TVlog.i(TAG, " MSG_LOW_BUFFER ");
-                        if(CommonStaticData.scanningNow == false && CommonStaticData.scanCHnum > 0) {
+                        if (CommonStaticData.scanningNow == false && CommonStaticData.scanCHnum > 0) {
                             // live add
 
                             TVlog.i(TAG, " ==> MainActivity.isMainActivity = "+MainActivity.isMainActivity);
@@ -115,12 +110,11 @@ public class FCI_TVi {
                                 TVBridge.noSignalNotiChat();
                             }
                             //TVBridge.noSignalNoti();
-
                         }
                     }
                     break;
-                    case FCI_TV.MSG_RECORDING_FILE_SIZE_ERROR: {
 
+                    case FCI_TV.MSG_RECORDING_FILE_SIZE_ERROR: {
                         TVlog.i(TAG, " MSG_RECORDING_FILE_SIZE_ERROR ");
                         // Type 1 file size error
                         // Type 2 file unsupport type
@@ -129,15 +123,10 @@ public class FCI_TVi {
                     break;
 
                     case FCI_TV.MSG_SCAN_NOTIFY: {
-
-
                         NotifyMSG notiMSG =null;
-                        if(arg4!=null)
-                        {
+                        if (arg4 != null) {
                             notiMSG = (NotifyMSG)arg4;
-                        }
-                        else
-                        {
+                        } else {
                             return;
                         }
                         int idx = (int)arg2;
@@ -159,14 +148,10 @@ public class FCI_TVi {
                     break;
 
                     case FCI_TV.MSG_SCANNIG_PROGRESS_NOTIFY: {
-
                         NotifyMSG notiMSG =null;
-                        if(arg4!=null)
-                        {
+                        if (arg4 != null) {
                             notiMSG = (NotifyMSG)arg4;
-                        }
-                        else
-                        {
+                        } else {
                             return;
                         }
                         int progressPercent = notiMSG.nProgress;
@@ -180,19 +165,14 @@ public class FCI_TVi {
                         } else {
                             TVBridge.scanProgress(progressPercent, found, freqKHz, svcName);
                         }
-
                     }
                     break;
 
                     case FCI_TV.MSG_HANDOVER_PROGRESS_NOTIFY: {
-
-                        NotifyMSG notiMSG =null;
-                        if(arg4!=null)
-                        {
+                        NotifyMSG notiMSG = null;
+                        if (arg4 != null) {
                             notiMSG = (NotifyMSG)arg4;
-                        }
-                        else
-                        {
+                        } else {
                             return;
                         }
                         int progressPercent = notiMSG.nProgress;
@@ -204,7 +184,6 @@ public class FCI_TVi {
                     break;
 
                     case FCI_TV.MSG_HANDOVER_SUCCESS_NOTIFY: {
-
                         int index = (int)arg1;
                         int total = (int)arg2;
                         int updateMode = (int)arg4;
@@ -213,7 +192,6 @@ public class FCI_TVi {
                     break;
 
                     case FCI_TV.MSG_PROGRAM_NOT_AVAILABLE_NOTIFY: {
-
                         /*
                         TVlog.i(TAG, " ==> MainActivity.isMainActivity = "+MainActivity.isMainActivity);
                         TVlog.i(TAG, " ==> ChatMainActivity.isChat = "+ChatMainActivity.isChat);
@@ -227,7 +205,6 @@ public class FCI_TVi {
                             TVBridge.programNotAvailableNotiChat();
                         }
                         */
-
                     }
                     break;
 
@@ -265,25 +242,23 @@ public class FCI_TVi {
                     break;
 
                     case FCI_TV.MSG_UPDATANUMOF_ADUIO_NOTIFY: {
-
                     }
                     break;
 
                     case FCI_TV.MSG_UPDATANUMOF_CAPTION_NOFITY: {
-
                     }
                     break;
 
                     case FCI_TV.MSG_CAPTION_NOTIFY: {
                         String captionContents = (String)arg3;
-                        //       TVlog.i(TAG, " MSG_CAPTION_NOTIFY ");
+                        // TVlog.i(TAG, " MSG_CAPTION_NOTIFY ");
                         TVBridge.sendEventSubtitle(captionContents);
                     }
                     break;
 
                     case FCI_TV.MSG_CAPTION_NOTIFY_DIRECT: {
-                        NotifyMSG notiMSG =null;
-                        if(arg4!=null) {
+                        NotifyMSG notiMSG = null;
+                        if (arg4 != null) {
                             notiMSG = (NotifyMSG)arg4;
                         }
                         else {
@@ -309,10 +284,9 @@ public class FCI_TVi {
 
                     case FCI_TV.MSG_SUPERIMPOSE_NOTIFY_DIRECT: {
                         NotifyMSG notiMSG =null;
-                        if(arg4!=null) {
+                        if (arg4 != null) {
                             notiMSG = (NotifyMSG)arg4;
-                        }
-                        else {
+                        } else {
                             return;
                         }
                         byte[] supData = notiMSG.capData;
@@ -391,24 +365,20 @@ public class FCI_TVi {
                             TVBridge.subFloatingSurfaceViewOff();
                         }
                         break;
-
                 }
-
             }
         });
     }
 
 
     public static void saveLogcatToFile(int serviceID) {
-
         String rootPath;
 
-        if(getExternalMounts().size() != 0) {  // external SD
+        if (getExternalMounts().size() != 0) {  // external SD
             //rootPath = buildOption.SECOND_DRIVE_PATH+"FCI_LOG";
             rootPath = MainActivity.getInstance().getExternalSDPath()+"FCI_LOG";
 
-        }else                          // phone
-        {
+        } else { // phone
             //rootPath = buildOption.PHONE_DRIVE_PATH+"FCI_LOG";
             rootPath = MainActivity.getInstance().getInternalSDPath()+"FCI_LOG";
         }
@@ -419,7 +389,6 @@ public class FCI_TVi {
             TVlog.i(TAG, "==== make new folder ====  "+rootPath);
         }
 
-
         Time today = new Time(Time.getCurrentTimezone());
         today.setToNow();
 
@@ -428,20 +397,18 @@ public class FCI_TVi {
                 today.monthDay + "_" +
                 today.format("%H:%M:%S").replaceAll(":", "-");
 
-
         TVlog.i(TAG, "local data =  " + localDate);
         String fileName = "FCITV_Log_v"+buildInformation.RELEASE_VERSION+"_"+localDate+".txt";
         File outputFile = new File(rootPath+"/",fileName);
 
         TVlog.i(TAG, "saveLogcatToFile outputFile = " + outputFile);
 
-        try{
+        try {
             //  @SuppressWarnings("unused");
             process = Runtime.getRuntime().exec("logcat -f "+outputFile.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private static void startLogCaptue(int serviceID )
@@ -449,12 +416,11 @@ public class FCI_TVi {
         StopLogcapture();
         String rootPath;
 
-        if(getExternalMounts().size() != 0) {  // external SD
+        if (getExternalMounts().size() != 0) {  // external SD
             //rootPath = buildOption.SECOND_DRIVE_PATH+"FCI_LOG";
             rootPath = MainActivity.getInstance().getExternalSDPath()+"FCI_LOG";
 
-        }else                          // phone
-        {
+        } else { // phone
             //rootPath = buildOption.PHONE_DRIVE_PATH+"FCI_LOG";
             rootPath = MainActivity.getInstance().getInternalSDPath()+"FCI_LOG";
         }
@@ -477,7 +443,7 @@ public class FCI_TVi {
         Time today = new Time(Time.getCurrentTimezone());
         today.setToNow();
 
-        String localDate= today.year+ "-" +
+        String localDate = today.year + "-" +
                 (today.month + 1) + "-" +
                 today.monthDay + "_" +
                 today.format("%H:%M:%S").replaceAll(":", "-");
@@ -486,29 +452,27 @@ public class FCI_TVi {
         File outputFile = new File(rootPath+"/",fileName);
         TVlog.i(TAG, "=============== save Logcat To File outputFile = " + outputFile);
 
-        try{
+        try {
             //  @SuppressWarnings("unused");
             process = Runtime.getRuntime().exec("logcat -f "+outputFile.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private static void StopLogcapture()
     {
-        if(process!=null)
-        {
+        if (process != null) {
             TVlog.i(TAG, "=============== Stop Log capture =======================" );
             process.destroy();
-            process=null;
+            process = null;
         }
     }
+
     public static void setSuface(Surface _sur) {
 
-        if(itv == null) itv = getFCITV();
-        if(itv != null && _sur !=null)
-        {
+        if (itv == null) itv = getFCITV();
+        if (itv != null && _sur != null) {
             if (buildOption.VIDEO_CODEC_TYPE != buildOption.VIDEOCODEC_TYPE_MEDIACODEC) {
                 itv.setMaxResolution(buildOption.SWCODEC_MAX_VIDEO_WIDTH, buildOption.SWCODEC_MAX_VIDEO_HEIGHT);
             }
@@ -518,21 +482,15 @@ public class FCI_TVi {
     }
 
     public static void setSubSurface(Surface _sur) {
-
-        if(itv == null) itv = getFCITV();
-        if(itv != null && _sur !=null)
-        {
-
+        if (itv == null) itv = getFCITV();
+        if (itv != null && _sur != null) {
             itv.setSubSurface(_sur);
-
         }
-
     }
-
 
     public static int init(String _name ,String _forceRecPath, int _param1, String _param2, int _param3) {
         int rcode = 0;
-        if(itv == null) itv = getFCITV();
+        if (itv == null) itv = getFCITV();
         // eddy MW mode change
 
 /*
@@ -555,8 +513,7 @@ public class FCI_TVi {
 
 
         itv.ChangeMWMode(buildOption.FCI_SOLUTION_MODE);
-        if(buildOption.FCI_SOLUTION_LOG_ON ==false)
-        {
+        if (buildOption.FCI_SOLUTION_LOG_ON == false) {
             itv.setLogLevel(FCI_TV.NO_LOG);
         }
 
@@ -593,10 +550,9 @@ public class FCI_TVi {
         }
 
 //]]device init failed
-        if( buildOption.RECORDING_FILE_SYSTEM_MODE==0) {
+        if (buildOption.RECORDING_FILE_SYSTEM_MODE == 0) {
             itv.setRecordingMode(buildOption.RECORDING_CLIP_SIZE, FCI_TV.RECORDING_SYSTEM_SETTING_SUPPORT_MODE, _forceRecPath);
-        }else
-        {
+        } else {
             itv.setRecordingMode(buildOption.RECORDING_CLIP_SIZE, FCI_TV.RECORDING_INTEGRATION_PATH_MODE, _forceRecPath);
         }
 
@@ -605,33 +561,28 @@ public class FCI_TVi {
         setLogModuleOn(FCI_TV.PLAYER_SYNC_DEBUG_LOG, false);
         setLogModuleOn(FCI_TV.PLAYER_ADUIO_DEBUG_LOG, false);
 
-//         if(buildOption.PHILIPPINES == buildOption.FCI_SOLUTION_MODE) {
+//      if (buildOption.PHILIPPINES == buildOption.FCI_SOLUTION_MODE) {
 //
-//             TVlog.i(TAG, " PHILIPPINES register resetting ");
+//          TVlog.i(TAG, " PHILIPPINES register resetting ");
 /////////////// RF
-//            devRegWriteByte(0x0f7e, (byte) 0xff);
-//            devRegWriteByte(0x0f7f, (byte) 0xff);
-//            devRegWriteByte(0x0fb3, (byte) 0x07);
-//            devRegWriteByte(0x0fb5, (byte) 0x07);
-//            devRegWriteByte(0x0f1f, (byte) 0x79);
-//            devRegWriteByte(0x0f19, (byte) 0x33);
-//
+//          devRegWriteByte(0x0f7e, (byte) 0xff);
+//          devRegWriteByte(0x0f7f, (byte) 0xff);
+//          devRegWriteByte(0x0fb3, (byte) 0x07);
+//          devRegWriteByte(0x0fb5, (byte) 0x07);
+//          devRegWriteByte(0x0f1f, (byte) 0x79);
+//          devRegWriteByte(0x0f19, (byte) 0x33);
 /////////////// BB
-//
-//             devRegWriteByte(0x2502, (byte) 0x20);
-//             devRegWriteByte(0x2548, (byte) 0x10);
-//             devRegWriteByte(0x2535, (byte) 0x10);
-//             devRegWriteByte(0x417f, (byte) 0xc);
-//             devRegWriteByte(0x3032, (byte) 0x0);
-//             devRegWriteByte(0x257C, (byte) 0x1);
-//             devRegWriteByte(0x2505, (byte) 0x32);
-//             devRegWriteByte(0x250e, (byte) 0x32);
-//             devRegWriteByte(0x2532, (byte) 0x32);
-//             devRegWriteByte(0x2550, (byte) 0x0);
-//
-//        }
-
-
+//          devRegWriteByte(0x2502, (byte) 0x20);
+//          devRegWriteByte(0x2548, (byte) 0x10);
+//          devRegWriteByte(0x2535, (byte) 0x10);
+//          devRegWriteByte(0x417f, (byte) 0xc);
+//          devRegWriteByte(0x3032, (byte) 0x0);
+//          devRegWriteByte(0x257C, (byte) 0x1);
+//          devRegWriteByte(0x2505, (byte) 0x32);
+//          devRegWriteByte(0x250e, (byte) 0x32);
+//          devRegWriteByte(0x2532, (byte) 0x32);
+//          devRegWriteByte(0x2550, (byte) 0x0);
+//      }
 
         return rcode;
     }
@@ -641,14 +592,12 @@ public class FCI_TVi {
         if (itv != null) {
             itv.deInit();
         }
-        if(buildOption.LOG_CAPTURE_MODE ==2 || buildOption.LOG_CAPTURE_MODE ==3) {
+        if (buildOption.LOG_CAPTURE_MODE ==2 || buildOption.LOG_CAPTURE_MODE ==3) {
             StopLogcapture();
         }
         itv= null;
         _slmgr = null;
     }
-
-
 
     public static void surfaceClear()
     {
@@ -657,22 +606,15 @@ public class FCI_TVi {
                 (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
-            if (MainActivity.isMainActivity)
-            {
+            if (MainActivity.isMainActivity) {
                 TVBridge.sendEventToMain(TVEVENT.E_STOP_NOTIFY);
-
-            }else if (FloatingWindow.isFloating)
-            {
+            } else if (FloatingWindow.isFloating) {
                 FloatingWindow.getInstance().sendEvent(TVEVENT.E_FLOATING_STOP_NOTIFY);
 
-            }else if (ChatMainActivity.isChat)
-            {
+            } else if (ChatMainActivity.isChat) {
                 ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
             }
-
         }
-
-
     }
 
     public static void  subSurfaceViewOnOff(int _switchMode)
@@ -687,54 +629,43 @@ public class FCI_TVi {
 
                     TVlog.i(TAG, "[MainActivity] Sub INVISIBLE " + _switchMode);
                     if (MainActivity.getInstance().svSub != null) {
-                    MainActivity.getInstance().svSub.setVisibility(View.INVISIBLE);
+                        MainActivity.getInstance().svSub.setVisibility(View.INVISIBLE);
                     }
                 } else if (_switchMode == FCI_TV.CHSTART_DUAL_O_SEG) {
                     TVlog.i(TAG, "[MainActivity] Sub VISIBLE " + _switchMode);
                     if (MainActivity.getInstance().svSub != null) {
-                    MainActivity.getInstance().svSub.setVisibility(View.VISIBLE);
+                        MainActivity.getInstance().svSub.setVisibility(View.VISIBLE);
+                    }
                 }
-                }
-            }else if (FloatingWindow.isFloating)
-            {
+            } else if (FloatingWindow.isFloating) {
                 if (_switchMode == FCI_TV.CHSTART_SINGLE || _switchMode == FCI_TV.CHSTART_DUAL_F_SEG) {
-
                     TVlog.i(TAG, "[FloatingWindow] Sub INVISIBLE " + _switchMode);
                     if (FloatingWindow.getInstance().svSub_floatingView != null) {
-                    FloatingWindow.getInstance().svSub_floatingView.setVisibility(View.INVISIBLE);
+                        FloatingWindow.getInstance().svSub_floatingView.setVisibility(View.INVISIBLE);
                     }
-
                 } else if (_switchMode == FCI_TV.CHSTART_DUAL_O_SEG) {
                     TVlog.i(TAG, "[FloatingWindow] Sub VISIBLE " + _switchMode);
                     if (FloatingWindow.getInstance().svSub_floatingView != null) {
-                    FloatingWindow.getInstance().svSub_floatingView.setVisibility(View.VISIBLE);
+                        FloatingWindow.getInstance().svSub_floatingView.setVisibility(View.VISIBLE);
+                    }
                 }
-                }
-
-            }else if (ChatMainActivity.isChat)
-            {
+            } else if (ChatMainActivity.isChat) {
                 if (_switchMode == FCI_TV.CHSTART_SINGLE || _switchMode == FCI_TV.CHSTART_DUAL_F_SEG) {
                     TVlog.i(TAG, "[ChatMainActivity] Sub INVISIBLE " + _switchMode);
                     if (ChatMainActivity.getInstance().svSub_chatView != null) {
-                    ChatMainActivity.getInstance().svSub_chatView.setVisibility(View.INVISIBLE);
+                        ChatMainActivity.getInstance().svSub_chatView.setVisibility(View.INVISIBLE);
                     }
                 } else if (_switchMode == FCI_TV.CHSTART_DUAL_O_SEG) {
                     TVlog.i(TAG, "[ChatMainActivity] Sub VISIBLE " + _switchMode);
                     if (ChatMainActivity.getInstance().svSub_chatView != null) {
-                    ChatMainActivity.getInstance().svSub_chatView.setVisibility(View.VISIBLE);
+                        ChatMainActivity.getInstance().svSub_chatView.setVisibility(View.VISIBLE);
+                    }
                 }
             }
-            }
-
-
-        }else
-        {
+        } else {
             TVlog.e(TAG, " Not support Sub surface view control " + _switchMode);
         }
-
     }
-
-
 
     public static int getDualMode()
     {
@@ -743,24 +674,21 @@ public class FCI_TVi {
 
     public static void setDualMode(int _mode)
     {
-
         TVlog.e(TAG, " Set DualMode  from " + currentDualmode + " to "+_mode);
         currentDualmode = _mode;
     }
 
     public static void AVStart(int _ID, int _switchMode) {
         if (itv != null) {
-            if(buildOption.LOG_CAPTURE_MODE ==2 || buildOption.LOG_CAPTURE_MODE ==3) {
+            if (buildOption.LOG_CAPTURE_MODE == 2 || buildOption.LOG_CAPTURE_MODE == 3) {
                 startLogCaptue(_ID);
             }
 
             subSurfaceViewOnOff(_switchMode);
             itv.AVStart(_ID, _switchMode);
             setDualMode(_switchMode);
-
         }
     }
-
 
     public static void AVStop() {
         if (itv != null) {
@@ -776,10 +704,8 @@ public class FCI_TVi {
             }
             itv.AVStop();
             surfaceClear();
-
         }
     }
-
 
     public static int AVSwitch(int _ID, int _mode) {
         if (itv != null) {
@@ -791,7 +717,7 @@ public class FCI_TVi {
                 return 0;
             }
 
-            if( currentDualmode  == _mode)
+            if ( currentDualmode  == _mode)
             {
                 subSurfaceViewOnOff(_mode);
             }
@@ -806,40 +732,29 @@ public class FCI_TVi {
                                 buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
 
                     if (MainActivity.isMainActivity) {
-
                         TVBridge.sendEventToMain(TVEVENT.E_CAPTION_CLEAR_NOTIFY);
                         TVBridge.sendEventToMain(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
                         MainActivity.getInstance().sendEvent(TVEVENT.E_FIRSTVIDEO);
-
                     } else if (FloatingWindow.isFloating) {
                         FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
                         FloatingWindow.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
                         FloatingWindow.getInstance().sendEvent(TVEVENT.E_FIRSTVIDEO_FLOATING);
                     } else if (ChatMainActivity.isChat) {
-
                         ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
                         ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
                         ChatMainActivity.getInstance().sendEvent(TVEVENT.E_FIRSTVIDEO_CHAT);
-
                     } else {
-
                         TVlog.e(TAG, "  not support .. mode   ");
                     }
-
                 } else {
-
                     TVlog.e(TAG, " AVSwitch not support .. this is not japan  ");
-
                 }
                 return retSwitch;
-            }else
-            {
-
+            } else {
                 TVlog.e(TAG, " AVSwitch error...  recovery Surface  ");
                 subSurfaceViewOnOff(currentDualmode);
             }
             return 0;
-
         }
 
         return 0;
@@ -854,10 +769,8 @@ public class FCI_TVi {
             else { //(buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_MP4)
                 itv.RecStart(_con, _ID, _fileName, _background, devUsbFd, devUsbName, devOSVersion);
             }
-        }
-        else
-        {
-            itv=getFCITV();
+        } else {
+            itv = getFCITV();
             itv.ChangeMWMode(buildOption.FCI_SOLUTION_MODE);
             itv.init(_con.getPackageName(),devUsbFd, devUsbName, devOSVersion);
             if (buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_TS) {
@@ -877,14 +790,11 @@ public class FCI_TVi {
             else { //(buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_MP4)
                 itv.RecStop(_background);
             }
-        }
-        else
-        {
-            itv=getFCITV();
+        } else {
+            itv = getFCITV();
             if (buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_TS) {
                 itv.TSRecStop();
-            }
-            else { //(buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_MP4)
+            } else { //(buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_MP4)
                 itv.RecStop(_background);
             }
         }
@@ -906,6 +816,7 @@ public class FCI_TVi {
             return 0; //default:stereo
         }
     }
+
     /**
      * stop to record audio and video from TS stream
      */
@@ -915,6 +826,7 @@ public class FCI_TVi {
             itv.setLogLevel(_level);
         }
     }
+
     public static void setLogModuleOn(int _module,boolean _isOn)
     {
         if (itv != null) {
@@ -930,6 +842,7 @@ public class FCI_TVi {
             return false;
         }
     }
+
     public static void RemoveAllChannel()
     {
         if (_slmgr != null) {
@@ -939,7 +852,6 @@ public class FCI_TVi {
 
     public static int ScanStart() {
         if (itv != null) {
-
             return itv.ScanStart();
         }
         else {
@@ -1333,6 +1245,7 @@ public class FCI_TVi {
             return false;
         }
     }
+
     public static int currentPlayback()
     {
         if (itv != null) {
@@ -1342,7 +1255,6 @@ public class FCI_TVi {
             return -1;
         }
     }
-
 
     public static int TSPlayerBackGetOffSetUnit()
     {
@@ -1363,7 +1275,6 @@ public class FCI_TVi {
             return -1;
         }
     }
-
 
     public static int startDumpTS(int sizeTodump, String passWord) {
         if (itv != null) {
@@ -1417,7 +1328,7 @@ public class FCI_TVi {
     {
         if (itv != null) {
             int isdbMode = itv.GetISDBMode();
-            if(isdbMode == ISDBT_MODE_FULLSEG || isdbMode == ISDBT_MODE_FILE) {
+            if (isdbMode == ISDBT_MODE_FULLSEG || isdbMode == ISDBT_MODE_FILE) {
                 return ISDBT_MODE_FULLSEG;
             }
             else if (isdbMode == ISDBT_MODE_ONESEG) {
@@ -1476,5 +1387,5 @@ public class FCI_TVi {
             return 0;
         }
     }
-
 }
+
