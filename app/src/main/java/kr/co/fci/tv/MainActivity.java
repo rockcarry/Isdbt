@@ -1838,15 +1838,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
                         is_inserted_card = 0;
                         is_inserted_card_false_count =  is_inserted_card_false_count + 1;
-                        TVlog.i(TAG, " >>>>> is_inserted_card = "+is_inserted_card);
+                        TVlog.i(TAG, " >>>>> is_inserted_card = " + is_inserted_card);
                         if (is_inserted_card_false_count > 1) {
                             if (ChannelListAdapter.getInstance() != null) {
                                 final Channel channel = (Channel) ChannelListAdapter.getInstance().getItem(mChannelIndex);
-                                int type = (int) channel.getType();
-                                if (type == 0) {  //1-seg
-                                    bcas_card_insert_msg.setVisibility(View.INVISIBLE);
-                                } else {
-                                    bcas_card_insert_msg.setVisibility(View.VISIBLE);
+                                if (channel != null) {
+                                    int type = (int) channel.getType();
+                                    if (type == 0) {  //1-seg
+                                        bcas_card_insert_msg.setVisibility(View.INVISIBLE);
+                                    } else {
+                                        bcas_card_insert_msg.setVisibility(View.VISIBLE);
+                                    }
                                 }
                             }
                         }

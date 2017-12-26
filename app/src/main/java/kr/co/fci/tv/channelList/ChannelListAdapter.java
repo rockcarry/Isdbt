@@ -93,16 +93,19 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
     @Override
     public int getCount() {
         if (channels != null) {
-        return channels.size();
-    }
-        else {
+            return channels.size();
+        } else {
             return 0;
         }
     }
 
     @Override
     public Channel getItem(int position) {
-        return channels.get(position);
+        try {
+            return channels.get(position);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
