@@ -29,6 +29,7 @@ import kr.co.fci.tv.util.CustomToast;
 import kr.co.fci.tv.util.TVlog;
 
 import static kr.co.fci.tv.MainActivity.DIALOG_SCANMODE;
+import static kr.co.fci.tv.MainActivity.DIALOG_SCAN_RESTORE;
 
 /**
  * Created by eddy.lee on 2015-08-27.
@@ -48,13 +49,13 @@ public class InputDialog {
     private MaterialDialog terminateDialog;
     private String TAG= "InputDialog";
 
-    public static final int TYPE_NEW_PASSWORD =1;
-    public static final int TYPE_ENTER_PASSWORD =2;
-    public static final int TYPE_CONFIRM_PASSWORD =3;
-    public static final int TYPE_BATTERY_NOTIFY =4;
-    public static final int TYPE_TV_TERMINATE =5;
-    public static final int TYPE_TV_CHECK_PASSWORD =6;
-    public static final int TYPE_SLEEP_NOTIFY =7;
+    public static final int TYPE_NEW_PASSWORD = 1;
+    public static final int TYPE_ENTER_PASSWORD = 2;
+    public static final int TYPE_CONFIRM_PASSWORD = 3;
+    public static final int TYPE_BATTERY_NOTIFY = 4;
+    public static final int TYPE_TV_TERMINATE = 5;
+    public static final int TYPE_TV_CHECK_PASSWORD = 6;
+    public static final int TYPE_SLEEP_NOTIFY = 7;
     public static final int TYPE_NOT_SUPPORT_RECORD = 8;
     public static final int TYPE_TV_NOCHANNELLIST = 9;
     public static final int TYPE_SIGNALSTAT_NOTI = 10;
@@ -64,6 +65,7 @@ public class InputDialog {
     public static final int TYPE_CHECK_N_NEW_PASSWORD = 14;
     public static final int TYPE_EWS_NOTIFY = 15;
     public static final int TYPE_RECOVER_FOCUS = 16;
+    public static final int TYPE_RESTORE_NOCHANNEL = 17;    // justin add
 
     private static int countOfAlertNoChannel = 0;
     private static int countOfAlertBadSignal = 0;
@@ -74,7 +76,6 @@ public class InputDialog {
     public static Boolean sigDig = false;
 
     Locale_of_EWBS locale_of_ewbs;
-    //SharedPreferences.Editor editor;
 
     public InputDialog(Context _con, int _type, Object _obj1, Object _obj2, Object _obj3)
     {
@@ -91,8 +92,6 @@ public class InputDialog {
                         .iconRes(R.drawable.ic_lock_outline_gray_48dp)
                         .title(R.string.new_pw)
                         .titleColor(inputDialog_mContext.getResources().getColor(R.color.black))
-                        //     .content(R.string.input_content)
-
                         .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                         .positiveText(R.string.submit)
                         .positiveColor(inputDialog_mContext.getResources().getColor(R.color.blue3))
@@ -108,7 +107,6 @@ public class InputDialog {
                         .input(null, null, new MaterialDialog.InputCallback() {
                             @Override
                             public void onInput(MaterialDialog dialog, CharSequence input) {
-
                                 String savedata = input.toString();
                                 if (savedata != null) {
                                     if (savedata.length() > 0) {
@@ -136,7 +134,6 @@ public class InputDialog {
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
-                //inputDialog.getActionButton(DialogAction.POSITIVE).setBackgroundColor(0x000000);
             }
             break;
 
@@ -147,7 +144,6 @@ public class InputDialog {
                         .iconRes(R.drawable.ic_lock_outline_gray_48dp)
                         .title(R.string.settings_password)
                         .titleColor(inputDialog_mContext.getResources().getColor(R.color.black))
-                        //     .content(R.string.input_content)
                         .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                         .positiveText(R.string.submit)
                         .positiveColor(inputDialog_mContext.getResources().getColor(R.color.blue3))
@@ -155,9 +151,11 @@ public class InputDialog {
                         .onNegative(new MaterialDialog.SingleButtonCallback() { // justin 20170523
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                   /* if(MainActivity.getInstance().screenbl_enable.equals(true)){
+                                /*
+                                if (MainActivity.getInstance().screenbl_enable.equals(true)){
                                         MainActivity.getInstance().screenbl_enable=false;
-                                    }*/
+                                }
+                                */
                                 // justin 20150526
                                 //CommonStaticData.screenBlockFlag = false;
                                 //CommonStaticData.ageLimitFlag = false;
@@ -172,12 +170,10 @@ public class InputDialog {
                                 String save = input.toString();
                                 CommonStaticData.PassWord = CommonStaticData.settings.getString(CommonStaticData.passwordKey, null);
                                 if (CommonStaticData.PassWord.equals(save)) {
-
-                                    //InputDialog dig = new InputDialog(inputDialog_mContext, TYPE_NEW_PASSWORD, null, null, null);
                                     CommonStaticData.passwordVerifyFlag = true;
                                     CommonStaticData.mainPasswordVerifyFlag = true;
                                     CommonStaticData.ageLimitFlag = false;
-                                    if(ChatMainActivity.isChat == true){
+                                    if (ChatMainActivity.isChat == true){
                                         ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CONFIRMED_PASSWORD_CHAT);
                                     } else {
                                         MainActivity.getInstance().sendEvent(TVEVENT.E_CONFIRMED_PASSWORD);
@@ -186,7 +182,7 @@ public class InputDialog {
                                     CommonStaticData.passwordVerifyFlag = false;
                                     CommonStaticData.mainPasswordVerifyFlag = false;
                                     CommonStaticData.ageLimitFlag = true;
-                                    if(ChatMainActivity.isChat == true){
+                                    if (ChatMainActivity.isChat == true){
                                         ChatMainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR_CHAT);
                                     } else {
                                         MainActivity.getInstance().sendEvent(TVEVENT.E_RATING_MONITOR);
@@ -199,9 +195,10 @@ public class InputDialog {
                         }).dismissListener(new DialogInterface.OnDismissListener() {
                             @Override
                             public void onDismiss(DialogInterface dialog) {
-                                    /*if(MainActivity.getInstance().screenbl_enable.equals(true)){
+                                /*
+                                if (MainActivity.getInstance().screenbl_enable.equals(true)){
                                         MainActivity.getInstance().screenbl_enable = false;
-                                    }*/
+                                }*/
                                 // justin 20150526
                                 //CommonStaticData.screenBlockFlag = false;
                                 //CommonStaticData.ageLimitFlag = false;
@@ -214,7 +211,6 @@ public class InputDialog {
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
-                //inputDialog.getActionButton(DialogAction.POSITIVE).setBackgroundColor(0x000000);
             }
             break;
 
@@ -225,7 +221,6 @@ public class InputDialog {
                         .iconRes(R.drawable.ic_lock_outline_gray_48dp)
                         .title(R.string.settings_password)
                         .titleColor(inputDialog_mContext.getResources().getColor(R.color.black))
-                        //     .content(R.string.input_content)
                         .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                         .content(R.string.program_blocked)
                         .contentColor(inputDialog_mContext.getResources().getColor(R.color.black))
@@ -256,7 +251,6 @@ public class InputDialog {
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
-                //inputDialog.getActionButton(DialogAction.POSITIVE).setBackgroundColor(0x000000);
             }
             break;
 
@@ -292,7 +286,6 @@ public class InputDialog {
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
-                //inputDialog.getActionButton(DialogAction.POSITIVE).setBackgroundColor(0x000000);
             }
             break;
 
@@ -331,7 +324,6 @@ public class InputDialog {
 
                 inputDialog = new MaterialDialog.Builder(inputDialog_mContext)
                         .theme(Theme.LIGHT)
-                        //.title(R.string.parental_title)
                         .title(R.string.age_limit_title)
                         .titleColor(inputDialog_mContext.getResources().getColor(R.color.black))
                         .content(rText)
@@ -366,7 +358,6 @@ public class InputDialog {
             break;
 
 
-
             case TYPE_BATTERY_NOTIFY:
             {
                 int remaining = (int)_obj1;
@@ -374,7 +365,7 @@ public class InputDialog {
 
                 String batteryMSG = inputDialog_mContext.getString(R.string.battery_remaining)+ " "+Integer.toString(remaining)+ " %";
                 CharSequence cs = batteryMSG;
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                     batteryNotifyDialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
                             .iconRes(R.drawable.ic_battery_alert_grey600_48dp)
@@ -441,7 +432,7 @@ public class InputDialog {
             case TYPE_TV_TERMINATE:
             {
                 View decorView;
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                     terminateDialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
                             .title(R.string.confirm)
@@ -468,7 +459,6 @@ public class InputDialog {
                     terminateDialog.getWindow().setGravity(Gravity.CENTER);
                     terminateDialog.show();
                     decorView = terminateDialog.getWindow().getDecorView();
-
                 } else {
                     MaterialDialog dialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
@@ -495,12 +485,10 @@ public class InputDialog {
                     dialog.getWindow().setGravity(Gravity.CENTER);
                     dialog.show();
                     decorView = dialog.getWindow().getDecorView();
-
                 }
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
-                //terminateDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
             }
             break;
 
@@ -511,7 +499,7 @@ public class InputDialog {
                 View decorView;
                 MainActivity.getInstance().postEvent(TVEVENT.E_SLEEP_TIMER_EXPIRED, 10 * 1000);
 
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                     sleepNotifyDialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
                             .iconRes(R.drawable.ic_schedule_grey600_48dp)
@@ -540,7 +528,6 @@ public class InputDialog {
                     sleepNotifyDialog.getWindow().setGravity(Gravity.CENTER);
                     sleepNotifyDialog.show();
                     decorView = sleepNotifyDialog.getWindow().getDecorView();
-
                 } else {
                     MaterialDialog dialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
@@ -569,7 +556,6 @@ public class InputDialog {
                     dialog.getWindow().setGravity(Gravity.CENTER);
                     dialog.show();
                     decorView = dialog.getWindow().getDecorView();
-
                 }
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
@@ -581,7 +567,7 @@ public class InputDialog {
             {
                 View decorView;
 
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                     notSupportRecordDialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
                             .iconRes(R.drawable.ic_info_outline_gray_48dp)
@@ -601,7 +587,6 @@ public class InputDialog {
                     notSupportRecordDialog.getWindow().setGravity(Gravity.CENTER);
                     notSupportRecordDialog.show();
                     decorView = notSupportRecordDialog.getWindow().getDecorView();
-
                 } else {
                     MaterialDialog dialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
@@ -622,11 +607,63 @@ public class InputDialog {
                     dialog.getWindow().setGravity(Gravity.CENTER);
                     dialog.show();
                     decorView = dialog.getWindow().getDecorView();
-
                 }
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
+            }
+            break;
+
+            case TYPE_RESTORE_NOCHANNEL:    // justin add
+            {
+                View decorView;
+                MainActivity.getInstance().removeEvent(TVEVENT.E_SCAN_MONITOR);
+                if (MainActivity.isBBFail) {
+                    break;
+                }
+                if (countOfAlertNoChannel > 0) {
+                    break;
+                }
+                countOfAlertNoChannel++;
+
+                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                    countOfAlertNoChannel--;    // justin add
+                    MainActivity.getInstance().showDialog(DIALOG_SCAN_RESTORE);
+                } else {
+                    noChannelListDialog = new MaterialDialog.Builder(inputDialog_mContext)
+                            .theme(Theme.LIGHT)
+                            .iconRes(R.drawable.ic_signal_cellular_connected_no_internet_4_bar_black_48dp)
+                            .title(R.string.no_channel_tip)
+                            .titleColor(inputDialog_mContext.getResources().getColor(R.color.black))
+                            .content(R.string.scan_tip)
+                            .contentColor(inputDialog_mContext.getResources().getColor(R.color.black))
+                            .positiveText(R.string.ok)
+                            .positiveColor(inputDialog_mContext.getResources().getColor(R.color.blue3))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    countOfAlertNoChannel--;
+                                    if (CommonStaticData.settingActivityShow)
+                                        SettingActivity.getInstance().sendEvent(TVEVENT.E_SETTING_EXIT);
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_SCAN_START);
+                                }
+                            })
+                            .build();
+                    noChannelListDialog.getWindow().setGravity(Gravity.CENTER);
+                    noChannelListDialog.show();
+                    noChannelListDialog.setCanceledOnTouchOutside(false);
+                    decorView = noChannelListDialog.getWindow().getDecorView();
+                    /*
+                    if (MainActivity.isBBFail) {
+                        noChannelListDialog.dismiss();
+                    }*/
+                    int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
+                    decorView.setSystemUiVisibility(uiOptions);
+                }
             }
             break;
 
@@ -642,11 +679,11 @@ public class InputDialog {
                 }
                 countOfAlertNoChannel++;
 
-                //if (!MainActivity.isBBFail) {
                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                    countOfAlertNoChannel--;    // justin add
                     MainActivity.getInstance().showDialog(DIALOG_SCANMODE);
                 } else {
                     noChannelListDialog = new MaterialDialog.Builder(inputDialog_mContext)
@@ -670,6 +707,18 @@ public class InputDialog {
                                         MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
                                     }
                                     MainActivity.ll_noChannel.setVisibility(View.VISIBLE);
+                                    if (MainActivity.getInstance().currChNo != null && MainActivity.getInstance().currCH != null && MainActivity.getInstance().currRemoteNo != null) {
+                                        MainActivity.getInstance().currChNo.setText("- -ch");
+                                        MainActivity.getInstance().currRemoteNo.setText("- - -");
+                                        MainActivity.getInstance().currCH.setText(R.string.no_channel_title);
+                                    }
+                                    if (MainActivity.getInstance().rl_ChType != null) {
+                                        MainActivity.getInstance().rl_ChType.setVisibility(View.GONE);
+                                    }
+                                    if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                                           MainActivity.getInstance().currProgram.setText("- - -");
+                                        MainActivity.getInstance().currDuration.setText("--:--~--:--");
+                                    }
                                 }
                             })
                             .positiveText(R.string.ok)
@@ -688,14 +737,11 @@ public class InputDialog {
                     noChannelListDialog.show();
                     noChannelListDialog.setCanceledOnTouchOutside(false);
                     decorView = noChannelListDialog.getWindow().getDecorView();
-                   /* if (MainActivity.isBBFail) {
-                        noChannelListDialog.dismiss();
-                    }*/
+
                     int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                     decorView.setSystemUiVisibility(uiOptions);
                 }
-
             }
             break;
 
@@ -732,7 +778,7 @@ public class InputDialog {
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
-                sigDig=true;
+                sigDig = true;
             }
             break;
 
@@ -746,7 +792,8 @@ public class InputDialog {
                     }
                     countOfAlertScrambled++;
 
-                    /*if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                    /*
+                    if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                         scrambleNotiDialog = new MaterialDialog.Builder(inputDialog_mContext)
                                 .iconRes(R.drawable.tv_free)
                                 .title(R.string.scrambl_ch)
@@ -761,7 +808,7 @@ public class InputDialog {
                                 .show();
                         scrambleNotiDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_box);
                         decorView = scrambleNotiDialog.getWindow().getDecorView();
-                    }else{
+                    } else {
                         MaterialDialog dialog = new MaterialDialog.Builder(inputDialog_mContext)
                                 .cancelable(false)
                                 .iconRes(R.drawable.tv_free)
@@ -780,12 +827,13 @@ public class InputDialog {
                     }
                     int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
-                    decorView.setSystemUiVisibility(uiOptions);*/
+                    decorView.setSystemUiVisibility(uiOptions);
+                    */
 
                     if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                        //MainActivity.getInstance().ll_scramble_msg.setVisibility(View.VISIBLE);
+//                      MainActivity.getInstance().ll_scramble_msg.setVisibility(View.VISIBLE);
                     } else {
                         MainActivity.getInstance().ll_scramble_msg.setVisibility(View.VISIBLE);
                     }
@@ -798,7 +846,7 @@ public class InputDialog {
                 View decorView;
                 final int index = (int) _obj1;
                 if (Locale.getDefault().getLanguage().equalsIgnoreCase("ja")) {
-                    if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                    if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                         recordDeleteFileDialog = new MaterialDialog.Builder(inputDialog_mContext)
                                 .theme(Theme.LIGHT)
                                 .iconRes(R.drawable.ic_delete_grey600_48dp)
@@ -862,7 +910,7 @@ public class InputDialog {
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                     decorView.setSystemUiVisibility(uiOptions);
                 } else {
-                    if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                    if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                         recordDeleteFileDialog = new MaterialDialog.Builder(inputDialog_mContext)
                                 .theme(Theme.LIGHT)
                                 .iconRes(R.drawable.ic_delete_grey600_48dp)
@@ -893,7 +941,6 @@ public class InputDialog {
                         recordDeleteFileDialog.show();
 
                         decorView = recordDeleteFileDialog.getWindow().getDecorView();
-
                     } else {
                         MaterialDialog dialog = new MaterialDialog.Builder(inputDialog_mContext)
                                 .theme(Theme.LIGHT)
@@ -922,7 +969,6 @@ public class InputDialog {
                         dialog.getWindow().setGravity(Gravity.CENTER);
                         dialog.show();
                         decorView = dialog.getWindow().getDecorView();
-
                     }
                     int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
@@ -940,8 +986,6 @@ public class InputDialog {
                         .input(null, null, new MaterialDialog.InputCallback() {
                             @Override
                             public void onInput(MaterialDialog dialog, CharSequence input) {
-
-
                             }
                         }).build();
                 inputDialog.getWindow().setGravity(Gravity.CENTER);
@@ -950,7 +994,6 @@ public class InputDialog {
                 int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
-                //inputDialog.getActionButton(DialogAction.POSITIVE).setBackgroundColor(0x000000);
             }
             break;
 
@@ -988,9 +1031,7 @@ public class InputDialog {
                 }
 
                 int cntr = CommonStaticData.localeSet;
-
-
-                if(areaCodes.length >= 1){
+                if (areaCodes.length >= 1){
 
                     for(int j=0; j < areaCodes.length ; j++) {
                         tMsg.append(locale_of_ewbs.findArea(cntr, areaCodes.length , String.format("%03x", areaCodes[j]))+" ");     // use small letters
@@ -999,7 +1040,6 @@ public class InputDialog {
                     strMessage_2 = tMsg.toString();
                     strMessage = strMessage_1 + " in " + strMessage_2;
                 }
-                //ToDo::areaCode depending on each Country
 
                 if (ewsNotiDialog != null && ewsNotiDialog.isShowing()) {
                     if (ringtone.isPlaying()) {
@@ -1008,7 +1048,7 @@ public class InputDialog {
                     ewsNotiDialog.dismiss();
                 }
 
-                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
                     ewsNotiDialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
                             .title(strTitle)
@@ -1028,7 +1068,7 @@ public class InputDialog {
                     ewsNotiDialog.getWindow().setGravity(Gravity.CENTER);
                     ewsNotiDialog.show();
                     decorView = ewsNotiDialog.getWindow().getDecorView();
-                }else{
+                } else {
                     ewsNotiDialog = new MaterialDialog.Builder(inputDialog_mContext)
                             .theme(Theme.LIGHT)
                             .iconRes(R.drawable.ic_delete_grey600_48dp)
@@ -1078,11 +1118,10 @@ public class InputDialog {
     }
 
     public static void nosignalNotiClear(){
-        if(sigDig) {
+        if (sigDig) {
             signalStatNotiDialog.dismiss();
             countOfAlertBadSignal--;
-            sigDig=false;
+            sigDig = false;
         }
-
     }
 }

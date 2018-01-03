@@ -612,7 +612,9 @@ public class FCI_TVi {
                 FloatingWindow.getInstance().sendEvent(TVEVENT.E_FLOATING_STOP_NOTIFY);
 
             } else if (ChatMainActivity.isChat) {
-                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
+                if (ChatMainActivity.getInstance() != null) {
+                    ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHAT_STOP_NOTIFY);
+                }
             }
         }
     }
@@ -623,8 +625,7 @@ public class FCI_TVi {
                 (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
-            if (MainActivity.isMainActivity)
-            {
+            if (MainActivity.isMainActivity) {
                 if (_switchMode == FCI_TV.CHSTART_SINGLE || _switchMode == FCI_TV.CHSTART_DUAL_F_SEG) {
 
                     TVlog.i(TAG, "[MainActivity] Sub INVISIBLE " + _switchMode);
@@ -680,6 +681,7 @@ public class FCI_TVi {
 
     public static void AVStart(int _ID, int _switchMode) {
         if (itv != null) {
+            CommonStaticData.isSwitched = false;
             if (buildOption.LOG_CAPTURE_MODE == 2 || buildOption.LOG_CAPTURE_MODE == 3) {
                 startLogCaptue(_ID);
             }
@@ -699,8 +701,10 @@ public class FCI_TVi {
                 FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
                 FloatingWindow.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
             } else if (ChatMainActivity.isChat) {
-                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
-                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
+                if (ChatMainActivity.getInstance() != null) {
+                    ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
+                    ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
+                }
             }
             itv.AVStop();
             surfaceClear();
@@ -724,6 +728,7 @@ public class FCI_TVi {
 
             retSwitch = itv.AVSwitch(_ID, _mode);
             if (retSwitch > 0) {
+                CommonStaticData.isSwitched = true;
                 setDualMode(_mode);
 
                 if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&

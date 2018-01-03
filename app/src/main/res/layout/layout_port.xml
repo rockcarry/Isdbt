@@ -850,6 +850,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
             android:background="@color/window_transparent_color">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"

@@ -222,11 +222,11 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-            if(CommonStaticData.receivemode == 2 || CommonStaticData.receivemode == 3) { // Switching : Auto or Off
+            if(CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_AUTO || CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_OFF) { // Switching : Auto or Off
                 convertView.setVisibility(View.VISIBLE);
                 holder.ch_layout_item.setVisibility(View.VISIBLE);
                 holder.chlist_divider.setVisibility(View.VISIBLE);
-            } else if (CommonStaticData.receivemode == 1) { //Switching : Fullseg
+            } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_FULLSEG) { //Switching : Fullseg
                 if (channel.getType() == 0) { // if 1seg
                     convertView.setVisibility(View.GONE);
                     holder.ch_layout_item.setVisibility(View.GONE);
@@ -236,7 +236,7 @@ public class ChannelListAdapter extends ArrayAdapter<Channel> {
                     holder.ch_layout_item.setVisibility(View.VISIBLE);
                     holder.chlist_divider.setVisibility(View.VISIBLE);
                 }
-            } else if (CommonStaticData.receivemode == 0) { // Switching : 1seg
+            } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_1SEG) { // Switching : 1seg
                 if (channel.getType() == 1) { // if Fullseg
                     convertView.setVisibility(View.GONE);
                     holder.ch_layout_item.setVisibility(View.GONE);

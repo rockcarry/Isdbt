@@ -2,7 +2,6 @@ package kr.co.fci.tv.tvSolution;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.Toast;
 
 import kr.co.fci.tv.FloatingWindow;
 import kr.co.fci.tv.R;
@@ -42,9 +41,15 @@ public class ScanProcess_floating {
                     TVlog.i(TAG, " - call cancel -");
                     TVBridge.scanStop();
                     ScanOn_floating = false;
-                    FloatingWindow.getInstance().mHandler_floating.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)));
-                    /*CustomToast toast = new CustomToast(mContext);
-                    toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);*/
+                    /*
+                    FloatingWindow.getInstance().mHandler_floating.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)
+                            +"\n"+mContext.getString(R.string.type_HD)+" : "+numFullseg
+                            +"\n"+mContext.getString(R.string.type_SD)+" : "+num1seg));
+                    */
+                    /*
+                    CustomToast toast = new CustomToast(mContext);
+                    toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                    */
                     return;
                 }
                 TVlog.i(TAG, " - showProgress_floating -");
@@ -55,13 +60,20 @@ public class ScanProcess_floating {
                 preProgress_floating = _progress;
                 //scandialog.show();
             } else if (_option == SHOW_PROGRESS_OFF_FLOATING) {
-                /*CustomToast toast = new CustomToast(mContext);
-                toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);*/
-                FloatingWindow.getInstance().mHandler_floating.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)));
-
-                /*Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                /*
+                CustomToast toast = new CustomToast(mContext);
+                toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                */
+                /*
+                FloatingWindow.getInstance().mHandler_floating.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)
+                        +"\n"+mContext.getString(R.string.type_HD)+" : "+numFullseg
+                        +"\n"+mContext.getString(R.string.type_SD)+" : "+num1seg));
+                */
+                /*
+                Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 200);
-                toast.show();*/
+                toast.show();
+                */
                 //scandialog_floating.cancel();
                 FloatingWindow.getInstance().floating_ll_scan_progress.setVisibility(View.INVISIBLE);
 
@@ -75,16 +87,6 @@ public class ScanProcess_floating {
     }
 
     //private final Handler mHandler = new Handler();
-
-
-    public static class ToastRunnable implements Runnable {
-        String mText;
-        public ToastRunnable(String text) {
-            mText = text;
-        } @Override public void run(){
-            Toast.makeText(mContext, mText, Toast.LENGTH_SHORT).show();
-        }
-    }
 
     public ScanProcess_floating(Context _context) {
         preProgress_floating = 0;
@@ -106,7 +108,8 @@ public class ScanProcess_floating {
             }
         }
 
-        /*scandialog_floating = new MaterialDialog.Builder(_context)
+        /*
+        scandialog_floating = new MaterialDialog.Builder(_context)
                 .theme(Theme.LIGHT)
                 .iconRes(R.drawable.ic_search_grey600_48dp)
                 .title(R.string.channel_search)
@@ -131,7 +134,8 @@ public class ScanProcess_floating {
 
                 }).build();
         scandialog_floating.getWindow().setGravity(Gravity.CENTER);
-        scandialog_floating.show();*/
+        scandialog_floating.show();
+        */
     }
 
 }

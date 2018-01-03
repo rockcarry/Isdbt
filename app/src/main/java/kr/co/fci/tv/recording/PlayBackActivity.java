@@ -173,6 +173,7 @@ public class PlayBackActivity extends Activity {
                     isFirstI=false;
                 }
                 break;
+
                 case E_TSPLAYBACK_PAUSE:
                 {
                     removeEvent(TVEVENT.E_TS_PLAYBACK_CURRENT_POS);
@@ -204,18 +205,15 @@ public class PlayBackActivity extends Activity {
                 case E_TS_PLAYBACK_CURRENT_POS:
                 {
                     boolean isTVOn = MainActivity.getTVon();
-                    if(isPlaying && isTVOn)
-                    {
+                    if (isPlaying && isTVOn) {
                         long currentPro = (long)FCI_TVi.currentPlayback();
                         //TVlog.i(TAG, "currentPro = "+currentPro+ "  duration = "+duration+ " OffsetUint = "+OffsetUint );
-                        if(currentPro <=0 || currentPro > OffsetUint)
-                        {
+                        if (currentPro <= 0 || currentPro > OffsetUint) {
                             TVlog.i(TAG, "not ready start  =  " +currentPro);
                             postEvent(TVEVENT.E_TS_PLAYBACK_CURRENT_POS, 100);
                             return;
                         }
-                        if(currentPro==0)
-                        {
+                        if (currentPro == 0) {
                             TVlog.i(TAG, "currentPro = 0 ");
                             currentPro=1;
                         }
@@ -231,7 +229,6 @@ public class PlayBackActivity extends Activity {
 
                 case E_TSPLAYBACK_TERMINATE:
                 {
-
                     MainActivity.getInstance().sendEvent(TVEVENT.E_HIDE_CONTROLER);
                     removeEvent(TVEVENT.E_TS_PLAYBACK_CURRENT_POS);
                     setState(STATE_IDLE);
@@ -239,13 +236,13 @@ public class PlayBackActivity extends Activity {
                     TVlog.i(TAG, " E_TSPLAYBACK_TERMINATE  = ");
                     removeEvent(TVEVENT.E_AUTO_CHANGE_CHANNEL_TEST);
                     isPlaying = false;
-                    duration =0;
-                    curOffset=0;
-                    isFirstI=false;
-                    pauseUIOn=true;
+                    duration  = 0;
+                    curOffset = 0;
+                    isFirstI  = false;
+                    pauseUIOn = true;
                     ViewPause(true);
                     FCI_TVi.stopPlayback();
-                    currentSeekbar=0;
+                    currentSeekbar = 0;
                     finish();
 
                     Intent myIntent = new Intent(PlayBackActivity.this, RecordedFileListActivity.class);
@@ -254,7 +251,6 @@ public class PlayBackActivity extends Activity {
                     MainActivity.isPlayBackActivity = false;
                     MainActivity.isMainActivity = true;
 
-                    //FCI_TVi.AVStart(CommonStaticData.lastCH);
                     if (CommonStaticData.scanCHnum > 0) {
                         MainActivity.getInstance().changeChannelView.setVisibility(View.VISIBLE);
                         MainActivity.getInstance().channelChangeStartView(false);
@@ -290,8 +286,16 @@ public class PlayBackActivity extends Activity {
                         }
                         if (FCI_TVi.initiatedSol) {
                             MainActivity.getInstance().ll_noChannel.setVisibility(View.VISIBLE);
+                            if (MainActivity.getInstance().currChNo != null && MainActivity.getInstance().currCH != null && MainActivity.getInstance().currRemoteNo != null) {
+                                MainActivity.getInstance().currChNo.setText("- -ch");
+                                MainActivity.getInstance().currRemoteNo.setText("- - -");
+                                MainActivity.getInstance().currCH.setText(R.string.no_channel_title);
+                            }
+
+                            if (MainActivity.getInstance().rl_ChType != null) {
+                                MainActivity.getInstance().rl_ChType.setVisibility(View.GONE);
+                            }
                             MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
-                            //}
 
                             if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
                                 MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
@@ -310,11 +314,8 @@ public class PlayBackActivity extends Activity {
                             } else {
                                 MainActivity.ll_file_play_mode.setVisibility(View.VISIBLE);
                             }
-
                         }
-
                     }
-
                 }
                 break;
 
@@ -322,7 +323,7 @@ public class PlayBackActivity extends Activity {
                 {
                     TVlog.i(TAG, " ------ E_TSPLAYBACK_FIRSTVIDEO  ---------- ");
                     isFirstI=true;
-                    if(isPlaying==true) {
+                    if (isPlaying == true) {
                         postEvent(TVEVENT.E_TS_PLAYBACK_CURRENT_POS, 100);
                         ViewSeekBar(true);
                     }
@@ -333,7 +334,7 @@ public class PlayBackActivity extends Activity {
                 {
                     TVlog.i(TAG, " ------ E_TSPLAYBACK_FIRSTAUDIO  ---------- ");
                     isFirstI=true;
-                    if(isPlaying==true) {
+                    if (isPlaying == true) {
                         postEvent(TVEVENT.E_TS_PLAYBACK_CURRENT_POS, 100);
                         ViewSeekBar(true);
                     }
@@ -435,11 +436,9 @@ public class PlayBackActivity extends Activity {
 
         CommonStaticData.playBackActivityShow = false;   // justin add for dongle detached
 
-        if(pause.getVisibility() != View.VISIBLE)
-        {
+        if (pause.getVisibility() != View.VISIBLE) {
             pauseUIOn = false;
-        }else
-        {
+        } else {
             pauseUIOn = true;
         }
         isPlaying=false;
@@ -455,16 +454,13 @@ public class PlayBackActivity extends Activity {
         recordedFiles = RecordedFileListActivity.getInstance().getRecordFileList();
         currentRecordFile = recordedFiles.get(currentindex);
         sendFilename = currentRecordFile.getFilePath() + currentRecordFile.getFileName();
-        if(curOffset==0)
-        {
+        if (curOffset == 0) {
             sendEvent(TVEVENT.E_TSPLAYBACK_START, 0, sendFilename);
-        }else
-        {
+        } else {
             sendEvent(TVEVENT.E_TSPLAYBACK_SEEK, curOffset, sendFilename);
         }
 
-        if(pause.getVisibility() != View.VISIBLE)
-        {
+        if (pause.getVisibility() != View.VISIBLE) {
             TVlog.i(TAG, "now pause");
             sendEvent(TVEVENT.E_TSPLAYBACK_PAUSE, curOffset, sendFilename);
         }
@@ -495,15 +491,14 @@ public class PlayBackActivity extends Activity {
             if (MainActivity.getInstance().ll_noChannel.getVisibility() == View.VISIBLE) {
                 MainActivity.getInstance().ll_noChannel.setVisibility(View.INVISIBLE);
             }
-                if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
-                    MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
-                }
-                if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
-                    MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
-                }
+            if (MainActivity.getInstance().ll_noSignal.getVisibility() == View.VISIBLE) {
+                MainActivity.getInstance().ll_noSignal.setVisibility(View.INVISIBLE);
+            }
+            if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
+                MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
+            }
 
             if (FCI_TVi.initiatedSol) {
-
             } else {
                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
@@ -517,7 +512,6 @@ public class PlayBackActivity extends Activity {
                         MainActivity.getInstance().ll_file_play_mode.setVisibility(View.INVISIBLE);
                     }
                 }
-
             }
 
             ll_paused.setVisibility(View.VISIBLE);
@@ -547,7 +541,6 @@ public class PlayBackActivity extends Activity {
             if (MainActivity.getInstance().ll_scramble_msg.getVisibility() == View.VISIBLE) {
                 MainActivity.getInstance().ll_scramble_msg.setVisibility(View.INVISIBLE);
             }
-
         } else {
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                     buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
@@ -561,7 +554,6 @@ public class PlayBackActivity extends Activity {
                     MainActivity.getInstance().ll_file_play_mode.setVisibility(View.INVISIBLE);
                 }
             }
-
         }
     }
 
@@ -644,7 +636,7 @@ public class PlayBackActivity extends Activity {
         start.setText(displayinit);
         stop.setText(displayinit);
 
-        if(OffsetUint==0) {
+        if (OffsetUint == 0) {
             OffsetUint = FCI_TVi.TSPlayerBackGetOffSetUnit();
         }
         TVlog.i(TAG, " OffsetUint = " + OffsetUint);
@@ -665,8 +657,7 @@ public class PlayBackActivity extends Activity {
                     ll_paused.setVisibility(View.INVISIBLE);
                 }
 
-                //MainActivity.getInstance().channelChangeStartView(false);
-                MainActivity.getInstance().channelChangeStartView(true);    // justin
+                MainActivity.getInstance().channelChangeStartView(true);  // justin
                 MainActivity.getInstance().changeChannelView.setVisibility(View.VISIBLE);
                 currentindex++;
                 if (currentindex >= maxsize) {
@@ -679,9 +670,7 @@ public class PlayBackActivity extends Activity {
 
                 isPlaying = true;
                 ViewPause(true);
-
             }
-
         });
 
         prelist.setOnClickListener(new View.OnClickListener() {
@@ -702,10 +691,9 @@ public class PlayBackActivity extends Activity {
                 MainActivity.getInstance().changeChannelView.setVisibility(View.VISIBLE);
                 TVlog.i(TAG, "Next -- maxsize = " + maxsize);
                 currentindex--;
-                if(currentindex == 0) {
+                if (currentindex == 0) {
                     currentindex = 0 ;
-                } else if (currentindex < 0)
-                {
+                } else if (currentindex < 0) {
                     currentindex = maxsize -1;
                 }
                 currentRecordFile = recordedFiles.get(currentindex);
@@ -733,36 +721,33 @@ public class PlayBackActivity extends Activity {
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //    isPlaying = false;
+                // isPlaying = false;
                 TVlog.i(TAG, "== pause = " );
                 sendEvent(TVEVENT.E_TSPLAYBACK_PAUSE);
                 ViewPause(false);
                 removeEvent(TVEVENT.E_HIDE_PLAYBACK);  // live add
-
             }
         });
 
         resume.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //   isPlaying = true;
-                //    int currentSetP= playbackseekbar.getProgress();
+                // isPlaying = true;
+                // int currentSetP = playbackseekbar.getProgress();
                 TVlog.i(TAG, "== Press Resume== " + currentSeekbar + " curOffset = "+curOffset);
-                if(isPlaying) {
+                if (isPlaying) {
                     TVlog.i(TAG, "core is playing " +currentSeekbar );
-                    if(currentSeekbar!=curOffset)
+                    if (currentSeekbar!=curOffset)
                     {
                         TVlog.i(TAG, " Resume with moved progress " );
                         //curOffset=currentSeekbar;
                         currentSeekbar=curOffset;
                         sendEvent(TVEVENT.E_TSPLAYBACK_SEEK, curOffset, playFile);
-                    }else
-                    {
+                    } else {
                         TVlog.i(TAG, " Resume with same progress " );
                         sendEvent(TVEVENT.E_TSPLAYBACK_RESUME);
                     }
-                }else {
+                } else {
                     TVlog.i(TAG, "core is not playing " +currentSeekbar );
                     sendEvent(TVEVENT.E_TSPLAYBACK_SEEK, curOffset, playFile);
                 }
@@ -785,18 +770,14 @@ public class PlayBackActivity extends Activity {
         playbackseekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
                 if (seekTouch) {
                     DisplayDuration(progress, false);
                 } else {
                     if (progress == playbackseekbar.getMax()) {
-
                         TVlog.i(TAG, "progress max will be terminated");
                         sendEvent(TVEVENT.E_TSPLAYBACK_TERMINATE);
-
                     }
                 }
-
             }
 
             @Override
@@ -812,18 +793,16 @@ public class PlayBackActivity extends Activity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 currentSeekbar= playbackseekbar.getProgress();
-                if(pause.getVisibility() == View.VISIBLE)
-                {
+                if (pause.getVisibility() == View.VISIBLE) {
                     TVlog.i(TAG, "current playing ~~ seek start");
                     sendEvent(TVEVENT.E_TSPLAYBACK_SEEK, currentSeekbar, playFile);
                     postEvent(TVEVENT.E_HIDE_PLAYBACK, PLAYBACK_HIDE_TIME);
 
                 }
                 seekTouch = false;
-                //     curOffset = (int) currentPro;
+                // curOffset = (int) currentPro;
                 DisplayDuration(currentSeekbar, false);
                 TVlog.i(TAG, "onStopTrackingTouch  curOffset = "+curOffset);
-
             }
         });
 
@@ -840,7 +819,7 @@ public class PlayBackActivity extends Activity {
         player_bright = CommonStaticData.brightness;
         if (player_bright < 1) {
             player_bright =1;
-        } else if(player_bright > 15) {
+        } else if (player_bright > 15) {
             player_bright = 15;
         }
         WindowManager.LayoutParams plp = this.getWindow().getAttributes();
@@ -850,12 +829,12 @@ public class PlayBackActivity extends Activity {
         mVerticalBrightProgress.setMax(15);
         mVerticalBrightProgress.setProgress(player_bright);
 
-        if(mVerticalBrightProgress != null){
+        if (mVerticalBrightProgress != null) {
             mVerticalBrightProgress.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
 
                 @Override
                 public void onProgressChanged(kr.co.fci.tv.gesture.VerticalSeekBar seekBar, int progress, boolean fromUser) {
-                    if(!fromUser) {
+                    if (!fromUser) {
                         return;
                     }
                     CommonStaticData.brightness = progress;
@@ -868,12 +847,10 @@ public class PlayBackActivity extends Activity {
 
                 @Override
                 public void onStartTrackingTouch(kr.co.fci.tv.gesture.VerticalSeekBar seekBar) {
-
                 }
 
                 @Override
                 public void onStopTrackingTouch(kr.co.fci.tv.gesture.VerticalSeekBar seekBar) {
-
                 }
             });
         }
@@ -883,7 +860,7 @@ public class PlayBackActivity extends Activity {
         int vol = audMgr.getStreamVolume(AudioManager.STREAM_MUSIC);
         int max = audMgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-        if(mVerticalVolumeProgress != null){
+        if (mVerticalVolumeProgress != null) {
             mVerticalVolumeProgress.setMax(max);
             mVerticalVolumeProgress.setProgress(vol);
             mVerticalVolumeProgress.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
@@ -894,25 +871,18 @@ public class PlayBackActivity extends Activity {
 
                 @Override
                 public void onStartTrackingTouch(kr.co.fci.tv.gesture.VerticalSeekBar seekBar) {
-
                 }
 
                 @Override
                 public void onStopTrackingTouch(kr.co.fci.tv.gesture.VerticalSeekBar seekBar) {
-
                 }
             });
         }
 
-
-
         ViewController(false);
-        if(pauseUIOn)
-        {
+        if (pauseUIOn) {
             ViewPause(true);
-        }
-        else
-        {
+        } else {
             ViewPause(false);
             ViewController(true);
         }
@@ -922,7 +892,7 @@ public class PlayBackActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-        if(buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+        if (buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
             AudioManager audMgr = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
             View decorView = getWindow().getDecorView();
             uiOptions =  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE;
@@ -958,7 +928,6 @@ public class PlayBackActivity extends Activity {
 
                 default:
                     return super.onKeyDown(keyCode, event);
-
             }
         }
         //TVlog.i(TAG, "=== KEYCODE_NOT_Valid *********  ");
@@ -978,9 +947,8 @@ public class PlayBackActivity extends Activity {
                         return true;
                     case MotionEvent.ACTION_UP:
 
-                        if(cotrollerToggle==false)toggleController(true);
-                        else
-                        {
+                        if (cotrollerToggle==false)toggleController(true);
+                        else {
                             toggleController(false);
                         }
                         return true;
@@ -988,7 +956,6 @@ public class PlayBackActivity extends Activity {
                     default:
                         return super.onTouchEvent(event);
                 }
-
             } else {
                 DisplayMetrics screen = new DisplayMetrics();
                 getWindowManager().getDefaultDisplay().getMetrics(screen);
@@ -1004,7 +971,6 @@ public class PlayBackActivity extends Activity {
 
                 switch (event.getAction()){
                     case MotionEvent.ACTION_DOWN:
-
                         TVlog.i(TAG, "=== MotionEvent.ACTION_DOWN *********= ");
 
                         mLastMotionX = event.getX();
@@ -1016,31 +982,30 @@ public class PlayBackActivity extends Activity {
 
                         mTouchX = event.getRawX();
                         if (mAudio != true && mBrightnessChanged != true) {
-                                /*if (mIsTouchFlag == true) {
-                                    mIsTouchFlag = false;
-                                    sendEvent(TVEVENT.E_HIDE_CONTROLER);
-                                } else {
-                                    removeEvent(TVEVENT.E_HIDE_CONTROLER);  // add justin
-                                    sendEvent(TVEVENT.E_SHOW_CONTROLER);
-                                }*/
-                        /*uiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                        View decorView = getWindow().getDecorView();
-                        decorView.setSystemUiVisibility(uiOptions);*/
+                            /*
+                            if (mIsTouchFlag == true) {
+                                mIsTouchFlag = false;
+                                sendEvent(TVEVENT.E_HIDE_CONTROLER);
+                            } else {
+                                removeEvent(TVEVENT.E_HIDE_CONTROLER);  // add justin
+                                sendEvent(TVEVENT.E_SHOW_CONTROLER);
+                            }*/
+                            /*
+                            uiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                            View decorView = getWindow().getDecorView();
+                            decorView.setSystemUiVisibility(uiOptions);
+                            */
                         }
-
                         return true;
 
                     case MotionEvent.ACTION_UP:
-
                         TVlog.i(TAG, "=== MotionEvent.ACTION_UP *********= ");
-
                         if (mEnableBrightnessGesture == true) {
                             mEnableBrightnessGesture = false;
                             postEvent(TVEVENT.E_HIDE_GESTURE, GESTURE_HIDE_TIME);
                             //InputDialog dig = new InputDialog(this, InputDialog.TYPE_RECOVER_FOCUS, null, null, null);  // make to get focus
                         }
                         mEnableChannellist = false;
-
 
                         if (pause.getVisibility() == View.VISIBLE) {
                             if (cotrollerToggle==false) {
@@ -1049,7 +1014,6 @@ public class PlayBackActivity extends Activity {
                                 toggleController(false);
                             }
                         }
-
                         return true;
 
                     default:
@@ -1057,14 +1021,12 @@ public class PlayBackActivity extends Activity {
 
                     case MotionEvent.ACTION_MOVE:
                         //TVlog.i(TAG, "=== ACTION_MOVE ********* y=  " + coefy +", x = "+coefx);
-
                         final float x = event.getX();
                         final float y = event.getY();
                         final int deltaX = Math.abs((int) (mLastMotionX - x));
                         final int deltaY = Math.abs((int) (mLastMotionY - y));
 
-                        //  TVlog.i(TAG, "=== ACTION_MOVE ****deltaX=  " + deltaX+", deltaY = "+deltaY);
-
+                        //TVlog.i(TAG, "=== ACTION_MOVE ****deltaX=  " + deltaX+", deltaY = "+deltaY);
                         if (coefy > 4) {
                             mEnableBrightnessGesture = true;
                             removeEvent(TVEVENT.E_HIDE_GESTURE);
@@ -1083,19 +1045,17 @@ public class PlayBackActivity extends Activity {
                                 doVolumeTouch(y_changed);
                             }
                         }
-
                         return true;
 
                     case MotionEvent.ACTION_CANCEL:
                         TVlog.i(TAG, "=== MotionEvent.ACTION_CANCEL *********= ");
                         return false;
-                    //break;
+
                     case MotionEvent.ACTION_OUTSIDE:
                         TVlog.i(TAG, "=== MotionEvent.ACTION_OUTSIDE *********= ");
                         return false;
                 }
             }
-
         }
         return false;
     }
@@ -1105,7 +1065,7 @@ public class PlayBackActivity extends Activity {
         long ProDura = _currentPosition * duration;
         long currentMiliSec = ProDura / OffsetUint;
 
-        if(_isSet)playbackseekbar.setProgress((int)_currentPosition);
+        if (_isSet) playbackseekbar.setProgress((int)_currentPosition);
         String displayCurrent = String.format("%02d:%02d:%02d", ((currentMiliSec / (1000 * 60 * 60)) % 24), ((currentMiliSec / (1000 * 60)) % 60), ((currentMiliSec / 1000) % 60));
         String displayEnd = String.format("%02d:%02d:%02d", ((duration / (1000 * 60 * 60)) % 24), ((duration / (1000 * 60)) % 60), ((duration / 1000) % 60));
         start.setText(displayCurrent);
@@ -1117,38 +1077,30 @@ public class PlayBackActivity extends Activity {
     {
         cotrollerToggle=_toggle;
         removeEvent(TVEVENT.E_HIDE_PLAYBACK);
-        if(cotrollerToggle ==true)
-        {
+        if (cotrollerToggle == true) {
             ViewController(true);
             postEvent(TVEVENT.E_HIDE_PLAYBACK, PLAYBACK_HIDE_TIME);
-        }else {
+        } else {
             ViewController(false);
         }
-        if(isFirstI==false)
-        {
+        if (isFirstI == false) {
             ViewSeekBar(false);
-
-        }else
-        {
+        } else {
             ViewSeekBar(true);
         }
     }
 
     private void ViewPause(boolean _isView)
     {
-
-        if(pause==null || resume ==null)
-        {
+        if (pause==null || resume == null) {
             TVlog.e(TAG, "ViewPause no image ");
             return;
         }
 
-        if(_isView == true )
-        {
+        if (_isView == true) {
             pause.setVisibility(View.VISIBLE);
             resume.setVisibility(View.INVISIBLE);
-        }else
-        {
+        } else {
             pause.setVisibility(View.INVISIBLE);
             resume.setVisibility(View.VISIBLE);
         }
@@ -1156,19 +1108,15 @@ public class PlayBackActivity extends Activity {
 
     private void ViewSeekBar(boolean _isView)
     {
-
-        if(playbackseekbar==null || start ==null ||stop ==null)
-        {
+        if (playbackseekbar == null || start == null || stop == null) {
             TVlog.e(TAG, "ViewSeekBar no image ");
             return;
         }
-        if(_isView == true )
-        {
+        if (_isView == true) {
             playbackseekbar.setVisibility(View.VISIBLE);
             start.setVisibility(View.VISIBLE);
             stop.setVisibility(View.VISIBLE);
-        }else
-        {
+        } else {
             playbackseekbar.setVisibility(View.INVISIBLE);
             start.setVisibility(View.INVISIBLE);
             stop.setVisibility(View.INVISIBLE);
@@ -1177,16 +1125,14 @@ public class PlayBackActivity extends Activity {
 
     private void ViewController(boolean _isView)
     {
-        if(controlplayback==null || ll_playbacktitle ==null)
-        {
+        if (controlplayback==null || ll_playbacktitle == null) {
             TVlog.e(TAG, "ViewController no image ");
             return;
         }
-        if(_isView == true ) {
+        if (_isView == true ) {
             controlplayback.setVisibility(View.VISIBLE);
             ll_playbacktitle.setVisibility(View.VISIBLE);
-        }else
-        {
+        } else {
             controlplayback.setVisibility(View.INVISIBLE);
             ll_playbacktitle.setVisibility(View.INVISIBLE);
         }
@@ -1207,7 +1153,7 @@ public class PlayBackActivity extends Activity {
 
         ShowVolume();
 
-        if(delta != 0){
+        if (delta != 0){
             audMgr.setStreamVolume(AudioManager.STREAM_MUSIC, vol, 0);
             //mIsAudioOrBrightnessChanged = true;
             mAudio = true;
@@ -1230,7 +1176,7 @@ public class PlayBackActivity extends Activity {
     }
 
     private void doBrightnessTouch(float y_changed){
-        if(mIsFirstBrightnessGesture)
+        if (mIsFirstBrightnessGesture)
             initBrightnessTouch();
 
         //mIsAudioOrBrightnessChanged = true;
@@ -1244,15 +1190,15 @@ public class PlayBackActivity extends Activity {
         CommonStaticData.brightness = CommonStaticData.settings.getInt(CommonStaticData.brightnessKey, 15);
         int player_bright = CommonStaticData.brightness;
 
-        if(player_bright < 1){
+        if (player_bright < 1){
             player_bright = 1;
-        } else if(player_bright > 15){
+        } else if (player_bright > 15){
             player_bright = 15;
         }
 
         ShowBright();
 
-        if(player_bright != Math.round(lp.screenBrightness * 15)){
+        if (player_bright != Math.round(lp.screenBrightness * 15)){
             getWindow().setAttributes(lp);
             mBrightnessChanged =  true;     // justin
             CommonStaticData.brightness = Math.round(lp.screenBrightness * 15);

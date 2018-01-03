@@ -18,8 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fci.tv.FCI_TV;
-
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.buildOption;
 import kr.co.fci.tv.saves.CommonStaticData;
@@ -109,9 +107,9 @@ public class AboutActivity extends Activity {
             @Override
             public void onClick(View v) {
             		CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
-                finish();
                 Intent intent = new Intent(AboutActivity.this, OpenActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 

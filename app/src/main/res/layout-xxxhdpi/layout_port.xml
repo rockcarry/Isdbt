@@ -913,6 +913,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:clickable="true"
+                    android:visibility="gone"
                     android:src="@drawable/screen_capture_white"
                     android:background="@color/transparent"
                     android:layout_weight="1"

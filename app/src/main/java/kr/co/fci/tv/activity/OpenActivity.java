@@ -78,9 +78,9 @@ public class OpenActivity extends Activity {
             @Override
             public void onClick(View v) {
             		CommonStaticData.openActivityShow = false;   // justin add for dongle detached
-                finish();
                 Intent intent = new Intent(kr.co.fci.tv.activity.OpenActivity.this, AboutActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -88,8 +88,8 @@ public class OpenActivity extends Activity {
         btn_back_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            		CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 finish();
+                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 Intent intent = new Intent(kr.co.fci.tv.activity.OpenActivity.this, AboutActivity.class);
                 startActivity(intent);
             }

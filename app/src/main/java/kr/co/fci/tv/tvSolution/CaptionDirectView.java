@@ -296,7 +296,6 @@ public class CaptionDirectView extends View {
         if (isClear == 1 || isEnd == 1) {
             //display subtitle & buffer clear if buffer is not empty
             if (isEnd == 1 && isClear == 0) {
-
                 Bundle caption = new Bundle();
                 if (mTypeCaption == TYPE_CAPTION_SUPERIMPOSE) {
                     caption.putString("superimpose_info", "japan_superimpose");
@@ -307,6 +306,10 @@ public class CaptionDirectView extends View {
                         if (FloatingWindow.getInstance() != null) {
                             FloatingWindow.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_NOTIFY_FLOATING, 0, 0, caption);
                         }
+                    } else if (ChatMainActivity.isChat) {
+                        if (ChatMainActivity.getInstance() != null) {
+                            ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_NOTIFY_CHAT, 0, 0, caption);
+                        }
                     }
                 }
                 else {
@@ -316,6 +319,8 @@ public class CaptionDirectView extends View {
                         ((MainActivity) mContext).sendEvent(TVEVENT.E_CAPTION_NOTIFY, 0, 0, caption);
                     } else if (FloatingWindow.isFloating) {
                         FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY_FLOATING, 0, 0, caption);
+                    } else if (ChatMainActivity.isChat) {
+                        ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CAPTION_NOTIFY_CHAT, 0, 0, caption);
                     }
                 }
             }

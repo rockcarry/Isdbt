@@ -69,23 +69,22 @@ public class EPGActivity extends Activity {
     private int mChannelIndex = -1;
     private static int mCountNoTitle = 0;
 
-
-    private TextView tv_phyChNo;
-    private TextView tv_remoteNo;
-    private TextView mTopBarText;
+    public  TextView tv_phyChNo;
+    public  TextView tv_remoteNo;
+    public  TextView mTopBarText;
 
     private ImageView iv_calendar;
-    private TextView tv_curDate;
+    public  TextView tv_curDate;
 
     private CountDownTimer newTimer;
 
-    public ScrollView scrollButton;
-    LinearLayout ll_dateBtn;
-    public Button mButton[] = null;
+    public  ScrollView scrollButton;
+    private LinearLayout ll_dateBtn;
+    public  Button mButton[] = null;
 
-    TextView curEpgPosition;
-    TextView lastEPGPosition;
-    int isExpandedGroup = 0;
+    public  TextView curEpgPosition;
+    private TextView lastEPGPosition;
+    private int isExpandedGroup = 0;
 
     public static Activity EActivity;
 
@@ -554,10 +553,13 @@ public class EPGActivity extends Activity {
 
         int EPGCount = FCI_TVi.GetEPGCount(mCurWeekDay, CommonStaticData.lastCH);
 
-        if (EPGCount==0)
+        if (EPGCount==0) {
             noepg_text.setVisibility(View.VISIBLE);
-        else    // justin no epg text clear
+            curEpgPosition.setText("0");
+        } else {  // justin no epg text clear
             noepg_text.setVisibility(View.INVISIBLE);
+            curEpgPosition.setText("1");
+        }
 
         if ((EPGCount != mLastEPGCount) || (mCountNoTitle > 0) || (_epgType != EPG_UPDATE_TYPE_PERIODIC)) {
             //TVlog.e(TAG, "::epg update start==> counNoTitle=" + mCountNoTitle + ", epgCount=" + EPGCount + ", lastEPGcount=" + mLastEPGCount+", _epgType="+_epgType);
@@ -731,8 +733,10 @@ public class EPGActivity extends Activity {
                     @Override
                     public void onClick(View v) {
                         curSelectedIndex = v.getId();
-                        mButton[curSelectedIndex].setBackgroundResource(R.drawable.btn_selected);
-                        mButton[prevSelectedIndex].setBackgroundResource(R.drawable.btn_unselected);
+                        if (prevSelectedIndex != curSelectedIndex) {
+                            mButton[curSelectedIndex].setBackgroundResource(R.drawable.btn_selected);
+                            mButton[prevSelectedIndex].setBackgroundResource(R.drawable.btn_unselected);
+                        }
                         TVlog.i(TAG, " >>>>> previous mButton.getId() = "+mButton[prevSelectedIndex].getId());
                         TVlog.i(TAG, " >>>>> current mButton.getId() = "+mButton[curSelectedIndex].getId());
                         prevSelectedIndex = mButton[curSelectedIndex].getId();

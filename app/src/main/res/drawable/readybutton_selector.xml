@@ -2,6 +2,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:drawable="@drawable/ic_tv_intetactive" android:state_enabled="true"/>
-    <item android:drawable="@drawable/ic_tv_info" android:state_enabled="true"/>
+    <item android:drawable="@drawable/ic_tv_info" android:state_enabled="false"/>
 
 </selector>

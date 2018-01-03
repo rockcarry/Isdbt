@@ -41,9 +41,15 @@ public class ScanProcess_chat {
                     TVlog.i(TAG, " - call cancel -");
                     TVBridge.scanStop();
                     ScanOn_chat = false;
-                    ChatMainActivity.getInstance().mHandler_chat.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)));
-                    /*CustomToast toast = new CustomToast(mContext);
-                    toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);*/
+                    /*
+                    ChatMainActivity.getInstance().mHandler_chat.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)
+                            +"\n"+mContext.getString(R.string.type_HD)+" : "+numFullseg
+                            +"\n"+mContext.getString(R.string.type_SD)+" : "+num1seg));
+                    */
+                    /*
+                    CustomToast toast = new CustomToast(mContext);
+                    toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                    */
                     return;
                 }
                 TVlog.i(TAG, " - showProgress_chat -");
@@ -54,13 +60,20 @@ public class ScanProcess_chat {
                 preProgress_chat = _progress;
                 //scandialog.show();
             } else if (_option == SHOW_PROGRESS_OFF_CHAT) {
-                /*CustomToast toast = new CustomToast(mContext);
-                toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);*/
-                ChatMainActivity.getInstance().mHandler_chat.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)));
-
-                /*Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                /*
+                CustomToast toast = new CustomToast(mContext);
+                toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                */
+                /*
+                ChatMainActivity.getInstance().mHandler_chat.post(new ToastRunnable(_found  + " " + mContext.getString(R.string.channel_found)
+                        +"\n"+mContext.getString(R.string.type_HD)+" : "+numFullseg
+                        +"\n"+mContext.getString(R.string.type_SD)+" : "+num1seg));
+                */
+                /*
+                Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 200);
-                toast.show();*/
+                toast.show();
+                */
                 //scandialog_chat.cancel();
                 ChatMainActivity.getInstance().chat_ll_scan_progress.setVisibility(View.INVISIBLE);
 

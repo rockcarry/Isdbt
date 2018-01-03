@@ -71,7 +71,6 @@ import kr.co.fci.tv.util.TVlog;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.lang.System.exit;
-import static kr.co.fci.tv.MainActivity.HANDOVER_TIME;
 import static kr.co.fci.tv.MainActivity.isChannelListViewOn;
 import static kr.co.fci.tv.R.id.ll_controller;
 import static kr.co.fci.tv.TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING;
@@ -92,7 +91,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     private static AudioManager am;
     private AudioOut audioOut_floating;
     public Typeface mFont_floating, tf_floating;
-    String[] arr_svcmodeswitch_jp;
+//  String[] arr_svcmodeswitch_jp;
     private TextView subTitleView_floating = null;
     private TextView superImposeView_floating = null;
     private final static int CAPTION_CLEAR_TIME_FLOATING = 15000;
@@ -150,7 +149,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     int mode = NONE;
 
 
-    private static String TAG = "FloatingWindow";
+    private static String TAG = "FloatingWindow ";
     private View floating_view;
     public static boolean isFloating = false;
 
@@ -259,6 +258,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     RelativeLayout rl_ChType_floating;
     ImageView iv_ChType_floating;
     ImageView iv_ChFree_floating;
+    CustomToast customToast = null;
 
     public static kr.co.fci.tv.FloatingWindow instance;
     public static kr.co.fci.tv.FloatingWindow getInstance()
@@ -436,7 +436,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     floating_ll_scan_progress.setVisibility(View.INVISIBLE);
 
                     TVlog.i(TAG, "---------------- E_SCAN_COMPLETED_FLOATING-------------------");
-                    if (CommonStaticData.handoverMode > 0) {
+                    if (CommonStaticData.handoverMode > CommonStaticData.HANDOVER_MODE_OFF) {
                         if (CommonStaticData.handoverIndex != -1) {
                             MainActivity.getInstance().mChannelIndex = CommonStaticData.handoverIndex;
                             TVlog.e(TAG, "handover mode = " + CommonStaticData.handoverMode + " , channel index =  " + MainActivity.getInstance().mChannelIndex);
@@ -444,9 +444,26 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                             CommonStaticData.handoverIndex = 0;
                         }
                     }
-                    CommonStaticData.scanningNow = false;
                     if (CommonStaticData.scanCHnum > 0) {
                         floating_noChannel.setVisibility(View.INVISIBLE);
+                        if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_OFF && CommonStaticData.scanningNow == true) {
+                            int num_Fullseg = 0;
+                            int num_1seg = 0;
+                            for (int i = 0; i < CommonStaticData.scanCHnum; i++) {
+                                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(i);
+                                int isFullseg = info[1];
+                                if (isFullseg == 0) {  //1-seg
+                                    num_1seg++;
+                                } else {
+                                    num_Fullseg++;
+                                }
+                            }
+                            mHandler_floating.post(new ToastRunnable(CommonStaticData.scanCHnum  + " " + getApplicationContext().getString(R.string.channel_found)
+                                    +"\n"+getApplicationContext().getString(R.string.type_HD)+" : "+num_Fullseg
+                                    +"\n"+getApplicationContext().getString(R.string.type_SD)+" : "+num_1seg));
+                        }
+                        CommonStaticData.scanningNow = false;
+
                         final int NEED_TO_CHANGE_CHANNEL_NO = 0;
                         final int NEED_TO_CHANGE_CHANNEL_FIRST_LOAD = 1;
                         final int NEED_TO_CHANGE_CHANNEL_CHANGE_INDEX = 2;
@@ -496,7 +513,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                         }
                                     }
                                 }
-                                if (CommonStaticData.handoverMode == 2) {
+                                if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_UPDATE_LIST) {
                                     if (MainActivity.getInstance().mChannelIndex != CommonStaticData.handoverIndex && mCursor_floating.getCount() > CommonStaticData.handoverIndex) {
                                         MainActivity.getInstance().mChannelIndex = CommonStaticData.handoverIndex;
                                         mCursor_floating.moveToPosition(MainActivity.getInstance().mChannelIndex);
@@ -505,13 +522,13 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                         TVlog.e(TAG, "handover: list reloaded & same index: channel index =  " + MainActivity.getInstance().mChannelIndex);
                                     }
                                     statusOfNeedToChange = NEED_TO_CHANGE_CHANNEL_CHANGE_INDEX;
-                                    CommonStaticData.handoverMode = 0;
+                                    CommonStaticData.handoverMode = CommonStaticData.HANDOVER_MODE_OFF;
                                 }
                                 CommonStaticData.isProcessingUpdate = false;
                             } else {
                                 statusOfNeedToChange = NEED_TO_CHANGE_CHANNEL_FIRST_LOAD;
-                                if (CommonStaticData.handoverMode == 1) {
-                                    CommonStaticData.handoverMode = 0;
+                                if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
+                                    CommonStaticData.handoverMode = CommonStaticData.HANDOVER_MODE_OFF;
                                     TVlog.e(TAG, "handover: same list & same index: channel index =  " + MainActivity.getInstance().mChannelIndex);
                                 }
                             }
@@ -533,8 +550,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                                 TVBridge.stop();
                                                 //channelChangeEndViewFloating(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
-                                                CustomToast toast1 = new CustomToast(getApplicationContext());
-                                                toast1.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
+                                                mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                                             }
                                         }
                                         break;
@@ -551,8 +567,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                                 TVBridge.stop();
                                                 //channelChangeEndViewFloating(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
-                                                CustomToast toast2 = new CustomToast(getApplicationContext());
-                                                toast2.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
+                                                mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                                             }
                                         }
                                         break;
@@ -746,7 +761,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                         if (isScreenOn) {
                             TVlog.i(TAG, " =====  no scan =========");
-                            if (currChNo_floating != null && currCH_floating != null) {
+                            if (currChNo_floating != null && currRemoteNo_floating != null && currCH_floating != null) {
                                 currChNo_floating.setText("- -ch");
                                 currRemoteNo_floating.setText("- - -");
                                 currCH_floating.setText(R.string.no_channel_title);
@@ -810,6 +825,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     TVBridge.stop();
                     // channel index initialize
                     CommonStaticData.lastCH = 0;
+                    CommonStaticData.captionSelect = 0;    // justin add
+                    CommonStaticData.superimposeSelect = 0;
                     CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                     editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
@@ -906,10 +923,16 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                 case E_SCAN_CANCEL_FLOATING:
                     TVlog.i(TAG, "---------------- E_SCAN_CANCEL-------------------");
-                    doScan_floating.showProgress_floating(0, 0, 473143, doScan_floating.SHOW_PROGRESS_OFF_FLOATING);
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                        doScan_floating.showProgress_floating(0, 0, 474000, doScan_floating.SHOW_PROGRESS_OFF_FLOATING);
+                    } else {
+                        doScan_floating.showProgress_floating(0, 0, 473143, doScan_floating.SHOW_PROGRESS_OFF_FLOATING);
+                    }
                     floating_ll_scan_progress.setVisibility(View.INVISIBLE);
                     TVBridge.scanStop();
-                    if (CommonStaticData.handoverMode == 1) {
+                    if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
                         sendEvent(TVEVENT.E_SCAN_COMPLETED_FLOATING);
                     }
                     break;
@@ -924,13 +947,24 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     //controllerLayout.setVisibility(View.VISIBLE);
                     channelChangeStartView(false);
                 }
-                break;
+                    break;
 
                 case E_FLOATING_STOP_NOTIFY: {
                     TVlog.i(TAG, ">>>>> E_FLOATING_STOP_NOTIFY");
-                    sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
-                    if (svSub_floatingView != null && svSub_floatingView.isShown()) {
-                        svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                    if (sv_floatingView != null && sv_floatingView.isShown()) {
+                        sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                    }
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (svSub_floatingView != null && svSub_floatingView.isShown()) {
+                            svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                        }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        if (svSub_floatingView != null && svSub_floatingView.isShown()) {
+                            svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+                        }
                     }
                 }
                 break;
@@ -938,15 +972,19 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 case E_FIRSTVIDEO_FLOATING:
                 {
                     TVlog.i(TAG, " >>>>> E_FIRSTVIDEO_FLOATING");
-                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
-                    removeEvent(E_SIGNAL_NOTI_MSG_FLOATING);
-                    removeEvent(E_NOSIGNAL_SHOW_FLOATING);
-                    removeEvent(E_CHANNEL_CHANGE_TIMEOVER_FLOATING);
-                    sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_FLOATING);
+                    if (CommonStaticData.isSwitched == false) {
+                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
+                        removeEvent(E_SIGNAL_NOTI_MSG_FLOATING);
+                        removeEvent(E_NOSIGNAL_SHOW_FLOATING);
+                        removeEvent(E_CHANNEL_CHANGE_TIMEOVER_FLOATING);
+                        sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_FLOATING);
 
-                    CommonStaticData.badSignalFlag = false;
-                    CommonStaticData.encryptFlag = false;
-                    CommonStaticData.ageLimitFlag = false;
+                        CommonStaticData.isBadSignalFlag = false;
+                        CommonStaticData.badSignalFlag = false;
+                        CommonStaticData.encryptFlag = false;
+                        CommonStaticData.ageLimitFlag = false;
+                    }
+                    CommonStaticData.isSwitched = false;
 
                     if (floating_changeChannelView.getVisibility() == VISIBLE) {
                         floating_changeChannelView.setVisibility(View.INVISIBLE);
@@ -1027,15 +1065,19 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 case E_FIRSTAUDIO_FLOATING:
                 {
                     TVlog.i(TAG, " >>>>> E_FIRSTAUDIO_FLOATING");
-                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
-                    removeEvent(E_SIGNAL_NOTI_MSG_FLOATING);
-                    removeEvent(E_NOSIGNAL_SHOW_FLOATING);
-                    removeEvent(E_CHANNEL_CHANGE_TIMEOVER_FLOATING);
-                    sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_FLOATING);
+                    if (CommonStaticData.isSwitched == false) {
+                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
+                        removeEvent(E_SIGNAL_NOTI_MSG_FLOATING);
+                        removeEvent(E_NOSIGNAL_SHOW_FLOATING);
+                        removeEvent(E_CHANNEL_CHANGE_TIMEOVER_FLOATING);
+                        sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_FLOATING);
 
-                    CommonStaticData.badSignalFlag = false;
-                    CommonStaticData.encryptFlag = false;
-                    CommonStaticData.ageLimitFlag = false;
+                        CommonStaticData.isBadSignalFlag = false;
+                        CommonStaticData.badSignalFlag = false;
+                        CommonStaticData.encryptFlag = false;
+                        CommonStaticData.ageLimitFlag = false;
+                    }
+                    CommonStaticData.isSwitched = false;
 
                     if (floating_changeChannelView.getVisibility() == VISIBLE) {
                         floating_changeChannelView.setVisibility(View.INVISIBLE);
@@ -1125,8 +1167,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                 case E_CHANNEL_CHANGE_FAIL_FLOATING:
                     channelChangeEndView(false);
-                    CustomToast toast3 = new CustomToast(getApplicationContext());
-                    toast3.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
+                    mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                     break;
 
                 case E_CHANNEL_SWITCHING_FLOATING:
@@ -1173,23 +1214,33 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     TVlog.i("live", " >>> findFail = "+findFail);
                     if (findFail == 1) {
                         if (isFullseg == 1 && tomove == 0) {  //F-seg->O-seg
-                            MainActivity.lastIndex = MainActivity.getInstance().mChannelIndex;
-                            MainActivity.getInstance().mChannelIndex = oneSegIndex;
-                            TVlog.i("live", " changed to O-seg index 1 = " + MainActivity.getInstance().mChannelIndex);
-                            CommonStaticData.fromFindFail = true;
-                            TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
-                        } else if (isFullseg == 0 && tomove == 1) {  //O-seg->F-seg
-                            TVlog.i("live", " >>> CommonStaticData.fromFindFail = "+CommonStaticData.fromFindFail);
-                            if (CommonStaticData.fromFindFail == true) {
-                                MainActivity.getInstance().mChannelIndex = MainActivity.lastIndex;
-                                TVlog.i("live", " changed to F-seg index 2 = " + MainActivity.getInstance().mChannelIndex);
-                                CommonStaticData.fromFindFail = false;
+                            if (oneSegIndex != -1) {
+                                MainActivity.lastIndex = MainActivity.getInstance().mChannelIndex;
+                                MainActivity.getInstance().mChannelIndex = oneSegIndex;
+                                TVlog.i("live", " changed to O-seg index 1 = " + MainActivity.getInstance().mChannelIndex);
+                                CommonStaticData.fromFindFail = true;
                                 TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
                             } else {
-                                MainActivity.getInstance().mChannelIndex = pairIndex;
-                                TVlog.i("live", " changed to F-seg index 3 = " + MainActivity.getInstance().mChannelIndex);
-                                CommonStaticData.fromFindFail = false;
-                                TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
+                                TVlog.i(TAG,  " >>> There is no channel for switching!!");
+                                break;
+                            }
+                        } else if (isFullseg == 0 && tomove == 1) {  //O-seg->F-seg
+                            TVlog.i("live", " >>> CommonStaticData.fromFindFail = "+CommonStaticData.fromFindFail);
+                            if (channelMainIndex != -1) {
+                                if (CommonStaticData.fromFindFail == true) {
+                                    MainActivity.getInstance().mChannelIndex = MainActivity.lastIndex;
+                                    TVlog.i("live", " changed to F-seg index 2 = " + MainActivity.getInstance().mChannelIndex);
+                                    CommonStaticData.fromFindFail = false;
+                                    TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
+                                } else {
+                                    MainActivity.getInstance().mChannelIndex = pairIndex;
+                                    TVlog.i("live", " changed to F-seg index 3 = " + MainActivity.getInstance().mChannelIndex);
+                                    CommonStaticData.fromFindFail = false;
+                                    TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
+                                }
+                            } else {
+                                TVlog.i(TAG,  " >>> There is no channel for switching!!");
+                                break;
                             }
                         }
                     } else {
@@ -1282,7 +1333,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                 //new InputDialog(instance, InputDialog.TYPE_SIGNALSTAT_NOTI, null, null, null);
 
                                 // live add
-
                                 CommonStaticData.badSignalFlag = true;
                                 CommonStaticData.encryptFlag = false;
                                 CommonStaticData.ageLimitFlag = false;
@@ -1309,10 +1359,12 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                 floating_programNotMsg.setVisibility(View.VISIBLE);
                                 //}
 
+                                if (floating_ll_black != null) {
+                                    floating_ll_black.setVisibility(VISIBLE);
+                                }
                                 if (floating_ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
                                     floating_ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                 }
-
                                 if (floating_changeChannelView.getVisibility() == View.VISIBLE) {
                                     floating_changeChannelView.setVisibility(View.INVISIBLE);
                                 }
@@ -1320,28 +1372,13 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                 signal_check_cnt = 0;
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
-                                        sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
-                                        sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                                    if (CommonStaticData.scanCHnum > 0) {
+                                        CommonStaticData.isBadSignalFlag = true;
                                     }
                                 }
                             } else {
-                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
-                                        sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
-                                        sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
-                                    } else {
-                                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
-                                    }
-                                } else {
-                                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
-                                }
-                                //removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
+                                removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
                                 //MainActivity.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                             }
                             break;
@@ -1388,29 +1425,18 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                 floating_noSignal.setVisibility(View.VISIBLE);
                                 floating_programNotMsg.setVisibility(View.VISIBLE);
                                 //}
+                                if (floating_ll_black != null) {
+                                    floating_ll_black.setVisibility(VISIBLE);
+                                }
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
-                                        sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
-                                        sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                                    if (CommonStaticData.scanCHnum > 0) {
+                                        CommonStaticData.isBadSignalFlag = true;
                                     }
                                 }
                             } else {
-                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
-                                        sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
-                                        sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
-                                    } else {
-                                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
-                                    }
-                                } else {
-                                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
-                                }
+                                removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
                                 //MainActivity.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                             }
                             break;
@@ -1479,8 +1505,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 case E_SIGNAL_NOTI_MSG_FLOATING:
                     TVlog.i(TAG, " >>>>> E_SIGNAL_NOTI_MSG_FLOATING");
                     if (CommonStaticData.scanningNow==false) {
-                        CustomToast toast4 = new CustomToast(getApplicationContext());
-                        toast4.showToast(getApplicationContext(), getApplicationContext().getString(R.string.signal_weak), Toast.LENGTH_SHORT);
+                        mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.signal_weak)));
                         SignalStatFlag = false;
                         postEvent(E_NOSIGNAL_SHOW_FLOATING, NO_SIGNAL_MSG_TIME);     // 5sec
                         //MainActivity.getInstance().postEvent(TVEVENT.E_NOSIGNAL_SHOW, NO_SIGNAL_MSG_TIME);
@@ -1742,6 +1767,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         super.onCreate();
 
         TVlog.i(TAG, " ===== FloatingWindow onCreate() =====");
+        customToast = new CustomToast(getApplicationContext());
 
         isFloating = true;
         MainActivity.isMainActivity = false;
@@ -1896,33 +1922,17 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         final PopupWindow popupWindow = new PopupWindow(floating_view, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
         popupWindow.update();
 
-        //ViewHolder viewHolder = new ViewHolder();
-        //floating_view.setTag(viewHolder);
+        floating_ll_black = (LinearLayout) floating_view.findViewById(R.id.floating_ll_black);
 
-
-        /*
-        floating_view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        floatingpxHeight = floating_view.getMeasuredHeight();
-        floatingpxWidth = floating_view.getMeasuredWidth();
-        */
 
         sv_floatingView = (SurfaceView) floating_view.findViewById(R.id.sv_multiview);
-        if (sv_floatingView != null && sv_floatingView.isShown()) {
-            sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
-        }
         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             svSub_floatingView =(SurfaceView) floating_view.findViewById(R.id.svSub_floating);
-            if (svSub_floatingView != null && svSub_floatingView.isShown()) {
-                svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
-            }
         } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
                 (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
             svSub_floatingView =(SurfaceView) floating_view.findViewById(R.id.svSub_floating);
-            if (svSub_floatingView != null && svSub_floatingView.isShown()) {
-                svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
-            }
         }
 
         instance = FloatingWindow.this;
@@ -1961,18 +1971,27 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             }
         }
 
+        if (sv_floatingView != null && sv_floatingView.isShown()) {
+            sv_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+        }
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (svSub_floatingView != null && svSub_floatingView.isShown()) {
+                svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+            }
+        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+            if (svSub_floatingView != null && svSub_floatingView.isShown()) {
+                svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
+            }
+        }
+
         floating_channelChangeBG = (ImageView) floating_view.findViewById(R.id.floating_imageView_bg);
 
         floating_ll_audioOnlyChannel = (LinearLayout) floating_view.findViewById(R.id.floating_ll_audioOnlyChannel);
         if (floating_ll_audioOnlyChannel != null) {
             floating_ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
-        }
-
-        floating_ll_black = (LinearLayout) floating_view.findViewById(R.id.floating_ll_black);
-        if (CommonStaticData.isAudioChannel == true) {
-            floating_ll_black.setVisibility(View.VISIBLE);
-        } else {
-            floating_ll_black.setVisibility(View.INVISIBLE);
         }
 
         ll_floatingAutoSearch = (LinearLayout) floating_view.findViewById(R.id.ll_floatingAutoSearch);
@@ -2009,6 +2028,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         floating_noChannel = (me.grantland.widget.AutofitTextView) floating_view.findViewById(R.id.floating_noChannel);
         if (MainActivity.isNoChannel) {
             floating_noChannel.setVisibility(VISIBLE);
+            if (floating_ll_black != null) {
+                floating_ll_black.setVisibility(VISIBLE);
+            }
         }
 
         floating_ll_age_limit = (LinearLayout) floating_view.findViewById(R.id.floating_ll_age_limit);
@@ -2056,6 +2078,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 if (svSub_floatingView != null && svSub_floatingView.isShown()) {
                     svSub_floatingView.setBackgroundColor(getResources().getColor(R.color.black));
                 }
+            }
+            if (floating_ll_black != null) {
+                floating_ll_black.setVisibility(VISIBLE);
             }
             if (floating_noSignal.getVisibility() == View.INVISIBLE) {
                 floating_noSignal.setVisibility(View.VISIBLE);
@@ -2128,9 +2153,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                     }
                     floating_ll_audioOnlyChannel.setVisibility(View.VISIBLE);
                 } else {
-                    if (floating_ll_black != null) {
-                        floating_ll_black.setVisibility(View.INVISIBLE);
-                    }
                     floating_ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                 }
             } else {
@@ -2376,56 +2398,60 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         ch_up_floating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // justin DB
-                CommonStaticData.passwordVerifyFlag = false;
-                CommonStaticData.ageLimitFlag = false;
-                //channelChangeStartView(false);
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                    if (CommonStaticData.receivemode == 2 || CommonStaticData.receivemode == 3) {
-                        int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
-                        int isPaired = 0;
-                        int pairedIndex = info[0];
-                        TVlog.i("live", " >>> ch_up :: pairedIndex = "+pairedIndex+", CommonStaticData.lastCH = "+CommonStaticData.lastCH);
-                        if (pairedIndex == CommonStaticData.lastCH-1) {
-                            isPaired = 1;
+                if (CommonStaticData.scanCHnum > 0) {
+                    // justin DB
+                    CommonStaticData.passwordVerifyFlag = false;
+                    CommonStaticData.ageLimitFlag = false;
+                    //channelChangeStartView(false);
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                        if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_AUTO || CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_OFF) {
+                            int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                            int isPaired = 0;
+                            int pairedIndex = info[0];
+                            TVlog.i("live", " >>> ch_up :: pairedIndex = "+pairedIndex+", CommonStaticData.lastCH = "+CommonStaticData.lastCH);
+                            if (pairedIndex == CommonStaticData.lastCH-1) {
+                                isPaired = 1;
+                            } else {
+                                isPaired = 0;
+                            }
+
+                            TVlog.i("live", " >>> ch_up :: isPaired = "+isPaired);
+
+                            if (isPaired == 1) {
+                                channelChangeEndView(false);
+                                //changeChannelView.setVisibility(View.INVISIBLE);
+                            } else if (isPaired == 0) {
+                                channelChangeStartView(false);
+                                //changeChannelView.setVisibility(View.VISIBLE);
+                            }
                         } else {
-                            isPaired = 0;
-                        }
-
-                        TVlog.i("live", " >>> ch_up :: isPaired = "+isPaired);
-
-                        if (isPaired == 1) {
-                            channelChangeEndView(false);
-                            //changeChannelView.setVisibility(View.INVISIBLE);
-                        } else if (isPaired == 0) {
                             channelChangeStartView(false);
-                            //changeChannelView.setVisibility(View.VISIBLE);
                         }
                     } else {
                         channelChangeStartView(false);
                     }
+                    sendEvent(E_CAPTION_CLEAR_NOTIFY_FLOATING);
+                    sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
+
+                    if (ll_floatingAutoSearch.getVisibility() == VISIBLE) {
+                        ll_floatingAutoSearch.setVisibility(View.INVISIBLE);
+                    }
+                    //changeChannelView.setVisibility(View.VISIBLE);
+                    // live add
+
+                    if (tv_scramble_title.getVisibility() == View.VISIBLE) {
+                        tv_scramble_title.setVisibility(View.INVISIBLE);
+                    }
+                    if (tv_scramble_msg.getVisibility() == View.VISIBLE) {
+                        tv_scramble_msg.setVisibility(View.INVISIBLE);
+                    }
+                    floating_ll_age_limit.setVisibility(View.INVISIBLE);
+                    TVBridge.AVStartMinus();
                 } else {
-                    channelChangeStartView(false);
+                    mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.no_channel_tip)));
                 }
-                sendEvent(E_CAPTION_CLEAR_NOTIFY_FLOATING);
-                sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
-
-                if (ll_floatingAutoSearch.getVisibility() == VISIBLE) {
-                    ll_floatingAutoSearch.setVisibility(View.INVISIBLE);
-                }
-                //changeChannelView.setVisibility(View.VISIBLE);
-                // live add
-
-                if (tv_scramble_title.getVisibility() == View.VISIBLE) {
-                    tv_scramble_title.setVisibility(View.INVISIBLE);
-                }
-                if (tv_scramble_msg.getVisibility() == View.VISIBLE) {
-                    tv_scramble_msg.setVisibility(View.INVISIBLE);
-                }
-                floating_ll_age_limit.setVisibility(View.INVISIBLE);
-                TVBridge.AVStartMinus();
             }
         });
 
@@ -2448,51 +2474,55 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         ch_down_floating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonStaticData.passwordVerifyFlag = false;
-                CommonStaticData.ageLimitFlag = false;
-                //channelChangeStartView(false);
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                    if (CommonStaticData.receivemode == 2 || CommonStaticData.receivemode == 3) {
-                        int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
-                        int isPaired = 0;
-                        int pairedIndex = info[0];
-                        TVlog.i("live", " >>> ch_down :: pairedIndex = "+pairedIndex+", CommonStaticData.lastCH = "+CommonStaticData.lastCH);
-                        if (pairedIndex == CommonStaticData.lastCH+1) {
-                            isPaired = 1;
-                        } else {
-                            isPaired = 0;
-                        }
-                        TVlog.i("live", " >>> ch_down :: isPaired = "+isPaired);
+                if (CommonStaticData.scanCHnum > 0) {
+                    CommonStaticData.passwordVerifyFlag = false;
+                    CommonStaticData.ageLimitFlag = false;
+                    //channelChangeStartView(false);
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                        if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_AUTO || CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_OFF) {
+                            int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                            int isPaired = 0;
+                            int pairedIndex = info[0];
+                            TVlog.i("live", " >>> ch_down :: pairedIndex = "+pairedIndex+", CommonStaticData.lastCH = "+CommonStaticData.lastCH);
+                            if (pairedIndex == CommonStaticData.lastCH+1) {
+                                isPaired = 1;
+                            } else {
+                                isPaired = 0;
+                            }
+                            TVlog.i("live", " >>> ch_down :: isPaired = "+isPaired);
 
-                        if (isPaired == 1) {
-                            channelChangeEndView(false);
-                        } else if (isPaired == 0) {
+                            if (isPaired == 1) {
+                                channelChangeEndView(false);
+                            } else if (isPaired == 0) {
+                                channelChangeStartView(false);
+                                //changeChannelView.setVisibility(View.VISIBLE);
+                            }
+                        } else {
                             channelChangeStartView(false);
-                            //changeChannelView.setVisibility(View.VISIBLE);
                         }
+
                     } else {
                         channelChangeStartView(false);
                     }
-
+                    sendEvent(E_CAPTION_CLEAR_NOTIFY_FLOATING);
+                    sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
+                    // live add
+                    if (ll_floatingAutoSearch.getVisibility() == VISIBLE) {
+                        ll_floatingAutoSearch.setVisibility(View.INVISIBLE);
+                    }
+                    if (tv_scramble_title.getVisibility() == View.VISIBLE) {
+                        tv_scramble_title.setVisibility(View.INVISIBLE);
+                    }
+                    if (tv_scramble_msg.getVisibility() == View.VISIBLE) {
+                        tv_scramble_msg.setVisibility(View.INVISIBLE);
+                    }
+                    floating_ll_age_limit.setVisibility(View.INVISIBLE);
+                    TVBridge.AVStartPlus();
                 } else {
-                    channelChangeStartView(false);
+                    mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.no_channel_tip)));
                 }
-                sendEvent(E_CAPTION_CLEAR_NOTIFY_FLOATING);
-                sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_FLOATING);
-                // live add
-                if (ll_floatingAutoSearch.getVisibility() == VISIBLE) {
-                    ll_floatingAutoSearch.setVisibility(View.INVISIBLE);
-                }
-                if (tv_scramble_title.getVisibility() == View.VISIBLE) {
-                    tv_scramble_title.setVisibility(View.INVISIBLE);
-                }
-                if (tv_scramble_msg.getVisibility() == View.VISIBLE) {
-                    tv_scramble_msg.setVisibility(View.INVISIBLE);
-                }
-                floating_ll_age_limit.setVisibility(View.INVISIBLE);
-                TVBridge.AVStartPlus();
             }
         });
 
@@ -2602,6 +2632,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 editor.putBoolean(CommonStaticData.returnMainFromFloatingKey, CommonStaticData.returnMainFromFloating);
                 editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
                 //
+                editor.putInt(CommonStaticData.captionSetKey, CommonStaticData.captionSelect);  // add justin for language select
+                editor.putInt(CommonStaticData.superimposeSetKey, CommonStaticData.superimposeSelect);  // add justin for language select
                 editor.commit();
 
                 AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
@@ -2655,110 +2687,111 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         /*
         arr_svcmodeswitch_jp = getResources().getStringArray(R.array.svcmode_switch_jp);
         btn_receiveMode = (Button) floating_view.findViewById(R.id.button_receiveMode);
+        CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+        int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
+        TVlog.i("live", " >>> receiveMode = "+receiveMode);
+        btn_receiveMode.setText(arr_svcmodeswitch_jp[receiveMode]);
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
             btn_receiveMode.setVisibility(View.VISIBLE);
+            btn_receiveMode.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        btn_receiveMode.setScaleX(0.8f);
+                        btn_receiveMode.setScaleY(0.8f);
+                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                        btn_receiveMode.setScaleX(1.0f);
+                        btn_receiveMode.setScaleY(1.0f);
+                    }
+                    return false;
+                }
+            });
+            btn_receiveMode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (CommonStaticData.scanCHnum > 0) {
+                        int isChanged = 0;
+                        int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                        int isPaired = 0;
+                        int pairedIndex = info[0];
+                        int segInfo = info[1];
+                        int mainIndex = info[3];
+                        int oneSegIndex = info[4];
+                        if (pairedIndex >= 0) {
+                            isPaired = 1;
+                        }
+
+                        CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+
+                        if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_FULLSEG) {  //fullseg --> 1seg
+                            if (oneSegIndex != -1) {
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_1SEG;
+                                sendEvent(TVEVENT.E_CHANNEL_SWITCHING_FLOATING, 0, 0, null);
+                                btn_receiveMode.setText(arr_svcmodeswitch_jp[0]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                            } else {
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_AUTO;  // fullseg --> auto
+                                btn_receiveMode.setText(arr_svcmodeswitch_jp[2]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                                mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.switch_fail_SD)));
+                            }
+                        } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_1SEG) {  //1seg --> auto
+                            CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_AUTO;
+                            btn_receiveMode.setText(arr_svcmodeswitch_jp[2]);
+                            editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                            editor.commit();
+                        } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_AUTO) {   //auto --> off
+                            CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_OFF;
+                            btn_receiveMode.setText(arr_svcmodeswitch_jp[3]);
+                            editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                            editor.commit();
+                        } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_OFF) {  //off --> fullseg
+                            if (MainActivity.getInstance().is_inserted_card == 2 || MainActivity.getInstance().is_inserted_card == 1) {
+                            if (mainIndex != -1) {
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_FULLSEG;
+                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                btn_receiveMode.setText(arr_svcmodeswitch_jp[1]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                            } else {
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_1SEG;  // off --> 1seg
+                                btn_receiveMode.setText(arr_svcmodeswitch_jp[0]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                                mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.switch_fail_HD)));
+                            }
+                        } else {
+                            mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.bcas_card_insert_msg)));
+                            if (mainIndex != -1) {
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_FULLSEG;
+                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                btn_receiveMode.setText(arr_svcmodeswitch_jp[1]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                            } else {
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_1SEG;  // off --> 1seg
+                                btn_receiveMode.setText(arr_svcmodeswitch_jp[0]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                                mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.switch_fail_HD)));
+                            }
+                        }
+                    }
+                } else {
+//                  CustomToast toast = new CustomToast(getApplicationContext());
+//                  toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
+                    mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.no_channel_tip)));
+                    }
+                }
+            });
         } else {
             btn_receiveMode.setVisibility(View.GONE);
-        }
-        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-            CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
-           int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 2);  // auto
-            TVlog.i("live", " >>> receiveMode = "+receiveMode);
-            btn_receiveMode.setText(arr_svcmodeswitch_jp[receiveMode]);
-        }
-
-        btn_receiveMode.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    btn_receiveMode.setScaleX(0.8f);
-                    btn_receiveMode.setScaleY(0.8f);
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    btn_receiveMode.setScaleX(1.0f);
-                    btn_receiveMode.setScaleY(1.0f);
-                }
-                return false;
-            }
-        });
-        btn_receiveMode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int isChanged = 0;
-                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
-                int isPaired = 0;
-                int pairedIndex = info[0];
-                int segInfo = info[1];
-                if (pairedIndex >= 0) {
-                    isPaired = 1;
-                }
-
-                if (CommonStaticData.receivemode == 1) {  //fullseg --> 1seg
-                    CommonStaticData.receivemode = 0;
-                    //if (isChanged == 1) {
-                    if (CommonStaticData.scanCHnum > 0) {
-                    sendEvent(TVEVENT.E_CHANNEL_SWITCHING_FLOATING, 0, 0, null);
-                    } else {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
-                    }
-                    //}
-                    btn_receiveMode.setText(arr_svcmodeswitch_jp[0]);
-                } else if (CommonStaticData.receivemode == 0) {  //1seg --> auto
-                    CommonStaticData.receivemode = 2;
-                    //if (isChanged == 1) {
-                    if (CommonStaticData.scanCHnum > 0) {
-                    if (isPaired == 1) {
-                        if (segInfo == 1) { //F-seg
-                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
-                        } else { //O-seg
-                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
-                        }
-                    } else {
-                        FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
-                    }
-                    } else {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
-                    }
-                    btn_receiveMode.setText(arr_svcmodeswitch_jp[2]);
-                } else if (CommonStaticData.receivemode == 2) {   //auto --> off
-                    CommonStaticData.receivemode = 3;
-                    //if (isChanged == 1) {
-                    if (CommonStaticData.scanCHnum > 0) {
-                    if (isPaired == 1) {
-                        if (segInfo == 1) { //F-seg
-                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
-                        } else {
-                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
-                        }
-                    } else {
-                        FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
-                    }
-                    } else {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
-                    }
-                    //}
-                    btn_receiveMode.setText(arr_svcmodeswitch_jp[3]);
-                } else if (CommonStaticData.receivemode == 3) {  //off --> fullseg
-                    CommonStaticData.receivemode = 1;
-                    //if (isChanged == 1) {
-                    if (CommonStaticData.scanCHnum > 0) {
-                    sendEvent(TVEVENT.E_CHANNEL_SWITCHING_FLOATING, 1, 0, null);
-                    } else {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
-                    }
-                    //}
-                    btn_receiveMode.setText(arr_svcmodeswitch_jp[1]);
-                }
-            }
-        });
-        */
+        }*/
 
         subTitleView_floating = (TextView) floating_view.findViewById(R.id.floating_subTitleView);
 
@@ -2843,7 +2876,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 int act = event.getAction();
 
                 switch (act & MotionEvent.ACTION_MASK) {
-                    case MotionEvent.ACTION_DOWN:    //첫번째 손가락 터치
+                    case MotionEvent.ACTION_DOWN:
                         x = updatedParameters.x;
                         y = updatedParameters.y;
 
@@ -2893,7 +2926,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         }
                         break;
 
-                    case MotionEvent.ACTION_UP:    // 첫번째 손가락을 떼었을 경우
+                    case MotionEvent.ACTION_UP:
                         if (ll_floatingAutoSearch.getVisibility() != VISIBLE) {
                             if (ll_controller_floating.getVisibility() != View.VISIBLE) {
                                 status_bar_floating.setVisibility(View.VISIBLE);
@@ -2908,15 +2941,13 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                         }
                         break;
 
-                    case MotionEvent.ACTION_POINTER_UP:  // 두번째 손가락을 떼었을 경우
+                    case MotionEvent.ACTION_POINTER_UP:
                         mode = NONE;
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
-                        //두번째 손가락 터치(손가락 2개를 인식하였기 때문에 핀치 줌으로 판별)
                         mode = ZOOM;
                         newDist = spacing(event);
                         oldDist = spacing(event);
-
                         break;
                     case MotionEvent.ACTION_CANCEL:
                     default:
@@ -2995,6 +3026,9 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         }
 
         if (CommonStaticData.badSignalFlag) {
+            if (floating_ll_black != null) {
+                floating_ll_black.setVisibility(VISIBLE);
+            }
             floating_changeChannelView.setVisibility(View.INVISIBLE);
             floating_noSignal.setVisibility(View.VISIBLE);
             floating_programNotMsg.setVisibility(View.VISIBLE);
@@ -3114,6 +3148,8 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     {
         TVlog.i(TAG, " setDualSurface  ---------------------------------------");
         FCI_TVi.setSuface(mainSurface);
+
+        MainActivity.getInstance().sendEvent(TVEVENT.E_FINISH_NOTIFY);
 
         int mode = FCI_TVi.getDualMode();
 
@@ -3376,20 +3412,21 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     }
 
     private void showFloatingController() {
-        if (CommonStaticData.handoverMode == 1) {
+        if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
         } else {
             status_bar_floating.setVisibility(View.VISIBLE);
             channelLayout_floating.setVisibility(View.VISIBLE);
             ll_controller_floating.setVisibility(View.VISIBLE);
 
-            /*
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
                 CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
-                int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 2);  // auto
+                /*
+                int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
                 btn_receiveMode.setText(arr_svcmodeswitch_jp[receiveMode]);
-            }*/
+                */
+            }
 
             postEvent(E_HIDE_FLOATING_CONTROLLER, CONTROLLER_HIDE_TIME);
         }
@@ -3671,6 +3708,16 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             if (MainActivity.getInstance().mUri != null) {
                 getContentResolver().insert(MainActivity.getInstance().mUri, values);
             }
+        }
+    }
+
+    public class ToastRunnable implements Runnable {
+        String mText;
+        public ToastRunnable(String text) {
+            mText = text;
+        } @Override public void run(){
+            //Toast.makeText(getApplicationContext(), mText, Toast.LENGTH_SHORT).show();
+            customToast.showToast(getApplicationContext(), mText, Toast.LENGTH_SHORT);
         }
     }
 }

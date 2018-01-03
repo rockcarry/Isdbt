@@ -12,7 +12,7 @@
     <string name="action_settings">configurações</string>
     <string name="title_activity_translucent">translúcido</string>
     <string name="settings">configurações</string>
-    <string name="about">Sobre</string>
+    <string name="about">Informações da aplicação</string>
 
     <string name="caption_title">Legenda</string>
     <string name="screen_title">Tamanho da tela</string>
@@ -30,7 +30,7 @@
     <string name="locale_title">localidade</string>
     <string name="reset_title">Redefinir configurações</string>
     <string name="reset_msg">Esta ação irá restaurar todas as configurações para o padrão.\nDeseja restaurar todas as configurações agora? </string>
-    <string name="about_title">Sobre</string>
+    <string name="about_title">Informações da aplicação</string>
 
     <string name="ok">OK</string>
     <string name="cancel">cancelamento</string>
@@ -416,5 +416,10 @@
     <string name="no_channel_msg">Não há canais registrados.\nExecute a pesquisa.</string>
 
     <string name="audio_only_channel">Canal somente de áudio!</string>
+    <string name="chat_sign_in">Faça login na sua conta do Google para conversar.</string>
+    <string name="type_SD">SD</string>
+    <string name="type_HD">HD</string>
+    <string name="switch_fail_HD">Não existe um canal HD para alternar.</string>
+    <string name="switch_fail_SD">Não há canal SD para alternar.</string>
 
 </resources>

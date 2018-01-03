@@ -23,12 +23,11 @@ import static kr.co.fci.tv.MainActivity.getCursor;
  * Created by eddy.lee on 2015-06-17.
  */
 public class TVBridge {
-
     private static String TAG = "TVBridge";
-    private static int currentChid =0;
-    private static boolean isScanning  = false;
+    private static int currentChid = 0;
+    private static boolean isScanning = false;
     private static int progressPercent;
-    private static int found=0;
+    private static int found = 0;
 
     private static String scanServiceName = null;
 
@@ -76,11 +75,10 @@ public class TVBridge {
     public static void removeChannelDB(){
         stop();
         FCI_TVi.RemoveAllChannel();
-        currentChid=0;
-        progressPercent=0;
-        found=0;
+        currentChid = 0;
+        progressPercent = 0;
+        found = 0;
     }
-
 
     public static int getCurrentch()
     {
@@ -93,9 +91,9 @@ public class TVBridge {
         TVlog.i(TAG, "do scan...");
         FCI_TVi.RemoveAllChannel();
 
-        currentChid=0;
-        progressPercent=0;
-        found=0;
+        currentChid = 0;
+        progressPercent = 0;
+        found = 0;
         isScanning = true;
 
         int nRet = FCI_TVi.ScanStart();
@@ -133,9 +131,9 @@ public class TVBridge {
 /*
         FCI_TVi.RemoveAllChannel();
 
-        currentChid=0;
-        progressPercent=0;
-        found=0;
+        currentChid = 0;
+        progressPercent = 0;
+        found = 0;
         isScanning = true;
 */
 
@@ -152,7 +150,8 @@ public class TVBridge {
 
     private static void updateChannelInfo(int _index)
     {
-        /*MainActivity.getInstance().removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG);
+        /*
+        MainActivity.getInstance().removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG);
         MainActivity.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
         MainActivity.getInstance().removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
         CommonStaticData.lastCH=_index;
@@ -167,17 +166,18 @@ public class TVBridge {
 
         MainActivity.getInstance().recordingStop(true);
         MainActivity.getCursor().moveToPosition(CommonStaticData.lastCH);
-        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE);*/
+        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE);
+        */
 
         if (MainActivity.isMainActivity) {
             MainActivity.getInstance().removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG);
             MainActivity.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
             MainActivity.getInstance().removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
-            CommonStaticData.lastCH=_index;
+            CommonStaticData.lastCH = _index;
             CommonStaticData.settings = mContext.getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = CommonStaticData.settings.edit();
             editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
-            editor.putInt(CommonStaticData.audiomodeSwitchKey, 0);
+            editor.putInt(CommonStaticData.audiomodeSwitchKey, 1);
             editor.putInt(CommonStaticData.audiotrackSwitchKey, 0);
             editor.putInt(CommonStaticData.videotrackSwitchKey, 0);
             editor.putInt(CommonStaticData.captionSetKey, 0);
@@ -190,19 +190,17 @@ public class TVBridge {
         } else if (ChatMainActivity.isChat) {
             ChatMainActivity.getInstance().removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG_CHAT);
             ChatMainActivity.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
-            //MainActivity.getInstance().removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
-            CommonStaticData.lastCH=_index;
+            CommonStaticData.lastCH = _index;
             CommonStaticData.settings = mContext.getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = CommonStaticData.settings.edit();
             editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
-            editor.putInt(CommonStaticData.audiomodeSwitchKey, 0);
+            editor.putInt(CommonStaticData.audiomodeSwitchKey, 1);
             editor.putInt(CommonStaticData.audiotrackSwitchKey, 0);
             editor.putInt(CommonStaticData.videotrackSwitchKey, 0);
             editor.putInt(CommonStaticData.captionSetKey, 0);
             editor.putInt(CommonStaticData.superimposeSetKey, 0);
             editor.commit();
 
-            //MainActivity.getInstance().recordingStop(true);
             if (ChatMainActivity.chat_getCursor() != null) {
                 ChatMainActivity.chat_getCursor().moveToPosition(CommonStaticData.lastCH);
             }
@@ -210,24 +208,26 @@ public class TVBridge {
         } else if (FloatingWindow.isFloating) {
             FloatingWindow.getInstance().removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG_FLOATING);
             FloatingWindow.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK_FLOATING);
-            //MainActivity.getInstance().removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
-            CommonStaticData.lastCH=_index;
+            CommonStaticData.lastCH = _index;
             CommonStaticData.settings = mContext.getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = CommonStaticData.settings.edit();
             editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
-            editor.putInt(CommonStaticData.audiomodeSwitchKey, 0);
+            editor.putInt(CommonStaticData.audiomodeSwitchKey, 1);
             editor.putInt(CommonStaticData.audiotrackSwitchKey, 0);
             editor.putInt(CommonStaticData.videotrackSwitchKey, 0);
             editor.putInt(CommonStaticData.captionSetKey, 0);
             editor.putInt(CommonStaticData.superimposeSetKey, 0);
             editor.commit();
 
-            //MainActivity.getInstance().recordingStop(true);
             if (FloatingWindow.floating_getCursor() != null) {
                 FloatingWindow.floating_getCursor().moveToPosition(CommonStaticData.lastCH);
             }
             FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_FLOATING);
         }
+
+        // language select set default but no need to save by justin
+        CommonStaticData.captionSelect = 0;
+        CommonStaticData.superimposeSelect = 0;
     }
 
     //dualdecode[[
@@ -239,7 +239,7 @@ public class TVBridge {
                 (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
-            if (MainActivity.isMainActivity) {
+            if (MainActivity.isMainActivity && MainActivity.getInstance() != null) {
                 if (_paired == 0 || (playMode != FCI_TV.BB_PLAYMODE_DUAL_F_SEG && playMode != FCI_TV.BB_PLAYMODE_DUAL_O_SEG)
                         || (MainActivity.getInstance().getChannelChangView() == 0)) {
                     FCI_TVi.AVStop();
@@ -248,7 +248,7 @@ public class TVBridge {
                 } else {
                     return false;
                 }
-            } else if (FloatingWindow.isFloating) {
+            } else if (FloatingWindow.isFloating && FloatingWindow.getInstance() != null) {
                 if (_paired == 0 || (playMode != FCI_TV.BB_PLAYMODE_DUAL_F_SEG && playMode != FCI_TV.BB_PLAYMODE_DUAL_O_SEG)
                         || (FloatingWindow.getInstance().getFloatingChannelChangView() == 0)) {
                     FCI_TVi.AVStop();
@@ -257,7 +257,7 @@ public class TVBridge {
                 } else {
                     return false;
                 }
-            } else if (ChatMainActivity.isChat) {
+            } else if (ChatMainActivity.isChat && ChatMainActivity.getInstance() != null) {
                 if (_paired == 0 || (playMode != FCI_TV.BB_PLAYMODE_DUAL_F_SEG && playMode != FCI_TV.BB_PLAYMODE_DUAL_O_SEG)
                         || (ChatMainActivity.getInstance().getChatChannelChangView() == 0)) {
                     FCI_TVi.AVStop();
@@ -285,6 +285,9 @@ public class TVBridge {
         int cur_mainIndex = cur_info[3];
         int cur_oneSegIndex = cur_info[4];
         int cur_isAudioOnly = cur_info[5];
+
+        // put last channel
+        updateChannelInfo(_svcId);
 
         if (cur_info[0] >= 0) {
             cur_isPaired = 1;
@@ -392,7 +395,7 @@ public class TVBridge {
                             }
                         }
 
-                        //to do if retSwitch <= 0 , switch fail
+                        // to do if retSwitch <= 0 , switch fail
                         // 0 is player error, it may be no configuration.
                         //  if retSwitch  is smaller than 0 , it is BB error
                         if (retSwitch <= 0) {
@@ -403,40 +406,40 @@ public class TVBridge {
                                     MainActivity.ll_black.setVisibility(View.VISIBLE);
                                 }
                                 if (cur_isAudioOnly != 1) {
-                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
                                 }
                             } else if (FloatingWindow.isFloating) {
                                 if (FloatingWindow.floating_ll_black != null) {
                                     FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
                                 }
                                 if (cur_isAudioOnly != 1) {
-                                FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
+                                    FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
                                 }
                             } else if (ChatMainActivity.isChat) {
                                 if (ChatMainActivity.chat_ll_black != null) {
                                     ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
                                 }
                                 if (cur_isAudioOnly != 1) {
-                                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                                    ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                                }
                             }
-                        }
                         }
                         TVlog.i(">>>FCIISDBT>>>", "AV switched to F-seg 1!  error is " + retSwitch);
                     } else {
                         int retSwitch = FCI_TVi.AVSwitch(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                            if (MainActivity.isMainActivity) {
+                        if (MainActivity.isMainActivity) {
                             if (MainActivity.ll_black != null) {
                                 MainActivity.ll_black.setVisibility(View.VISIBLE);
                             }
-                            } else if (FloatingWindow.isFloating) {
+                        } else if (FloatingWindow.isFloating) {
                             if (FloatingWindow.floating_ll_black != null) {
                                 FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
                             }
-                            } else if (ChatMainActivity.isChat) {
+                        } else if (ChatMainActivity.isChat) {
                             if (ChatMainActivity.chat_ll_black != null) {
                                 ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
                             }
-                            }
+                        }
                         //to do if retSwitch <= 0 , switch fail
                         // 0 is player error, it may be no configuration.
                         //  if retSwitch  is smallor than 0 , it is BB error
@@ -448,279 +451,82 @@ public class TVBridge {
                                     MainActivity.ll_black.setVisibility(View.VISIBLE);
                                 }
                                 if (cur_isAudioOnly != 1) {
-                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
                                 }
                             } else if (FloatingWindow.isFloating) {
                                 if (FloatingWindow.floating_ll_black != null) {
                                     FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
                                 }
                                 if (cur_isAudioOnly != 1) {
-                                FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
+                                    FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
                                 }
                             } else if (ChatMainActivity.isChat) {
                                 if (ChatMainActivity.chat_ll_black != null) {
                                     ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
                                 }
                                 if (cur_isAudioOnly != 1) {
-                                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                                    ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                                }
                             }
-                        }
                         }
                         TVlog.i(">>>FCIISDBT>>>", "AV switched to O-seg 2! error is " + retSwitch);
                     }
                 } else {
                     if (cur_isFullseg == 1) {  //to F-seg
-                            FCI_TVi.AVStop();
-                            FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
-                        //FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_SINGLE);
+                        FCI_TVi.AVStop();
+                        FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
                         if (MainActivity.isMainActivity) {
                             if (MainActivity.ll_black != null) {
                                 MainActivity.ll_black.setVisibility(View.VISIBLE);
-                        }
+                            }
                             if (cur_isAudioOnly != 1) {
-                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
+                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
                             }
                         } else if (FloatingWindow.isFloating) {
                             if (FloatingWindow.floating_ll_black != null) {
                                 FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
                             }
                             if (cur_isAudioOnly != 1) {
-                            FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
+                                FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
                             }
                         } else if (ChatMainActivity.isChat) {
                             if (ChatMainActivity.chat_ll_black != null) {
                                 ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
                             }
                             if (cur_isAudioOnly != 1) {
-                            ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
-                        }
+                                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                            }
                         }
                         TVlog.i(">>>FCIISDBT>>>", "AV started single F-seg! 1");
                     } else {  //to O-seg
                         FCI_TVi.AVStop();
                         FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                            TVlog.i(">>>FCIISDBT>>>", "AV started dual O-seg! 2");
-                        //FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_SINGLE);
+                        TVlog.i(">>>FCIISDBT>>>", "AV started dual O-seg! 2");
                         if (MainActivity.isMainActivity) {
                             if (MainActivity.ll_black != null) {
                                 MainActivity.ll_black.setVisibility(View.VISIBLE);
                             }
                             if (cur_isAudioOnly != 1) {
-                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
+                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
                             }
                         } else if (FloatingWindow.isFloating) {
                             if (FloatingWindow.floating_ll_black != null) {
                                 FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
                             }
                             if (cur_isAudioOnly != 1) {
-                            FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
+                                FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
                             }
                         } else if (ChatMainActivity.isChat) {
                             if (ChatMainActivity.chat_ll_black != null) {
                                 ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
                             }
                             if (cur_isAudioOnly != 1) {
-                            ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                            }
                         }
-                        }
-
                     }
                 }
             } else {
-                //TVlog.i(">>>FCIISDBT>>>", "last_mainIndex = "+last_mainIndex+", cur_mainIndex = "+cur_mainIndex);
-
-                /*if (last_mainIndex == cur_mainIndex) {
-                    if (_stopNormal == false) {
-
-                    } else {
-
-                    }
-                    if (last_isFullSeg == 0 && last_mainIndex != -1) {
-                        if (cur_isFullseg == 1) {  // to F-seg
-                            int retSwitch = FCI_TVi.AVSwitch(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
-
-                            //FCI_TVi.AVSwitch(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
-                        //to do if retSwitch <= 0 , switch fail
-                        // 0 is player error, it may be no configuration.
-                        //  if retSwitch  is smallor than 0 , it is BB error
-                        if (retSwitch <= 0) {
-                                FCI_TVi.AVStop();
-                                FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
-                            if (MainActivity.isMainActivity) {
-                                    if (MainActivity.ll_black != null) {
-                                        MainActivity.ll_black.setVisibility(View.VISIBLE);
-                                    }
-                            } else if (FloatingWindow.isFloating) {
-                                    if (FloatingWindow.floating_ll_black != null) {
-                                        FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                                    }
-                            } else if (ChatMainActivity.isChat) {
-                                    if (ChatMainActivity.chat_ll_black != null) {
-                                        ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                                    }
-                            }
-                            }
-                            TVlog.i(">>>FCIISDBT>>>", "AV switched dual F-seg! 3");
-                        } else {  //to O-seg
-                            int retSwitch = FCI_TVi.AVSwitch(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                            //FCI_TVi.AVSwitch(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                            //to do if retSwitch <= 0 , switch fail
-                            // 0 is player error, it may be no configuration.
-                            //  if retSwitch  is smallor than 0 , it is BB error
-                            if (retSwitch <= 0) {
-                            FCI_TVi.AVStop();
-                            FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                                if (MainActivity.isMainActivity) {
-                                    if (MainActivity.ll_black != null) {
-                                        MainActivity.ll_black.setVisibility(View.VISIBLE);
-                                    }
-                                } else if (FloatingWindow.isFloating) {
-                                    if (FloatingWindow.floating_ll_black != null) {
-                                        FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                                    }
-                                } else if (ChatMainActivity.isChat) {
-                                    if (ChatMainActivity.chat_ll_black != null) {
-                                        ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                        }
-                                }
-                            }
-                            TVlog.i(">>>FCIISDBT>>>", "AV switched dual O-seg! 4");
-                    }
-                } else {
-                        if (cur_isFullseg == 1) {  // to F-seg
-                            FCI_TVi.AVStop();
-                        FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
-                            if (MainActivity.isMainActivity) {
-                                if (MainActivity.ll_black != null) {
-                                    MainActivity.ll_black.setVisibility(View.VISIBLE);
-                                }
-                            } else if (FloatingWindow.isFloating) {
-                                if (FloatingWindow.floating_ll_black != null) {
-                                    FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                                }
-                            } else if (ChatMainActivity.isChat) {
-                                if (ChatMainActivity.chat_ll_black != null) {
-                                    ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                                }
-                            }
-                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-                            TVlog.i(">>>FCIISDBT>>>", "AV started dual F-seg! 5");
-                        } else {  //to O-seg
-                        FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                            if (MainActivity.isMainActivity) {
-                                if (MainActivity.ll_black != null) {
-                                    MainActivity.ll_black.setVisibility(View.VISIBLE);
-                                }
-                            } else if (FloatingWindow.isFloating) {
-                                if (FloatingWindow.floating_ll_black != null) {
-                                    FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                                }
-                            } else if (ChatMainActivity.isChat) {
-                                if (ChatMainActivity.chat_ll_black != null) {
-                                    ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                                }
-                            }
-                            MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-                            TVlog.i(">>>FCIISDBT>>>", "AV started dual O-seg! 6");
-                    }
-                }
-            } else {
-                    if (cur_isFullseg == 1) {  // to F-seg
-                        FCI_TVi.AVStop();
-                        FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
-                        if (MainActivity.isMainActivity) {
-                            if (MainActivity.ll_black != null) {
-                                MainActivity.ll_black.setVisibility(View.VISIBLE);
-                            }
-                        } else if (FloatingWindow.isFloating) {
-                            if (FloatingWindow.floating_ll_black != null) {
-                                FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                            }
-                        } else if (ChatMainActivity.isChat) {
-                            if (ChatMainActivity.chat_ll_black != null) {
-                                ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-                        TVlog.i(">>>FCIISDBT>>>", "AV started dual F-seg! 7");
-                    } else {  //to O-seg
-                        FCI_TVi.AVStop();
-                        FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                        if (MainActivity.isMainActivity) {
-                            if (MainActivity.ll_black != null) {
-                                MainActivity.ll_black.setVisibility(View.VISIBLE);
-                            }
-                        } else if (FloatingWindow.isFloating) {
-                            if (FloatingWindow.floating_ll_black != null) {
-                                FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                }
-                        } else if (ChatMainActivity.isChat) {
-                            if (ChatMainActivity.chat_ll_black != null) {
-                                ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-                        TVlog.i(">>>FCIISDBT>>>", "AV started dual O-seg! 8");
-                    }
-                }*/
-
-
-
-                /*if (cur_isFullseg == 1) {  // to F-seg
-                    FCI_TVi.AVStop();
-                    FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_F_SEG);
-                    if (MainActivity.isMainActivity) {
-                        if (MainActivity.ll_black != null) {
-                            MainActivity.ll_black.setVisibility(View.VISIBLE);
-                        }
-                        if (cur_isAudioOnly != 1) {
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-                        }
-                    } else if (FloatingWindow.isFloating) {
-                        if (FloatingWindow.floating_ll_black != null) {
-                            FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                        }
-                        if (cur_isAudioOnly != 1) {
-                        FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
-                        }
-                    } else if (ChatMainActivity.isChat) {
-                        if (ChatMainActivity.chat_ll_black != null) {
-                            ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                        }
-                        if (cur_isAudioOnly != 1) {
-                        ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
-                    }
-                    }
-                    TVlog.i(">>>FCIISDBT>>>", "AV started dual F-seg! 7");
-                } else {  //to O-seg
-                    FCI_TVi.AVStop();
-                    FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_DUAL_O_SEG);
-                    if (MainActivity.isMainActivity) {
-                        if (MainActivity.ll_black != null) {
-                            MainActivity.ll_black.setVisibility(View.VISIBLE);
-                        }
-                        if (cur_isAudioOnly != 1) {
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
-                        }
-                    } else if (FloatingWindow.isFloating) {
-                        if (FloatingWindow.floating_ll_black != null) {
-                            FloatingWindow.floating_ll_black.setVisibility(View.INVISIBLE);
-                        }
-                        if (cur_isAudioOnly != 1) {
-                        FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
-                        }
-                    } else if (ChatMainActivity.isChat) {
-                        if (ChatMainActivity.chat_ll_black != null) {
-                            ChatMainActivity.chat_ll_black.setVisibility(View.VISIBLE);
-                        }
-                        if (cur_isAudioOnly != 1) {
-                        ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
-                    }
-                    }
-                    TVlog.i(">>>FCIISDBT>>>", "AV started dual O-seg! 8");
-                }*/
-
-
                 if (MainActivity.isMainActivity) {
                     FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_SINGLE);
                     if (cur_isAudioOnly != 1) {
@@ -751,23 +557,23 @@ public class TVBridge {
                     } else {
                         TVlog.i(">>>FCIISDBT>>>", "AV started single O-seg!");
                     }
+                }
             }
-        }
         } else {
             if (MainActivity.isMainActivity) {
-            FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_SINGLE);
+                FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_SINGLE);
                 if (cur_isAudioOnly != 1) {
-                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
+                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED);
                 }
                 if (cur_isFullseg == 1) {
-                TVlog.i(">>>FCIISDBT>>>", "AV started single F-seg!");
-            } else {
-                TVlog.i(">>>FCIISDBT>>>", "AV started single O-seg!");
-            }
+                    TVlog.i(">>>FCIISDBT>>>", "AV started single F-seg!");
+                } else {
+                    TVlog.i(">>>FCIISDBT>>>", "AV started single O-seg!");
+                }
             } else if (FloatingWindow.isFloating) {
                 FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_SINGLE);
                 if (cur_isAudioOnly != 1) {
-                FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
+                    FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_FLOATING);
                 }
                 if (cur_isFullseg == 1) {
                     TVlog.i(">>>FCIISDBT>>>", "AV started single F-seg!");
@@ -777,21 +583,26 @@ public class TVBridge {
             } else if (ChatMainActivity.isChat) {
                 FCI_TVi.AVStart(_svcId, FCI_TV.CHSTART_SINGLE);
                 if (cur_isAudioOnly != 1) {
-                ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
+                    ChatMainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_LIST_AV_STARTED_CHAT);
                 }
                 if (cur_isFullseg == 1) {
                     TVlog.i(">>>FCIISDBT>>>", "AV started single F-seg!");
                 } else {
                     TVlog.i(">>>FCIISDBT>>>", "AV started single O-seg!");
                 }
+            }
+            //ADD_GINGA_NCL[[
+            if (buildOption.ADD_GINGA_NCL==true) {
+                if (mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
+            }
+            //]]ADD_GINGA_NCL
         }
-    }
     }
     //]]dualdecode
 
     public static void serviceID_start(int _id)
     {
-        if(_id <0 || _id >= found  || found==0)
+        if (_id <0 || _id >= found  || found==0)
         {
             TVlog.i(TAG, "no channel");
             if (FCI_TVi.initiatedSol) {
@@ -803,7 +614,6 @@ public class TVBridge {
                     FloatingWindow.getInstance().sendEvent(TVEVENT.E_CHANNEL_CHANGE_FAIL_FLOATING);
                 }
             }
-
             return;
         }
         CommonStaticData.scanningNow = true;    // disable no signal noti
@@ -835,7 +645,8 @@ public class TVBridge {
             CommonStaticData.fromFindFail = false;
         }
 
-        /*if (last_mainIndex == cur_mainIndex) {
+        /*
+        if (last_mainIndex == cur_mainIndex) {
             stopNormal = dualAV_stop(1);
         } else {
             stopNormal = dualAV_stop(0);
@@ -853,19 +664,10 @@ public class TVBridge {
             }
         }
 
-        // put last channel
-        updateChannelInfo(_id);
-
         //start AV
         dualAV_start(currentChid, stopNormal);
 
         CommonStaticData.scanningNow = false;    // enalble no signal noti
-
-        //ADD_GINGA_NCL[[
-        if (buildOption.ADD_GINGA_NCL==true) {
-            if(mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
-        }
-        //]]ADD_GINGA_NCL
     }
 
 
@@ -876,7 +678,7 @@ public class TVBridge {
         //MainActivity.fromFindFail = false;  //live add
         //ADD_GINGA_NCL[[
         if (buildOption.ADD_GINGA_NCL==true) {
-            if(mContext !=null)  ((MainActivity)mContext).stopNCLDemux();
+            if (mContext !=null)  ((MainActivity)mContext).stopNCLDemux();
         }
         //]]ADD_GINGA_NCL
     }
@@ -922,20 +724,17 @@ public class TVBridge {
                             getCursor().moveToPosition(currentChid);
                         }
                         while (getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0);
-
                         break;
                     case 1:  // fullseg
                         do{
                             currentChid++;
-                            if(currentChid == found)
+                            if (currentChid == found)
                             {
                                 currentChid = 0;
                             }
                             getCursor().moveToPosition(currentChid);
                         }
                         while (getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!= 1);
-
-
                         break;
                     case 2:  // auto
                     case 3:  // off
@@ -944,11 +743,10 @@ public class TVBridge {
                             currentChid = 0;
                         }
                         break;
-
                 }
             } else {
                 currentChid++;    // org
-                if(currentChid == found) {
+                if (currentChid == found) {
                     currentChid = 0;
                 }
             }
@@ -964,7 +762,8 @@ public class TVBridge {
                 CommonStaticData.fromFindFail = false;
             }
 
-            /*if (last_mainIndex == cur_mainIndex) {
+            /*
+            if (last_mainIndex == cur_mainIndex) {
                 stopNormal = dualAV_stop(1);
             } else {
                 stopNormal = dualAV_stop(0);
@@ -972,23 +771,15 @@ public class TVBridge {
             }*/
             TVlog.i(">>>FCIISDBT>>>", " stopNormal2 = "+stopNormal);
 
-
             TVlog.i(TAG, "========================================================================");
             TVlog.i(TAG, "Plus found = " + found + " channel change  "+CommonStaticData.lastCH+ " ->  "+currentChid );
             TVlog.i(TAG, "========================================================================" );
-
-            updateChannelInfo(currentChid);
 
             //start AV
             dualAV_start(currentChid, stopNormal);
 
             CommonStaticData.scanningNow = false;    // enalble no signal noti
 
-            //ADD_GINGA_NCL[[
-            if (buildOption.ADD_GINGA_NCL==true) {
-                if(mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
-            }
-            //]]ADD_GINGA_NCL
         } else if (FloatingWindow.isFloating) {
             FloatingWindow.getInstance().removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_FLOATING);
             isScanning = false;
@@ -1015,20 +806,17 @@ public class TVBridge {
                             FloatingWindow.floating_getCursor().moveToPosition(currentChid);
                         }
                         while (FloatingWindow.floating_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0);
-
                         break;
                     case 1:  // fullseg
                         do{
                             currentChid++;
-                            if(currentChid == found)
+                            if (currentChid == found)
                             {
                                 currentChid = 0;
                             }
                             FloatingWindow.floating_getCursor().moveToPosition(currentChid);
                         }
                         while (FloatingWindow.floating_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!= 1);
-
-
                         break;
                     case 2:  // auto
                     case 3:  // off
@@ -1041,7 +829,7 @@ public class TVBridge {
                 }
             } else {
                 currentChid++;    // org
-                if(currentChid == found) {
+                if (currentChid == found) {
                     currentChid = 0;
                 }
             }
@@ -1057,7 +845,8 @@ public class TVBridge {
                 CommonStaticData.fromFindFail = false;
             }
 
-            /*if (last_mainIndex == cur_mainIndex) {
+            /*
+            if (last_mainIndex == cur_mainIndex) {
                 stopNormal = dualAV_stop(1);
             } else {
                 stopNormal = dualAV_stop(0);
@@ -1069,18 +858,11 @@ public class TVBridge {
             TVlog.i(TAG, "Plus found = " + found + " channel change  "+CommonStaticData.lastCH+ " ->  "+currentChid);
             TVlog.i(TAG, "========================================================================" );
 
-            updateChannelInfo(currentChid);
-
             //start AV
             dualAV_start(currentChid, stopNormal);
 
             CommonStaticData.scanningNow = false;    // enalble no signal noti
 
-            //ADD_GINGA_NCL[[
-            if (buildOption.ADD_GINGA_NCL==true) {
-                if(mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
-            }
-            //]]ADD_GINGA_NCL
         } else if (ChatMainActivity.isChat) {
             ChatMainActivity.getInstance().removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_CHAT);
             isScanning = false;
@@ -1107,20 +889,17 @@ public class TVBridge {
                             ChatMainActivity.chat_getCursor().moveToPosition(currentChid);
                         }
                         while (ChatMainActivity.chat_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0);
-
                         break;
                     case 1:  // fullseg
                         do{
                             currentChid++;
-                            if(currentChid == found)
+                            if (currentChid == found)
                             {
                                 currentChid = 0;
                             }
                             ChatMainActivity.chat_getCursor().moveToPosition(currentChid);
                         }
                         while (ChatMainActivity.chat_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!= 1);
-
-
                         break;
                     case 2:  // auto
                     case 3:  // off
@@ -1129,11 +908,10 @@ public class TVBridge {
                             currentChid = 0;
                         }
                         break;
-
                 }
             } else {
                 currentChid++;    // org
-                if(currentChid == found) {
+                if (currentChid == found) {
                     currentChid = 0;
                 }
             }
@@ -1148,7 +926,8 @@ public class TVBridge {
                 CommonStaticData.fromFindFail = false;
             }
 
-            /*if (last_mainIndex == cur_mainIndex) {
+            /*
+            if (last_mainIndex == cur_mainIndex) {
                 stopNormal = dualAV_stop(1);
             } else {
                 stopNormal = dualAV_stop(0);
@@ -1160,20 +939,10 @@ public class TVBridge {
             TVlog.i(TAG, "Plus found = " + found + " channel change  "+CommonStaticData.lastCH+ " ->  "+currentChid);
             TVlog.i(TAG, "========================================================================" );
 
-            updateChannelInfo(currentChid);
-
             dualAV_start(currentChid, stopNormal);
 
             CommonStaticData.scanningNow = false;    // enalble no signal noti
-
-            //ADD_GINGA_NCL[[
-            if (buildOption.ADD_GINGA_NCL==true) {
-                if(mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
-            }
-            //]]ADD_GINGA_NCL
         }
-
-
     }
 
     public static void AVStartMinus()
@@ -1192,7 +961,7 @@ public class TVBridge {
 
         if (MainActivity.isMainActivity) {
             ((MainActivity) mContext).removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER);
-            isScanning= false;
+            isScanning = false;
             if (MainActivity.ll_age_limit.getVisibility() == View.VISIBLE) {
                 MainActivity.ll_age_limit.setVisibility(View.INVISIBLE);
             }
@@ -1216,37 +985,30 @@ public class TVBridge {
                             getCursor().moveToPosition(currentChid);
                         }
                         while (getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0);
-
-
                         break;
                     case 1:  // fullseg
-                        do{
+                        do {
                             currentChid--;
-                            if(currentChid <0)
-                            {
-                                currentChid=found-1;
+                            if (currentChid < 0) {
+                                currentChid = found - 1;
                             }
                             getCursor().moveToPosition(currentChid);
                         }
                         while (getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1);
-
-
                         break;
                     case 2:  // auto
                     case 3:  // off
                         currentChid--;
-                        if(currentChid <0)
-                        {
-                            currentChid=found-1;
+                        if (currentChid < 0) {
+                            currentChid = found - 1;
                         }
                         break;
-
                 }
             } else {
                 currentChid--;    // org
-                if(currentChid < 0)
+                if (currentChid < 0)
                 {
-                    currentChid=found-1;
+                    currentChid = found - 1;
                 }
             }
 
@@ -1260,7 +1022,8 @@ public class TVBridge {
                 CommonStaticData.fromFindFail = false;
             }
 
-            /*if (last_mainIndex == cur_mainIndex) {
+            /*
+            if (last_mainIndex == cur_mainIndex) {
                 stopNormal = dualAV_stop(1);
             } else {
                 stopNormal = dualAV_stop(0);
@@ -1271,17 +1034,11 @@ public class TVBridge {
             TVlog.i(TAG, "========================================================================");
             TVlog.i(TAG, " Minus found = " + found + " channel change  "+CommonStaticData.lastCH+ " ->  "+currentChid );
             TVlog.i(TAG, "========================================================================" );
-            updateChannelInfo(currentChid);
 
             dualAV_start(currentChid, stopNormal);
 
             CommonStaticData.scanningNow = false;    // enalble no signal noti
 
-            //ADD_GINGA_NCL[[
-            if (buildOption.ADD_GINGA_NCL==true) {
-                if(mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
-            }
-            //]]ADD_GINGA_NCL
         } else if (FloatingWindow.isFloating) {
             FloatingWindow.getInstance().removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_FLOATING);
             isScanning = false;
@@ -1308,34 +1065,28 @@ public class TVBridge {
                             FloatingWindow.floating_getCursor().moveToPosition(currentChid);
                         }
                         while (FloatingWindow.floating_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0);
-
-
                         break;
                     case 1:  // fullseg
-                        do{
+                        do {
                             currentChid--;
-                            if(currentChid < 0)
-                            {
+                            if (currentChid < 0) {
                                 currentChid = found - 1;
                             }
                             FloatingWindow.floating_getCursor().moveToPosition(currentChid);
                         }
                         while (FloatingWindow.floating_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1);
-
-
                         break;
                     case 2:  // auto
                     case 3:  // off
                         currentChid--;
-                        if(currentChid < 0) {
+                        if (currentChid < 0) {
                             currentChid = found - 1;
                         }
                         break;
-
                 }
             } else {
                 currentChid--;    // org
-                if(currentChid < 0)
+                if (currentChid < 0)
                 {
                     currentChid = found - 1;
                 }
@@ -1351,7 +1102,8 @@ public class TVBridge {
                 CommonStaticData.fromFindFail = false;
             }
 
-            /*if (last_mainIndex == cur_mainIndex) {
+            /*
+            if (last_mainIndex == cur_mainIndex) {
                 stopNormal = dualAV_stop(1);
             } else {
                 stopNormal = dualAV_stop(0);
@@ -1362,17 +1114,11 @@ public class TVBridge {
             TVlog.i(TAG, "========================================================================");
             TVlog.i(TAG, " Minus found = " + found + " channel change  "+CommonStaticData.lastCH+ " ->  "+currentChid);
             TVlog.i(TAG, "========================================================================" );
-            updateChannelInfo(currentChid);
 
             dualAV_start(currentChid, stopNormal);
 
             CommonStaticData.scanningNow = false;    // enalble no signal noti
 
-            //ADD_GINGA_NCL[[
-            if (buildOption.ADD_GINGA_NCL==true) {
-                if(mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
-            }
-            //]]ADD_GINGA_NCL
         } else if (ChatMainActivity.isChat) {
             ChatMainActivity.getInstance().removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_CHAT);
             isScanning = false;
@@ -1399,34 +1145,29 @@ public class TVBridge {
                             ChatMainActivity.chat_getCursor().moveToPosition(currentChid);
                         }
                         while (ChatMainActivity.chat_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) != 0);
-
-
                         break;
                     case 1:  // fullseg
-                        do{
+                        do {
                             currentChid--;
-                            if(currentChid < 0)
+                            if (currentChid < 0)
                             {
                                 currentChid = found - 1;
                             }
                             ChatMainActivity.chat_getCursor().moveToPosition(currentChid);
                         }
                         while (ChatMainActivity.chat_getCursor().getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1);
-
-
                         break;
                     case 2:  // auto
                     case 3:  // off
                         currentChid--;
-                        if(currentChid < 0) {
+                        if (currentChid < 0) {
                             currentChid = found - 1;
                         }
                         break;
-
                 }
             } else {
                 currentChid--;    // org
-                if(currentChid < 0)
+                if (currentChid < 0)
                 {
                     currentChid = found - 1;
                 }
@@ -1442,7 +1183,8 @@ public class TVBridge {
                 CommonStaticData.fromFindFail = false;
             }
 
-            /*if (last_mainIndex == cur_mainIndex) {
+            /*
+            if (last_mainIndex == cur_mainIndex) {
                 stopNormal = dualAV_stop(1);
             } else {
                 stopNormal = dualAV_stop(0);
@@ -1453,19 +1195,11 @@ public class TVBridge {
             TVlog.i(TAG, "========================================================================");
             TVlog.i(TAG, " Minus found = " + found + " channel change  "+CommonStaticData.lastCH+ " ->  "+currentChid);
             TVlog.i(TAG, "========================================================================" );
-            updateChannelInfo(currentChid);
 
             dualAV_start(currentChid, stopNormal);
 
             CommonStaticData.scanningNow = false;    // enalble no signal noti
-
-            //ADD_GINGA_NCL[[
-            if (buildOption.ADD_GINGA_NCL==true) {
-                if(mContext !=null)  ((MainActivity)mContext).restartNCLDemux();
-            }
-            //]]ADD_GINGA_NCL
         }
-
     }
 
 
@@ -1476,7 +1210,6 @@ public class TVBridge {
 
     public static void handoverProgress(int _progressPercent, int _found, int _freqKHz, String _svcName)
     {
-
         TVlog.i(TAG, " handoverProgress  percent = " + _progressPercent + ",  found " + _found + ", service name " + _svcName + ", len " + _svcName.length());
         ((MainActivity)mContext).sendEvent(TVEVENT.E_SCAN_HANDOVER_PROCESS, _progressPercent, _found, (int)_freqKHz);
 /*
@@ -1494,47 +1227,38 @@ public class TVBridge {
 
     public static void scanProgress(int _progressPercent, int _found, int _freqKHz, String _svcName)
     {
-
         TVlog.i(TAG, " scanProgress  percent = " + _progressPercent + ",  found " + _found + ", service name " + _svcName + ", len " + _svcName.length());
         ((MainActivity)mContext).sendEvent(TVEVENT.E_SCAN_PROCESS, _progressPercent, _found, (int)_freqKHz);
         progressPercent=_progressPercent;
         found = _found;
         scanServiceName = _svcName;
-
     }
 
     public static void scanProgress_floating(int _progressPercent, int _found, int _freqKHz, String _svcName)
     {
-
         TVlog.i(TAG, " scanProgress_floating  percent = " + _progressPercent + ",  found " + _found + ", service name " + _svcName + ", len " + _svcName.length());
         FloatingWindow.getInstance().sendEvent(TVEVENT.E_SCAN_PROCESS_FLOATING, _progressPercent, _found, (int)_freqKHz);
         progressPercent=_progressPercent;
         found = _found;
         scanServiceName = _svcName;
-
     }
 
     public static void scanProgress_chat(int _progressPercent, int _found, int _freqKHz, String _svcName)
     {
-
         TVlog.i(TAG, " scanProgress_chat  percent = " + _progressPercent + ",  found " + _found + ", service name " + _svcName + ", len " + _svcName.length());
         ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SCAN_PROCESS_CHAT, _progressPercent, _found, (int)_freqKHz);
         progressPercent=_progressPercent;
         found = _found;
         scanServiceName = _svcName;
-
     }
 
     public static void scanNoti(int _idx,   String _desc, byte _type, byte _vidFormat, byte _audFormat, byte _isFree, int _remoteKey, int _svcNum, int _freqKHz, byte _bLast) {
-
         if (FCI_TVi.initiatedSol) {
-
             TVlog.i(TAG, " scanNoti _idx = " + _idx + " _desc = " + _desc + " type  = " + _type +
                     " _vform " + _vidFormat + " _aform" + _audFormat + " _isFree" + _isFree + " _remoteKey" + _remoteKey + " _svcNum" + _svcNum + " _bLast = " + _bLast + "  found channel = " + found);
 
             if (_bLast == 1) //last
             {
-
                 if (MainActivity.isMainActivity) {
                     if (isScanning) {
                         MainActivity.getInstance().sendEvent(TVEVENT.E_SCAN_PROCESS, 100, found, null);
@@ -1576,13 +1300,9 @@ public class TVBridge {
                         FloatingWindow.getInstance().scanNotify_floating(_idx, _desc, _type, _vidFormat, _audFormat, _isFree, _remoteKey, _svcNum, _freqKHz, _bLast);
                     }
                 }
-
                 //sendEventToMain(TVEVENT.E_SCAN_COMPLETED);
-
-
                 //start();
-            } else //0(on going) or 2(delete)
-            {
+            } else { //0(on going) or 2(delete)
                 if (_bLast == 0) {
                     found = _idx + 1;
                 }
@@ -1598,15 +1318,12 @@ public class TVBridge {
                     }
                 }
             }
-
-
         }
     }
 
     public static void viewScanninginfo(TextView tv)
     {
-        if(isScanning == false) return;
-
+        if (isScanning == false) return;
         tv.setText(Html.fromHtml("<font color=\"#6AFF59\">" + "=============== Scan Info  =================" + "</font>"));
         tv.append("\n" + " progressPercent = " + progressPercent + "     found = " + found );
         tv.append("\n");
@@ -1614,23 +1331,26 @@ public class TVBridge {
 
     public static void sendEventToMain(TVEVENT _event)
     {
-        if(mContext !=null)  ((MainActivity)mContext).sendEvent(_event);
+        if (mContext !=null)  ((MainActivity)mContext).sendEvent(_event);
     }
+
     public static void sendEventToMainWithData(TVEVENT _event,int _data1,int _data2,Object _obj)
     {
-        if(mContext !=null)  ((MainActivity)mContext).sendEvent(_event,_data1,_data2,_obj);
+        if (mContext !=null)  ((MainActivity)mContext).sendEvent(_event,_data1,_data2,_obj);
     }
 
     public static void sendEventSubtitle(String _data)
     {
         //TVlog.i(TAG, " sendEventSubtitle ");
         if (MainActivity.isMainActivity) {
-            if (mContext != null) {
+            if (mContext != null && MainActivity.getInstance().getChannelChangView() ==1) {
                 ((MainActivity) mContext).sendSubtitle(_data);
             }
-        } else if (FloatingWindow.isFloating) {
-            if (FloatingWindow.getInstance() != null) {
-                FloatingWindow.getInstance().sendSubtitle(_data);
+        } else if (FloatingWindow.isFloating && FloatingWindow.getInstance() != null && FloatingWindow.getInstance().getFloatingChannelChangView() == 1) {
+            FloatingWindow.getInstance().sendSubtitle(_data);
+        } else if (ChatMainActivity.isChat) {
+            if (ChatMainActivity.getInstance() != null) {
+                ChatMainActivity.getInstance().sendSubtitle(_data);
             }
         }
     }
@@ -1639,13 +1359,13 @@ public class TVBridge {
     {
         //TVlog.i(TAG, " sendEventSubtitleDirect ");
         if (MainActivity.isMainActivity) {
-            if (mContext != null) {
+            if (mContext != null&& MainActivity.getInstance().getChannelChangView() ==1) {
                 ((MainActivity) mContext).sendSubtitleDirect(capData, capLen, isClear, isEnd, capInfo);
             }
-        } else if (FloatingWindow.isFloating) {
-            if (FloatingWindow.getInstance() != null) {
-                FloatingWindow.getInstance().sendSubtitleDirect(capData, capLen, isClear, isEnd, capInfo);
-            }
+        } else if (FloatingWindow.isFloating && FloatingWindow.getInstance() != null && FloatingWindow.getInstance().getFloatingChannelChangView() == 1) {
+            FloatingWindow.getInstance().sendSubtitleDirect(capData, capLen, isClear, isEnd, capInfo);
+        } else if (ChatMainActivity.isChat && ChatMainActivity.getInstance() != null) {
+            ChatMainActivity.getInstance().sendSubtitleDirect(capData, capLen, isClear, isEnd, capInfo);
         }
     }
 
@@ -1659,6 +1379,10 @@ public class TVBridge {
         } else if (FloatingWindow.isFloating) {
             if (FloatingWindow.getInstance() != null) {
                 FloatingWindow.getInstance().sendSuperimpose(_data);
+            }
+        } else if (ChatMainActivity.isChat) {
+            if (ChatMainActivity.getInstance() != null) {
+                ChatMainActivity.getInstance().sendSuperimpose(_data);
             }
         }
     }
@@ -1674,6 +1398,10 @@ public class TVBridge {
             if (FloatingWindow.getInstance() != null) {
                 FloatingWindow.getInstance().sendSuperimposeDirect(supData, supLen, isClear, isEnd, supInfo);
             }
+        } else if (ChatMainActivity.isChat) {
+            if (ChatMainActivity.getInstance() != null) {
+                ChatMainActivity.getInstance().sendSuperimposeDirect(supData, supLen, isClear, isEnd, supInfo);
+            }
         }
     }
 
@@ -1681,7 +1409,6 @@ public class TVBridge {
     {
         mContext = context;
     }
-
 
     public static void subSurfaceViewON()
     {
@@ -1724,9 +1451,9 @@ public class TVBridge {
     public static void firstVideoNoti()
     {
         ((MainActivity)mContext).notifyFirstVideo();
-        if(buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE)
+        if (buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE)
         {
-            if(MainActivity.isPlayBackActivity==true) {
+            if (MainActivity.isPlayBackActivity==true) {
                 PlayBackActivity.getInstance().sendEvent(TVEVENT.E_TSPLAYBACK_FIRSTVIDEO);
             }
         }
@@ -1743,6 +1470,7 @@ public class TVBridge {
 
     public static void firstVideoNotiChat()
     {
+        TVlog.i("live", " ===== firstVideoNotiChat() =====");
         if (ChatMainActivity.getInstance() != null) {
             ChatMainActivity.getInstance().notifyFirstVideoChat();
         }
@@ -1752,9 +1480,9 @@ public class TVBridge {
     {
         TVlog.i("live", " ===== firstAudioNoti() =====");
         ((MainActivity)mContext).notifyFirstAudio();
-        if(buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE)
+        if (buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE)
         {
-            if(MainActivity.isPlayBackActivity==true) {
+            if (MainActivity.isPlayBackActivity==true) {
                 PlayBackActivity.getInstance().sendEvent(TVEVENT.E_TSPLAYBACK_FIRSTAUDIO);
             }
         }
@@ -1846,8 +1574,8 @@ public class TVBridge {
 
     public static void tsPlaybackErrorNoti(int errorNum)
     {
-        if(buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE) {
-            if(MainActivity.isPlayBackActivity==true) {
+        if (buildOption.RECORDING_TYPE_TS == buildOption.RECORDING_TYPE) {
+            if (MainActivity.isPlayBackActivity==true) {
                 PlayBackActivity.getInstance().sendEvent(TVEVENT.E_TSPLAYBACK_ERROR, errorNum, null);
             }
         }

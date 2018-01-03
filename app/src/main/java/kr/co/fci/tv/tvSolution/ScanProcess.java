@@ -5,10 +5,11 @@ package kr.co.fci.tv.tvSolution;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
@@ -16,7 +17,6 @@ import com.afollestad.materialdialogs.Theme;
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.TVEVENT;
-import kr.co.fci.tv.util.CustomToast;
 import kr.co.fci.tv.util.TVlog;
 
 
@@ -49,11 +49,15 @@ public class ScanProcess {
                     TVlog.i(TAG, " - call cancel -");
                     TVBridge.scanStop();
                     ScanOn = false;
+                    /*
                     CustomToast toast = new CustomToast(mContext);
                     toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
-                    /*Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                    */
+                    /*
+                    Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 200);
-                    toast.show();*/
+                    toast.show();
+                    */
                     return;
                 }
                 int increase = _progress - preProgress;
@@ -64,11 +68,15 @@ public class ScanProcess {
                 preProgress = _progress;
                 //scandialog.show();
             } else if (_option == SHOW_PRORESS_OFF) {
+                /*
                 CustomToast toast = new CustomToast(mContext);
                 toast.showToast(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
-                /*Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
+                */
+                /*
+                Toast toast = Toast.makeText(mContext, _found  + " " + mContext.getString(R.string.channel_found), Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 200);
-                toast.show();*/
+                toast.show();
+                */
                 scandialog.cancel();
             } else {
                 TVBridge.scanStop();
@@ -93,10 +101,16 @@ public class ScanProcess {
                 .widgetColorRes(R.color.blue3)
                 .negativeText(R.string.cancel)
                 .negativeColor(mContext.getResources().getColor(R.color.blue3))
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        ((MainActivity) mContext).sendEvent(TVEVENT.E_SCAN_CANCEL);
+                    }
+                })
                 .cancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        ((MainActivity) mContext).sendEvent(TVEVENT.E_SCAN_CANCEL);
+//                      ((MainActivity) mContext).sendEvent(TVEVENT.E_SCAN_CANCEL);
                     }
                 }).showListener(new DialogInterface.OnShowListener() {
                     @Override
@@ -107,6 +121,7 @@ public class ScanProcess {
                 }).build();
         scandialog.getWindow().setGravity(Gravity.CENTER);
         scandialog.show();
+        scandialog.setCanceledOnTouchOutside(false);
 
         // live add for hide bar at searching
         View decorView = scandialog.getWindow().getDecorView();

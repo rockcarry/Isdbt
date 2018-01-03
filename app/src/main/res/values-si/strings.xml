@@ -12,7 +12,7 @@
     <string name="action_settings">සැකසුම්</string>
     <string name="title_activity_translucent">පාරභාසක</string>
     <string name="settings">සැකසුම්</string>
-    <string name="about">ගැන</string>
+    <string name="about">යෙදුම් තොරතුරු</string>
 
     <string name="caption_title">ශීර්ෂ පාඨය</string>
     <string name="screen_title">තිරය අනුපාතය</string>
@@ -30,7 +30,7 @@
     <string name="locale_title">පෙදෙසි</string>
     <string name="reset_title">සැකසුම්, පිළිනැගුම</string>
     <string name="reset_msg">මෙම ක්රියාවන් පෙරනිමි සැකසුම් සියලු සැකසුම් නැවත කරනු ඇත.\nඔබ දැන් සියලු සැකසුම් නැවත කැමතිද? </string>
-    <string name="about_title">ගැන</string>
+    <string name="about_title">යෙදුම් තොරතුරු</string>
 
     <string name="ok">හරි</string>
     <string name="cancel">අවලංගු කරන්න</string>
@@ -416,5 +416,10 @@
     <string name="no_channel_msg">ලියාපදිංචි නාලිකා නොමැත.\nකරුණාකර සෙවුම් කරන්න.</string>
 
     <string name="audio_only_channel">ශ්රව්ය පමණක් නාලිකාව!</string>
+    <string name="chat_sign_in">කරුණාකර චැට් කිරීමට ඔබගේ Google ගිණුමට පුරනය වන්න.</string>
+    <string name="type_SD">SD</string>
+    <string name="type_HD">HD</string>
+    <string name="switch_fail_HD">මාරුවීමට HD නාලිකාව නොමැත.</string>
+    <string name="switch_fail_SD">මාරු කිරීම සඳහා SD චැනලයක් නැත.</string>
 
 </resources>

@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.hardware.usb.UsbDevice;
@@ -25,13 +24,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.text.TextUtils;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -107,8 +106,6 @@ import kr.co.fci.tv.util.TVlog;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.lang.System.exit;
-import static kr.co.fci.tv.MainActivity.HANDOVER_TIME;
-import static kr.co.fci.tv.R.id.sv_chat;
 import static kr.co.fci.tv.TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_CHAT;
 import static kr.co.fci.tv.TVEVENT.E_SCAN_MONITOR_CHAT;
 import static kr.co.fci.tv.TVEVENT.E_SIGNAL_NOTI_MSG_CHAT;
@@ -121,10 +118,12 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
     private static String TAG = "ChatMainActivity ";
 
+    CustomToast customToast = null;
+    private long mLastClickTimeReturn = 0;
+    private final static int DOUBLE_CLICK_TOLERANCE = 1000; // 3000;
     private static final int RC_SIGN_IN = 1001;
 
-    public Typeface mFont_chat, tf_chat;
-    String[] arr_svcmodeswitch_jp;
+//  String[] arr_svcmodeswitch_jp;
     private TextView subTitleView_chat = null;
     private TextView superImposeView_chat = null;
     private final static int CAPTION_CLEAR_TIME_CHAT = 15000;
@@ -239,7 +238,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     private ProgressBar chat_progressingChange;
     LinearLayout chat_controllerLayout;
     LinearLayout chat_status_bar;
-    public Typeface mFont, tf;
+    public Typeface mFont_chat, tf_chat;
     private View decorView;
     private int uiOptions;
     private int[] channelChangeProcLocation =null;
@@ -274,6 +273,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     ImageView chat_iv_prev;
     ImageView chat_iv_next;
     ImageView chat_iv_max;
+//  Button chat_btn_receiveMode;
 
     EmojiconEditText emojiconEditText;
     View rootView;
@@ -316,7 +316,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void handleMessage(Message msg) {
             TVEVENT event = TVEVENT.values()[msg.what];
-            /*if(TVON==false)
+            /*if (TVON==false)
             {
                 TVlog.i(TAG, "---------------- TV OFF -------------------");
                 return;
@@ -463,11 +463,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
                 case E_SCAN_COMPLETED_CHAT:
-                    TVlog.i(TAG, " >>>>> E_SCAN_COMPLETED_CHAT");
-                    chat_ll_scan_progress.setVisibility(View.INVISIBLE);
-
-                    TVlog.i(TAG, "---------------- E_SCAN_COMPLETED-------------------");
-                    if (CommonStaticData.handoverMode > 0) {
+                    TVlog.i(TAG, "---------------- E_SCAN_COMPLETED_CHAT-------------------");
+                    if (CommonStaticData.handoverMode > CommonStaticData.HANDOVER_MODE_OFF) {
                         if (CommonStaticData.handoverIndex != -1) {
                             MainActivity.getInstance().mChannelIndex = CommonStaticData.handoverIndex;
                             TVlog.e(TAG, "handover mode = " + CommonStaticData.handoverMode + " , channel index =  " + MainActivity.getInstance().mChannelIndex);
@@ -476,10 +473,32 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             CommonStaticData.handoverIndex = 0;
                         }
                     }
-                    channelChangeStartView(false);
-                    CommonStaticData.scanningNow = false;
-                    if(CommonStaticData.scanCHnum > 0) {
+                    if (FCI_TVi.initiatedSol) {
+                        channelChangeStartView(false);
+                    }
+
+                    if (CommonStaticData.scanCHnum > 0) {
+                        MainActivity.isNoChannel = false;
                         chat_noChannel.setVisibility(View.INVISIBLE);
+                        if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_OFF && CommonStaticData.scanningNow == true) {
+                            int num_Fullseg = 0;
+                            int num_1seg = 0;
+                            for (int i = 0; i < CommonStaticData.scanCHnum; i++) {
+                                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(i);
+                                int isFullseg = info[1];
+                                if (isFullseg == 0) {  //1-seg
+                                    num_1seg++;
+                                } else {
+                                    num_Fullseg++;
+                                }
+                            }
+                            CustomToast toast = new CustomToast(getApplicationContext());
+                            toast.showToast(getApplicationContext(), CommonStaticData.scanCHnum  + " " + getApplicationContext().getString(R.string.channel_found)
+                                    +"\n"+getApplicationContext().getString(R.string.type_HD)+" : "+num_Fullseg
+                                    +"\n"+getApplicationContext().getString(R.string.type_SD)+" : "+num_1seg, Toast.LENGTH_LONG);
+                        }
+                        CommonStaticData.scanningNow = false;
+
                         final int NEED_TO_CHANGE_CHANNEL_NO = 0;
                         final int NEED_TO_CHANGE_CHANNEL_FIRST_LOAD = 1;
                         final int NEED_TO_CHANGE_CHANNEL_CHANGE_INDEX = 2;
@@ -530,7 +549,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                         }
                                     }
                                 }
-                                if (CommonStaticData.handoverMode == 2) {
+                                if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_UPDATE_LIST) {
                                     if (MainActivity.getInstance().mChannelIndex != CommonStaticData.handoverIndex && mCursor_chat.getCount() > CommonStaticData.handoverIndex) {
                                         MainActivity.getInstance().mChannelIndex = CommonStaticData.handoverIndex;
                                         mCursor_chat.moveToPosition(MainActivity.getInstance().mChannelIndex);
@@ -540,14 +559,14 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                         TVlog.e(TAG, "handover: list reloaded & same index: channel index =  " + MainActivity.getInstance().mChannelIndex);
                                     }
                                     statusOfNeedToChange = NEED_TO_CHANGE_CHANNEL_CHANGE_INDEX;
-                                    CommonStaticData.handoverMode = 0;
+                                    CommonStaticData.handoverMode = CommonStaticData.HANDOVER_MODE_OFF;
                                 }
                                 CommonStaticData.isProcessingUpdate = false;
                             }
                             else {
                                 statusOfNeedToChange = NEED_TO_CHANGE_CHANNEL_FIRST_LOAD;
-                                if (CommonStaticData.handoverMode == 1) {
-                                    CommonStaticData.handoverMode = 0;
+                                if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
+                                    CommonStaticData.handoverMode = CommonStaticData.HANDOVER_MODE_OFF;
                                     TVlog.e(TAG, "handover: same list & same index: channel index =  " + MainActivity.getInstance().mChannelIndex);
                                 }
                             }
@@ -557,7 +576,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
                                 switch (CommonStaticData.receivemode){
                                     case 0:     // 1seg
-                                        if(mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=0) {
+                                        if (mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=0) {
                                             for (int i=0; i < mCursor_chat.getCount(); i++) {
                                                 mCursor_chat.moveToPosition(i);
                                                 if (mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 0) {
@@ -565,7 +584,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                                     break;
                                                 }
                                             }
-                                            if(MainActivity.getInstance().mChannelIndex==0){   // not found channel
+                                            if (MainActivity.getInstance().mChannelIndex==0){   // not found channel
                                                 TVBridge.stop();
                                                 channelChangeEndView(false);
                                                 CustomToast toast = new CustomToast(getApplicationContext());
@@ -574,7 +593,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                         }
                                         break;
                                     case 1:     // fullseg
-                                        if(mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1) {
+                                        if (mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV)!=1) {
                                             for (int i=0; i < mCursor_chat.getCount(); i++) {
                                                 mCursor_chat.moveToPosition(i);
                                                 if (mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV) == 1) {
@@ -582,7 +601,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                                     break;
                                                 }
                                             }
-                                            if(MainActivity.getInstance().mChannelIndex==0) {      // not found channel
+                                            if (MainActivity.getInstance().mChannelIndex==0) {      // not found channel
                                                 TVBridge.stop();
                                                 channelChangeEndView(false);
                                                 CustomToast toast = new CustomToast(getApplicationContext());
@@ -677,6 +696,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             }
                             rl_ChType_chat.setVisibility(View.VISIBLE);
 
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_UPDATE_EPG_NAME_AND_DURATION);
+
                             AudioFormat = mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_AUDFORM);
                             VideoFormat = mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_VIDFORM);
                             Scrambled = mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
@@ -707,12 +728,12 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                                     // checking TS playback running...
 
-                                    /*if(isCheckingPlayback())
+                                    /*if (isCheckingPlayback())
                                     {
                                         TVlog.i(TAG, " playback running  ");
                                         break;
                                     }*/
-                                    if(buildOption.LOG_CAPTURE_MODE==3)
+                                    if (buildOption.LOG_CAPTURE_MODE==3)
                                     {
                                         //TVBridge.serviceID_start(0);
                                         TVBridge.dualAV_start(0, true);
@@ -742,10 +763,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                         TVBridge.dualAV_start(MainActivity.getInstance().mChannelIndex, true);
                                     }
                                 } else {
-                                    chat_changeChannelView.setVisibility(View.INVISIBLE);
-                                    chat_channelChangeBG.setVisibility(View.INVISIBLE);
-                                    chat_progressingChange.setVisibility(View.INVISIBLE);
-                                    chat_loadingChannel.setVisibility(View.INVISIBLE);
+                                    channelChangeEndView(false);
                                 }
                             } else {
 
@@ -767,7 +785,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             isScreenOn = pm.isInteractive();
                         }
 
-                        if(isScreenOn)
+                        if (isScreenOn)
                         {
 
                             TVlog.i(TAG, " =====  no scan =========");
@@ -787,32 +805,17 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                             MainActivity.isNoChannel = true;
 
-                            if (sv_chatView != null && sv_chatView.isShown()) {
-                                sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
-                            }
-                            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                                if (svSub_chatView != null && svSub_chatView.isShown()) {
-                                    svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
-                                }
-                            } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
-                                    (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
-                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
-                                            buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
-                                if (svSub_chatView != null && svSub_chatView.isShown()) {
-                                    svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
-                                }
-                            }
-
                             chat_changeChannelView.setVisibility(View.INVISIBLE);
                             chat_noChannel.setVisibility(VISIBLE);
 
-                            if (chat_tv_scramble_title.getVisibility() == View.INVISIBLE) {
+                            if (FCI_TVi.initiatedSol) {
                                 CommonStaticData.badSignalFlag = false;
                                 CommonStaticData.encryptFlag = false;
                                 CommonStaticData.ageLimitFlag = false;
+                                chat_ll_scramble_msg.setVisibility(View.INVISIBLE);
                             }
 
-                            /*if(isCheckingPlayback())
+                            /*if (isCheckingPlayback())
                             {
                                 TVlog.i(TAG, " playback running  ");
                                 break;
@@ -840,6 +843,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     TVBridge.stop();
                     // channel index initialize
                     CommonStaticData.lastCH = 0;
+                    CommonStaticData.captionSelect = 0; // justin add
+                    CommonStaticData.superimposeSelect = 0;
                     CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                     editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
@@ -851,7 +856,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     if (sv_chatView != null && sv_chatView.isShown()) {
                         sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                     }
-                    if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                         if (svSub_chatView != null && svSub_chatView.isShown()) {
                             svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                         }
@@ -863,6 +868,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                         }
                     }
+
+                    sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
+                    sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
 
                     if (ll_chatAutoSearch.getVisibility() == VISIBLE) {
                         ll_chatAutoSearch.setVisibility(View.INVISIBLE);
@@ -907,7 +915,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
                     //   TVlog.e(TAG, "E_SCAN_PROCESS " + progress + " % " + found + " found");
                     if (doScan_chat != null) {
-                        if(progress_chat < 97) {
+                        if (progress_chat < 97) {
                             if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
@@ -933,10 +941,16 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                 case E_SCAN_CANCEL_CHAT:
                     TVlog.i(TAG, "---------------- E_SCAN_CANCEL-------------------");
-                    doScan_chat.showProgress_chat(0, 0, 473143, doScan_chat.SHOW_PROGRESS_OFF_CHAT);
+                    if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                        doScan_chat.showProgress_chat(0, 0, 474000, doScan_chat.SHOW_PROGRESS_OFF_CHAT);
+                    } else {
+                        doScan_chat.showProgress_chat(0, 0, 473143, doScan_chat.SHOW_PROGRESS_OFF_CHAT);
+                    }
                     chat_ll_scan_progress.setVisibility(View.INVISIBLE);
                     TVBridge.scanStop();
-                    if (CommonStaticData.handoverMode == 1) {
+                    if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
                         sendEvent(TVEVENT.E_SCAN_COMPLETED_CHAT);
                     }
                     break;
@@ -952,14 +966,46 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     channelChangeStartView(false);
                 }
 
+                case E_CHAT_STOP_NOTIFY: {
+                    TVlog.i(TAG, ">>>>> E_CHAT_STOP_NOTIFY");
+                    if (sv_chatView != null && sv_chatView.isShown()) {
+                        sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
+                    }
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (svSub_chatView != null && svSub_chatView.isShown()) {
+                            svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
+                        }
+                    } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                            (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                    buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        if (svSub_chatView != null && svSub_chatView.isShown()) {
+                            svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
+                        }
+                    }
+                }
+                break;
+
                 case E_FIRSTVIDEO_CHAT:
                 {
                     TVlog.i(TAG, " >>>>> E_FIRSTVIDEO_CHAT");
-                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
-                    removeEvent(E_SIGNAL_NOTI_MSG_CHAT);
-                    removeEvent(TVEVENT.E_NOSIGNAL_SHOW_CHAT);
-                    removeEvent(E_CHANNEL_CHANGE_TIMEOVER_CHAT);
-                    sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_CHAT);
+                    if (CommonStaticData.isSwitched == false) {
+                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
+                        removeEvent(E_SIGNAL_NOTI_MSG_CHAT);
+                        removeEvent(TVEVENT.E_NOSIGNAL_SHOW_CHAT);
+                        removeEvent(E_CHANNEL_CHANGE_TIMEOVER_CHAT);
+
+                        CommonStaticData.isBadSignalFlag = false;
+                        CommonStaticData.badSignalFlag = false;
+                        CommonStaticData.encryptFlag = false;
+                        CommonStaticData.ageLimitFlag = false;
+                    }
+                    CommonStaticData.isSwitched = false;
+
+                    if (chat_changeChannelView.getVisibility() == VISIBLE) {
+                        chat_changeChannelView.setVisibility(View.INVISIBLE);
+                    }
+                    channelChangeEndView(false);
 
                     if (sv_chatView != null && sv_chatView.isShown()) {
                         sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -988,7 +1034,6 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
 
                     if (CommonStaticData.scanCHnum > 0) {
-                        mCursor_chat = MainActivity.getCursor();
                         if (mCursor_chat != null) {
                             String channelName = mCursor_chat.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
                             String[] split_channelName = channelName.split(" ");
@@ -1005,9 +1050,6 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                         chat_room_title.setText(getApplicationContext().getString(R.string.chat_room_name) + " (" + getApplicationContext().getResources().getString(R.string.app_name) + ") ");
                     }
 
-                    if (chat_changeChannelView.getVisibility() == VISIBLE) {
-                        chat_changeChannelView.setVisibility(View.INVISIBLE);
-                    }
                     if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                         ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                     }
@@ -1017,7 +1059,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE) {
                         chat_curr_rate = FCI_TVi.GetCurProgramRating();
-                        if((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+                        if ((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                                 && (CommonStaticData.passwordVerifyFlag == false)
                                 && (CommonStaticData.ratingsetSwitch == true)) {
                             CommonStaticData.ageLimitFlag = true;
@@ -1034,17 +1076,31 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     SignalStatFlag = false;
                     CommonStaticData.tuneTimeOver = false;
                     channelChangeEndView(false);
+
+                    FCI_TVi.subSurfaceViewOnOff(FCI_TVi.getDualMode());
                 }
                 break;
 
                 case E_FIRSTAUDIO_CHAT:
                 {
                     TVlog.i(TAG, " >>>>> E_FIRSTAUDIO_CHAT");
-                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
-                    removeEvent(E_SIGNAL_NOTI_MSG_CHAT);
-                    removeEvent(TVEVENT.E_NOSIGNAL_SHOW_CHAT);
-                    removeEvent(E_CHANNEL_CHANGE_TIMEOVER_CHAT);
-                    sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_CHAT);
+                    if (CommonStaticData.isSwitched == false) {
+                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
+                        removeEvent(E_SIGNAL_NOTI_MSG_CHAT);
+                        removeEvent(TVEVENT.E_NOSIGNAL_SHOW_CHAT);
+                        removeEvent(E_CHANNEL_CHANGE_TIMEOVER_CHAT);
+
+                        CommonStaticData.isBadSignalFlag = false;
+                        CommonStaticData.badSignalFlag = false;
+                        CommonStaticData.encryptFlag = false;
+                        CommonStaticData.ageLimitFlag = false;
+                    }
+                    CommonStaticData.isSwitched = false;
+
+                    if (chat_changeChannelView.getVisibility() == VISIBLE) {
+                        chat_changeChannelView.setVisibility(View.INVISIBLE);
+                    }
+                    channelChangeEndView(false);
 
                     if (sv_chatView != null && sv_chatView.isShown()) {
                         sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -1079,7 +1135,6 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
 
                     if (CommonStaticData.scanCHnum > 0) {
-                        mCursor_chat = MainActivity.getCursor();
                         if (mCursor_chat != null) {
                             String channelName = mCursor_chat.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
                             String[] split_channelName = channelName.split(" ");
@@ -1096,9 +1151,6 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                         chat_room_title.setText(getApplicationContext().getString(R.string.chat_room_name) + " (" + getApplicationContext().getResources().getString(R.string.app_name) + ") ");
                     }
 
-                    if (chat_changeChannelView.getVisibility() == VISIBLE) {
-                        chat_changeChannelView.setVisibility(View.INVISIBLE);
-                    }
                     if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                         ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                     }
@@ -1108,7 +1160,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_FILE) {
                         chat_curr_rate = FCI_TVi.GetCurProgramRating();
-                        if((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+                        if ((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                                 && (CommonStaticData.passwordVerifyFlag == false)
                                 && (CommonStaticData.ratingsetSwitch == true)) {
                             CommonStaticData.ageLimitFlag = true;
@@ -1125,12 +1177,14 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     SignalStatFlag = false;
                     CommonStaticData.tuneTimeOver = false;
                     channelChangeEndView(false);
+
+                    FCI_TVi.subSurfaceViewOnOff(FCI_TVi.getDualMode());
                 }
                 break;
 
                 case E_CHANNEL_CHANGE_TIMEOVER_CHAT:
                     TVlog.i(TAG, " >>>>> E_CHANNEL_CHANGE_TIMEOVER_CHAT");
-                    if(CommonStaticData.tuneTimeOver==true && CommonStaticData.scanningNow==false) {
+                    if (CommonStaticData.tuneTimeOver==true && CommonStaticData.scanningNow==false) {
 
                         //TVBridge.stop();
                         //sendEvent(TVEVENT.E_CHANNEL_CHANGE_FAIL);
@@ -1146,7 +1200,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     break;
 
                 case E_CHANNEL_SWITCHING_CHAT:
-                    TVlog.i("live", " ==== E_CHANNEL_SWITCHING_FLOATING ====");
+                    TVlog.i("live", " ==== E_CHANNEL_SWITCHING_CHAT ====");
                     int tomove = (int)msg.arg1;
                     int[] info;
                     int pairIndex = -1;
@@ -1189,58 +1243,69 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     TVlog.i("live", " >>> findFail = "+findFail);
                     if (findFail == 1) {
                         if (isFullseg == 1 && tomove == 0) {  //F-seg->O-seg
-                            MainActivity.lastIndex = MainActivity.getInstance().mChannelIndex;
-                            MainActivity.getInstance().mChannelIndex = oneSegIndex;
-                            TVlog.i("live", " changed to O-seg index 1 = " + MainActivity.getInstance().mChannelIndex);
-                            CommonStaticData.fromFindFail = true;
-                            TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
-                        } else if (isFullseg == 0 && tomove == 1){  //O-seg->F-seg
-                            TVlog.i("live", " >>> CommonStaticData.fromFindFail = "+CommonStaticData.fromFindFail);
-                            if (CommonStaticData.fromFindFail == true) {
-                                MainActivity.getInstance().mChannelIndex = MainActivity.lastIndex;
-                                TVlog.i("live", " changed to F-seg index 2 = " + MainActivity.getInstance().mChannelIndex);
-                                CommonStaticData.fromFindFail = false;
+                            if (oneSegIndex != -1) {
+                                MainActivity.getInstance().lastIndex = MainActivity.getInstance().mChannelIndex;
+                                MainActivity.getInstance().mChannelIndex = oneSegIndex;
+                                TVlog.i("live", " >>> changed to O-seg index 1 = " + MainActivity.getInstance().mChannelIndex);
+                                CommonStaticData.fromFindFail = true;
                                 TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
                             } else {
-                                MainActivity.getInstance().mChannelIndex = pairIndex;
-                                TVlog.i("live", " changed to F-seg index 3 = " + MainActivity.getInstance().mChannelIndex);
-                                CommonStaticData.fromFindFail = false;
-                                TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
-                                }
+                                TVlog.i(TAG,  " >>> There is no channel for switching!!");
+                                break;
                             }
+                        } else if (isFullseg == 0 && tomove == 1){  //O-seg->F-seg
+                            TVlog.i("live", " >>> CommonStaticData.fromFindFail = "+CommonStaticData.fromFindFail);
+                            if (channelMainIndex != -1) {
+                                if (CommonStaticData.fromFindFail == true) {
+                                    MainActivity.getInstance().mChannelIndex = MainActivity.getInstance().lastIndex;
+                                    TVlog.i("live", " >>> changed to F-seg index 2 = " + MainActivity.getInstance().mChannelIndex);
+                                    CommonStaticData.fromFindFail = false;
+                                    TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
+                                } else {
+                                    MainActivity.getInstance().mChannelIndex = pairIndex;
+                                    TVlog.i("live", " >>> changed to F-seg index 3 = " + MainActivity.getInstance().mChannelIndex);
+                                    CommonStaticData.fromFindFail = false;
+                                    TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
+                                }
+                            } else {
+                                TVlog.i(TAG,  " >>> There is no channel for switching!!");
+                                break;
+                            }
+                        }
                     } else {
                         MainActivity.getInstance().mChannelIndex = pairIndex;
                         if (tomove == 0) { // to O-seg
                             MainActivity.getInstance().mChannelIndex = oneSegIndex;
-                            TVlog.i("live", "changed to 1-seg index 4 =" + MainActivity.getInstance().mChannelIndex);
+                            TVlog.i("live", " >>> changed to 1-seg index 4 =" + MainActivity.getInstance().mChannelIndex);
                             CommonStaticData.fromFindFail = false;
-                                                TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
+                            TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
                         } else if (tomove == 1) { // to F-seg
                             TVlog.i("live", " >>> CommonStaticData.fromFindFail = "+CommonStaticData.fromFindFail);
                             if (CommonStaticData.fromFindFail == true) {
-                                MainActivity.getInstance().mChannelIndex = MainActivity.lastIndex;
-                                TVlog.i("live", " changed to F-seg index 5 = " + MainActivity.getInstance().mChannelIndex);
+                                MainActivity.getInstance().mChannelIndex = MainActivity.getInstance().lastIndex;
+                                TVlog.i("live", " >>> changed to F-seg index 5 = " + MainActivity.getInstance().mChannelIndex);
                                 CommonStaticData.fromFindFail = false;
                                 TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
                             } else {
                                 MainActivity.getInstance().mChannelIndex = pairIndex;
-                                TVlog.i("live", " changed to F-seg index 6 = " + MainActivity.getInstance().mChannelIndex);
+                                TVlog.i("live", " >>> changed to F-seg index 6 = " + MainActivity.getInstance().mChannelIndex);
                                 CommonStaticData.fromFindFail = false;
                                 TVBridge.serviceID_start(MainActivity.getInstance().mChannelIndex);
-                                }
                             }
+                        }
                     }
                     break;
 
                 case E_BADSIGNAL_CHECK_CHAT:
                     TVlog.i(TAG, " >>>>> E_BADSIGNAL_CHECK_CHAT");
                     int stat = (int)msg.arg1;
-                    /*if (isPlayBackActivity) {
+                    /*
+                    if (isPlayBackActivity) {
                         break;
                     }*/
                     switch (stat){
                         case 1: // low buffer
-                            if(SignalStatFlag==false) {
+                            if (SignalStatFlag==false) {
                                 TVlog.i(TAG, " >>>>> E_BADSIGNAL_CHECK_CHAT CASE1");
                                 if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                                     ll_chatAutoSearch.setVisibility(View.INVISIBLE);
@@ -1259,7 +1324,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                 ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                             }
                             //channelChangeEndView(true);
-                            /*if (isChannelListViewOn) {
+                            /*
+                            if (isChannelListViewOn) {
                                 if (buildOption.FCI_SOLUTION_MODE !=buildOption.JAPAN && buildOption.FCI_SOLUTION_MODE !=buildOption.JAPAN_ONESEG
                                         && buildOption.FCI_SOLUTION_MODE != buildOption.JAPAN_USB
                                         && buildOption.FCI_SOLUTION_MODE !=buildOption.JAPAN_FILE) {
@@ -1286,10 +1352,11 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                                /*if (sv_chatView != null) {
+                                /*
+                                if (sv_chatView != null) {
                                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                                 }
-                                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                                     if (svSub_chatView != null) {
                                         svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                                     }
@@ -1299,7 +1366,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                 if (sv_chatView != null && sv_chatView.isShown()) {
                                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
-                                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                                     if (svSub_chatView != null && svSub_chatView.isShown()) {
                                         svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                                     }
@@ -1321,9 +1388,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                                 ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                             }
-                            //if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
-                            if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
-
+                            if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
                                 //new InputDialog(instance, InputDialog.TYPE_SIGNALSTAT_NOTI, null, null, null);
 
                                 // live add
@@ -1335,7 +1400,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                 if (sv_chatView != null && sv_chatView.isShown()) {
                                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
-                                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                                     if (svSub_chatView != null && svSub_chatView.isShown()) {
                                         svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                                     }
@@ -1355,24 +1420,13 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                 signal_check_cnt = 0;
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                                    if (CommonStaticData.scanCHnum > 0) {
+                                        CommonStaticData.isBadSignalFlag = true;
                                     }
                                 }
                             } else {
-                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
-                                    } else {
-                                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
-                                    }
-                                } else {
-                                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
-                                }
-                                //MainActivity.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
+                                removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
                             }
                             break;
                         case 4: //program not available
@@ -1380,7 +1434,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                                 ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                             }
-                            if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
+                            if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
                                 //channelChangeEndViewMulti(false);
                                 /*CustomToast toast7 = new CustomToast(getApplicationContext());
                                 toast7.showToast(getApplicationContext(),
@@ -1394,7 +1448,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                 if (sv_chatView != null && sv_chatView.isShown()) {
                                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                                 }
-                                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                                     if (svSub_chatView != null && svSub_chatView.isShown()) {
                                         svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                                     }
@@ -1414,25 +1468,14 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                 chat_ll_noSignal.setVisibility(VISIBLE);
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                                    if (CommonStaticData.scanCHnum > 0) {
+                                        CommonStaticData.isBadSignalFlag = true;
                                     }
                                 }
                             }
                             else {
-                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                                    if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
-                                        MainActivity.getInstance().postEvent(TVEVENT.E_SCAN_HANDOVER_START, HANDOVER_TIME);     // 3sec
-                                    } else {
-                                        removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
-                                    }
-                                } else {
-                                    removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
-                                }
-                                //MainActivity.getInstance().removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
+                                removeEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
                             }
                             break;
                     }
@@ -1440,7 +1483,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                 case E_SCAN_MONITOR_CHAT:
                     TVlog.i(TAG, " >>>>> E_SCAN_MONITOR_CHAT");
-                    if(CommonStaticData.scanCHnum != 0) {
+                    if (CommonStaticData.scanCHnum != 0) {
                         removeEvent(E_SCAN_MONITOR_CHAT);
                         //MainActivity.getInstance().removeEvent(TVEVENT.E_SCAN_MONITOR);
                     }
@@ -1455,7 +1498,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                 case E_SIGNAL_MONITER_CHAT:
                     TVlog.i(TAG, " >>>>> E_SIGNAL_MONITER_CHAT");
-                    if(signalMoniter!=null)
+                    if (signalMoniter!=null)
                     {
                         int segType;
 
@@ -1469,7 +1512,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             chat_curr_rate = FCI_TVi.GetCurProgramRating();  // curr_rate 2~6, PG_Rate 1~5
                             TVlog.e("justin", " ====> chat_currRate " + chat_curr_rate + " , Set PG-rate" + CommonStaticData.PG_Rate);
 
-                            if((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+                            if ((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                                     && (CommonStaticData.passwordVerifyFlag == false)
                                     && (CommonStaticData.ratingsetSwitch == true)) {
                                 CommonStaticData.ageLimitFlag = true;
@@ -1493,7 +1536,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                 case E_SIGNAL_NOTI_MSG_CHAT:
                     TVlog.i(TAG, " >>>>> E_SIGNAL_NOTI_MSG_CHAT");
-                    if(CommonStaticData.scanningNow==false) {
+                    if (CommonStaticData.scanningNow==false) {
                         CustomToast toast8 = new CustomToast(getApplicationContext());
                         toast8.showToast(getApplicationContext(), getApplicationContext().getString(R.string.signal_weak), Toast.LENGTH_SHORT);
                         SignalStatFlag = false;
@@ -1503,15 +1546,23 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     break;
                 case E_NOSIGNAL_SHOW_CHAT:
                     TVlog.i(TAG, " >>>>> E_NOSIGNAL_SHOW_CHAT");
-                    if(CommonStaticData.scanningNow==false) {
+                    if (CommonStaticData.scanningNow==false) {
+                        TVlog.i("live", " === E_NOSIGNAL_SHOW ===");
+                        channelChangeEndView(false);
                         sendEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT, 3, 0, null);
-                        //MainActivity.getInstance().sendEvent(TVEVENT.E_BADSIGNAL_CHECK, 3, 0, null);
+                        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                            if (CommonStaticData.scanCHnum > 0) {
+                                CommonStaticData.isBadSignalFlag = true;
+                            }
+                        }
                     }
                     break;
 
                 case E_CHAT_SURFACE_SUB_ONOFF: {
                     int onoff = (int) msg.arg1;
-                    if(onoff==1)
+                    if (onoff==1)
                     {
                         TVlog.i(TAG, " E_CHAT_SURFACE_SUB_ON  On ") ;
                         setChatSubSurfaceVisible(true);
@@ -1527,13 +1578,13 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 case E_RATING_MONITOR_CHAT:
                     chat_curr_rate = FCI_TVi.GetCurProgramRating();  // curr_rate 2~6, PG_Rate 1~5
                     TVlog.i("chat_justin ", "password_verify "+CommonStaticData.passwordVerifyFlag);
-                    //if(screenbl_enable.equals(false) && password_verify.equals(false)) {
-                    if(CommonStaticData.ageLimitFlag) {
+                    //if (screenbl_enable.equals(false) && password_verify.equals(false)) {
+                    if (CommonStaticData.ageLimitFlag) {
                         //TVBridge.stop();
                         if (sv_chatView != null && sv_chatView.isShown()) {
                             sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                         }
-                        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                             if (svSub_chatView != null && svSub_chatView.isShown()) {
                                 svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                             }
@@ -1593,7 +1644,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                         if (sv_chatView != null && sv_chatView.isShown()) {
                             sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                         }
-                        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                             if (svSub_chatView != null && svSub_chatView.isShown()) {
                                 svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                             }
@@ -1606,6 +1657,11 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             }
                         }
                         chat_ll_age_limit.setVisibility(View.INVISIBLE);
+                        if (CommonStaticData.captionSwitch) {
+                            if (subTitleView_chat != null) {
+                                subTitleView_chat.setVisibility(View.VISIBLE);
+                            }
+                        }
                         FCI_TVi.setVolume(1.0f);
                     }
                     break;
@@ -1619,7 +1675,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     if (sv_chatView != null && sv_chatView.isShown()) {
                         sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                     }
-                    if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                         if (svSub_chatView != null && svSub_chatView.isShown()) {
                             svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                         }
@@ -1646,12 +1702,12 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     TVlog.i(TAG, " >>>>> E_AUTO_CHANGE_CHANNEL_TEST_CHAT");
                 {
 
-                    if(buildOption.LOG_CAPTURE_MODE ==3)
+                    if (buildOption.LOG_CAPTURE_MODE ==3)
                     {
                         int currentChannel = TVBridge.getCurrentChannel();
 
                         TVlog.i(TAG, " E_AUTO_CHANGE_CHANNEL_TEST  currentID = " + currentChannel + " ChannelCount = "+CommonStaticData.scanCHnum );
-                        if(currentChannel < (CommonStaticData.scanCHnum -1)) {
+                        if (currentChannel < (CommonStaticData.scanCHnum -1)) {
                             CommonStaticData.passwordVerifyFlag = false;
                             //CommonStaticData.screenBlockFlag = false;
                             CommonStaticData.ageLimitFlag = false;
@@ -1678,7 +1734,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     if (mCursor_chat != null) {
                         MainActivity.getInstance().mChannelIndex=CommonStaticData.lastCH;
                         mCursor_chat.moveToPosition(MainActivity.getInstance().mChannelIndex);
-                        if(CommonStaticData.scanCHnum > 0) {
+                        if (CommonStaticData.scanCHnum > 0) {
                             //live add
                             chat_noChannel.setVisibility(View.INVISIBLE);
                             if (sv_chatView != null && sv_chatView.isShown()) {
@@ -1769,6 +1825,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             }
                             rl_ChType_chat.setVisibility(View.VISIBLE);
 
+                            MainActivity.getInstance().sendEvent(TVEVENT.E_UPDATE_EPG_NAME_AND_DURATION);
+
                             //chat_currCH.setText(mCursor_chat.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME));
                             AudioFormat = mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_AUDFORM);
                             VideoFormat = mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_VIDFORM);
@@ -1778,7 +1836,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                             TVlog.i (TAG, " >>>>> Scrambled = "+String.valueOf(Scrambled));
 
-                            if(Scrambled == 0) {
+                            if (Scrambled == 0) {
                                 sendEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT, 2, 0, null);
                             }
                         }
@@ -1792,7 +1850,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                     TVlog.i(TAG, " E_CHAT_SURFACE_CREATED");
                     Surface subSurface = ChatSubSurface.getChatSubSurface().getChatSurface();
-                    if(subSurface !=null) {
+                    if (subSurface !=null) {
                         setDualSurface(subSurface);
 
                     } else {
@@ -1821,6 +1879,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
 
         TVlog.i(TAG, " ===== ChatWindow onCreate() =====");
+        customToast = new CustomToast(getApplicationContext());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -1891,19 +1950,38 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         ImageView signalImage_chat = (ImageView) findViewById(R.id.chat_dtv_signal_chat);
         signalMoniter = new SignalMonitor(signalImage_chat);
 
-        sv_chatView = (SurfaceView) findViewById(sv_chat);
+        sv_chatView = (SurfaceView) findViewById(R.id.sv_chat);
         if (sv_chatView != null && sv_chatView.isShown()) {
-        sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
+            sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
         }
 
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             svSub_chatView =(SurfaceView) findViewById(R.id.svSub_chat);
+            if (svSub_chatView != null && svSub_chatView.isShown()) {
+                svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
+            }
+        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+
+            svSub_chatView =(SurfaceView) findViewById(R.id.svSub_chat);
+            if (svSub_chatView != null && svSub_chatView.isShown()) {
+                svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
+            }
         }
 
         instance = ChatMainActivity.this;
         chatVideoSurfaceHolder = sv_chatView.getHolder();
 
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (svSub_chatView != null) {
+                chatVideoSurfaceHolderSub = svSub_chatView.getHolder();
+            }
+        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
             if (svSub_chatView != null) {
                 chatVideoSurfaceHolderSub = svSub_chatView.getHolder();
             }
@@ -1914,10 +1992,18 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
         chatVideoSurfaceHolder.setFixedSize(w, h);
         chatVideoSurfaceHolder.addCallback(this);
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             if (svSub_chatView != null) {
                 chatVideoSurfaceHolderSub.setFixedSize(w, h);
                 chatVideoSurfaceHolderSub.addCallback(SubSurfaceSet.getSubSurfaceSet());
+            }
+        } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+            if (svSub_chatView != null) {
+                chatVideoSurfaceHolderSub.setFixedSize(w, h);
+                chatVideoSurfaceHolderSub.addCallback(ChatSubSurface.getChatSubSurface());
             }
         }
 
@@ -1949,6 +2035,10 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 @Override
                 public void onClick(View v) {
                     hideChatController();
+                    if (SystemClock.elapsedRealtime() - mLastClickTimeReturn < DOUBLE_CLICK_TOLERANCE){
+                        return;
+                    }
+                    mLastClickTimeReturn = SystemClock.elapsedRealtime();
                     ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                     sendEvent(TVEVENT.E_SCAN_CANCEL_CHAT);
 
@@ -2014,7 +2104,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (sv_chatView != null && sv_chatView.isShown()) {
                 sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
             }
-            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                 if (svSub_chatView != null && svSub_chatView.isShown()) {
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                 }
@@ -2033,7 +2123,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (sv_chatView != null && sv_chatView.isShown()) {
                 sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
             }
-            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                 if (svSub_chatView != null && svSub_chatView.isShown()) {
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
@@ -2055,7 +2145,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (sv_chatView != null && sv_chatView.isShown()) {
                 sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
             }
-            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                 if (svSub_chatView != null && svSub_chatView.isShown()) {
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                 }
@@ -2076,7 +2166,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (sv_chatView != null && sv_chatView.isShown()) {
                 sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
             }
-            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                 if (svSub_chatView != null) {
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
@@ -2102,7 +2192,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 if (sv_chatView != null && sv_chatView.isShown()) {
                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                 }
-                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                     if (svSub_chatView != null && svSub_chatView.isShown()) {
                         svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                     }
@@ -2156,7 +2246,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 if (sv_chatView != null && sv_chatView.isShown()) {
                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
-                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                     if (svSub_chatView != null && svSub_chatView.isShown()) {
                         svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                     }
@@ -2176,7 +2266,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (sv_chatView != null && sv_chatView.isShown()) {
                 sv_chatView.setBackgroundColor(getResources().getColor(R.color.black));
             }
-            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                 if (svSub_chatView != null && svSub_chatView.isShown()) {
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.black));
                 }
@@ -2192,7 +2282,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (sv_chatView != null && sv_chatView.isShown()) {
                 sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
             }
-            if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+            if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
                 if (svSub_chatView != null && svSub_chatView.isShown()) {
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
@@ -2211,8 +2301,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         chat_channelChangeBG = (ImageView) findViewById(R.id.chat_imageView_bg);
 
         chat_currChNo = (TextView) findViewById(R.id.chat_tv_ch_no);
-        tf = Typeface.createFromAsset(getAssets(), "fonts/digital7.ttf");
-        chat_currChNo.setTypeface(tf);
+        tf_chat = MainActivity.getInstance().tf;
+        chat_currChNo.setTypeface(tf_chat);
         chat_currChNo.setTextSize(18);
 
         if (buildOption.VIEW_PHY_CH) {
@@ -2292,19 +2382,21 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
             //]]
         } else {
-            envSet_Normal();
+            envSet_Normal_chat();
         }
 
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-            //use free font
-            mFont = Typeface.createFromAsset(getAssets(), "wlcmaru2004emoji.ttf");
-            chat_currCH.setTypeface(mFont);
+            // use free font
+            mFont_chat = MainActivity.getInstance().mFont;
+            chat_currCH.setTypeface(mFont_chat);
         }
 
         chat_ll_scan_progress = (LinearLayout) findViewById(R.id.chat_ll_scan_progress);
-        chat_ll_scan_progress.setVisibility(View.INVISIBLE);
+        if (chat_ll_scan_progress != null) {
+            chat_ll_scan_progress.setVisibility(View.INVISIBLE);
+        }
 
         chat_scan_progressBar = (ProgressBar) findViewById(R.id.chat_scan_progressBar);
         chat_scan_progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.blue3), PorterDuff.Mode.MULTIPLY);
@@ -2335,6 +2427,18 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         chat_controllerLayout = (LinearLayout) findViewById(R.id.chat_controllerLayout);
 
         chat_iv_scan = (ImageView) findViewById(R.id.chat_iv_scan);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            if (chat_iv_scan != null) {
+                chat_iv_scan.setBackgroundResource(R.drawable.btn_selector);
+            }
+        } else {
+            if (chat_iv_scan != null) {
+                chat_iv_scan.setBackgroundResource(R.color.transparent);
+            }
+        }
         chat_iv_scan.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -2362,8 +2466,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 if (sv_chatView != null && sv_chatView.isShown()) {
                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
-                if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                    if(svSub_chatView!= null && svSub_chatView.isShown())
+                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                    if (svSub_chatView!= null && svSub_chatView.isShown())
                     {
                         svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                     }
@@ -2390,6 +2494,14 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
 
         chat_iv_prev = (ImageView) findViewById(R.id.chat_iv_prev);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            if (chat_iv_prev != null) {
+                chat_iv_prev.setBackgroundResource(R.drawable.btn_selector);
+            }
+        }
         chat_iv_prev.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -2422,6 +2534,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 channelChangeStartView(false);
                 hideChatController();
                 chat_changeChannelView.setVisibility(VISIBLE);
+
+                sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
+                sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
                 // live add
                 if (ll_chatAutoSearch.getVisibility() == VISIBLE) {
                     ll_chatAutoSearch.setVisibility(View.INVISIBLE);
@@ -2440,6 +2555,14 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         });
 
         chat_iv_next = (ImageView) findViewById(R.id.chat_iv_next);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            if (chat_iv_next != null) {
+                chat_iv_next.setBackgroundResource(R.drawable.btn_selector);
+            }
+        }
         chat_iv_next.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -2472,6 +2595,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 channelChangeStartView(false);
                 hideChatController();
                 chat_changeChannelView.setVisibility(VISIBLE);
+
+                sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
+                sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
                 // live add
                 if (ll_chatAutoSearch.getVisibility() == VISIBLE) {
                     ll_chatAutoSearch.setVisibility(View.INVISIBLE);
@@ -2490,6 +2616,14 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         });
 
         chat_iv_max = (ImageView) findViewById(R.id.chat_iv_max);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            if (chat_iv_max != null) {
+                chat_iv_max.setBackgroundResource(R.drawable.btn_selector);
+            }
+        }
         chat_iv_max.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -2518,7 +2652,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                         buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) { // for re-entering NXP dongle
-                    /*if (MainActivity.getInstance() != null) {
+                    /*
+                    if (MainActivity.getInstance() != null) {
                         MainActivity.getInstance().TVTerminate();
                     }*/
                 }
@@ -2556,13 +2691,105 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+        /*
+        arr_svcmodeswitch_jp = getResources().getStringArray(R.array.svcmode_switch_jp);
+        chat_btn_receiveMode = (Button) findViewById(R.id.chat_btn_receiveMode);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            if (chat_btn_receiveMode != null) {
+                chat_btn_receiveMode.setBackgroundResource(R.drawable.btn_selector);
+                CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+                int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
+                TVlog.i("live", " >>> receiveMode = "+receiveMode);
+                chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[receiveMode]);
+                chat_btn_receiveMode.setVisibility(View.VISIBLE);
+                chat_btn_receiveMode.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                            chat_btn_receiveMode.setScaleX(0.8f);
+                            chat_btn_receiveMode.setScaleY(0.8f);
+                        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                            chat_btn_receiveMode.setScaleX(1.0f);
+                            chat_btn_receiveMode.setScaleY(1.0f);
+                        }
+                        return false;
+                    }
+                });
+                chat_btn_receiveMode.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (CommonStaticData.scanCHnum > 0) {
+                        int isChanged = 0;
+                        int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                        int isPaired = 0;
+                        int pairedIndex = info[0];
+                        int segInfo = info[1];
+                            int mainIndex = info[3];
+                            int oneSegIndex = info[4];
+                        if (pairedIndex >= 0) {
+                            isPaired = 1;
+                        }
+                        CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+                            if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_FULLSEG) {  //fullseg --> 1seg
+                                if (oneSegIndex != -1) {
+                                    CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_1SEG;
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                                    chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[0]);
+                                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                    editor.commit();
+                                } else {
+                                    CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_AUTO;  // fullseg --> auto
+                                    chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[2]);
+                                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                    editor.commit();
+                                    customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.switch_fail_SD), Toast.LENGTH_SHORT);
+                                }
+                            } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_1SEG) {  //1seg --> auto
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_AUTO;
+                                chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[2]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                            } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_AUTO) {   //auto --> off
+                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_OFF;
+                                chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[3]);
+                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                editor.commit();
+                            } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_OFF) {  //off --> fullseg
+                                if (mainIndex != -1) {
+                                    CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_FULLSEG;
+                                    MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                    chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[1]);
+                                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                    editor.commit();
+                                } else {
+                                    CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_1SEG;  // off --> 1seg
+                                    chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[0]);
+                                    editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                    editor.commit();
+                                    customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.switch_fail_HD), Toast.LENGTH_SHORT);
+                                }
+
+                            }
+                        } else {
+                            CustomToast toast = new CustomToast(getApplicationContext());
+                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
+                        }
+                    }
+                });
+            }
+        } else {
+            chat_btn_receiveMode.setVisibility(View.GONE);
+        }*/
 
         postEvent(TVEVENT.E_HIDE_CHAT_CONTROLER, CONTROLLER_HIDE_TIME);
 
         chat_room_title = (TextView) findViewById(R.id.chat_room_title);
 
         if (CommonStaticData.scanCHnum > 0) {
-            mCursor_chat = MainActivity.getCursor();
             if (mCursor_chat != null) {
                 String channelName = mCursor_chat.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
                 String[] split_channelName = channelName.split(" ");
@@ -2598,6 +2825,16 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_CHAT);
         sendEvent(TVEVENT.E_BADSIGNAL_CHECK_CHAT);
 
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            // [[ solution switching mode 20170223
+            envSet_JP_chat();
+            //]]
+        } else {
+            envSet_Normal_chat();
+        }
     }
 
     private void changeEmojiKeyboardIcon(ImageView iconToBeChanged, int drawableResourceId) {
@@ -2633,6 +2870,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         submitButton = (ImageView) findViewById(R.id.submit_btn);
         txtEmojis = (TextView) findViewById(R.id.txtEmojis);
         tv_message = (TextView) findViewById(R.id.tv_message);
+        if (tv_message != null) {
+            tv_message.setText(R.string.chat_sign_in);
+        }
 
         // Give the topmost view of your activity layout hierarchy. This will be used to measure soft keyboard height
         popup = new EmojiconsPopup(rootView, this);
@@ -2753,7 +2993,6 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         //mDatabaseReference = mFirebaseDatabase.getReference("message");
         //if (mCursor_chat != null) {
         if (CommonStaticData.scanCHnum > 0) {
-            mCursor_chat = MainActivity.getCursor();
             if (mCursor_chat != null) {
                 String channelName = mCursor_chat.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
                 String[] split_channelName = channelName.split(" ");
@@ -2976,8 +3215,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
         MainActivity.isMainActivity = false;
         ChatMainActivity.isChat = true;
+        CommonStaticData.isBadSignalFlag = false;
 
-        if((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
+        if ((chat_curr_rate >= (CommonStaticData.PG_Rate+1) && (CommonStaticData.PG_Rate!=0))
                 && (CommonStaticData.passwordVerifyFlag == false)
                 && (CommonStaticData.ratingsetSwitch == true)) {
             CommonStaticData.ageLimitFlag = true;
@@ -3046,16 +3286,20 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onPause() {
-
         TVlog.i(TAG, "== onPause ==");
-
-        //isChat = false;
 
         removeEvent(TVEVENT.E_HIDE_CHAT_CONTROLER);
 
         chat_controllerLayout.setVisibility(View.INVISIBLE);
         chat_status_bar.setVisibility(View.INVISIBLE);
 
+        CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+        editor.putBoolean(CommonStaticData.ageLimitFlagKey, CommonStaticData.ageLimitFlag);
+        editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+        editor.commit();
+
+        removeStatusBar(true);
         super.onPause();
     }
 
@@ -3091,6 +3335,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         editor.putBoolean(CommonStaticData.passwordVerifyFlagKey, CommonStaticData.passwordVerifyFlag);
         //editor.putBoolean(CommonStaticData.screenBlockFlagKey, CommonStaticData.screenBlockFlag);
         editor.putBoolean(CommonStaticData.returnMainFromChatKey, CommonStaticData.returnMainFromChat);
+        editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
         //
         editor.commit();
 
@@ -3168,6 +3413,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         editor.putBoolean(CommonStaticData.passwordVerifyFlagKey, CommonStaticData.passwordVerifyFlag);
         //editor.putBoolean(CommonStaticData.screenBlockFlagKey, CommonStaticData.screenBlockFlag);
         editor.putBoolean(CommonStaticData.returnMainFromChatKey, CommonStaticData.returnMainFromChat);
+        editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
         //
         editor.commit();
 
@@ -3271,16 +3517,20 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         MainActivity.isMainActivity = false;
         ChatMainActivity.isChat = true;
 
+        if (MainActivity.getInstance() != null) {
+            MainActivity.getInstance().onStart_TV();
+        }
+
         if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
                 (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
 
-            TVlog.i(TAG, " JAPAN , MEDIA, FLOATING Create Surface");
+            TVlog.i(TAG, " JAPAN , MEDIA, CHAT Create Surface");
 
             Surface subSurface = ChatSubSurface.getChatSubSurface().getChatSurface();
             mainSurface =holder.getSurface();
-            if(subSurface !=null) {
+            if (subSurface !=null) {
                 setDualSurface(subSurface);
             } else {
                 TVlog.i(TAG, " JAPAN , MEDIA, CHAT Create Surface  later Start TV");
@@ -3291,16 +3541,6 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (sv_chatView!= null) {
                 FCI_TVi.setSuface(holder.getSurface());
             }
-        }
-        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
-                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-            // [[ solution switching mode 20170223
-            envSet_JP_chat();
-            //]]
-        } else {
-            envSet_Normal();
         }
     }
 
@@ -3319,7 +3559,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         TVlog.i(TAG, " ===== ChatWindow surfaceChanged =====");
-        if(frameWidthChat == 0 || frameHeightChat == 0) {
+        if (frameWidthChat == 0 || frameHeightChat == 0) {
             frameWidthChat = width;
             frameHeightChat = height;
         }
@@ -3383,7 +3623,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
             if (action.equals(Intent.ACTION_USER_PRESENT)) {
                 TVlog.i(TAG, " >>>>> Intent.ACTION_USER_PRESENT");
-                if(isRunningInForeground())
+                if (isRunningInForeground())
                 {
                     TVlog.i(TAG, " TV running fore ground");
                     if (!CommonStaticData.ageLimitFlag) {
@@ -3451,20 +3691,20 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     if (device != null && mUsbDevice.equals(device)) {
                         // call your method that cleans up and closes communication with the device
                         if (mUsbChipType == USB_CHIP_TYPE_NXP || (mUsbChipType == USB_CHIP_TYPE_LME && mUsbLMEMode == USB_LME_MODE_WARM)) {
-                            if(CommonStaticData.settingActivityShow == true){
+                            if (CommonStaticData.settingActivityShow == true){
                                 SettingActivity.getInstance().onBackPressed();
-                            }else if(CommonStaticData.epgActivityShow == true){
+                            }else if (CommonStaticData.epgActivityShow == true){
                                 EPGActivity.getInstance().onBackPressed();
-                            }else if(CommonStaticData.recordedFileActivityShow == true){
+                            }else if (CommonStaticData.recordedFileActivityShow == true){
                                 RecordedFileListActivity.getInstance().onBackPressed();
-                            }else if(CommonStaticData.playBackActivityShow == true){
+                            }else if (CommonStaticData.playBackActivityShow == true){
                                 //PlayBackActivity.getInstance().onBackPressed();
                                 PlayBackActivity.getInstance().closeActivity();
-                            }else if(CommonStaticData.channelMainActivityShow == true){
+                            }else if (CommonStaticData.channelMainActivityShow == true){
                                 ChannelMainActivity.getInstance().onBackPressed();
-                            }else if(CommonStaticData.openActivityShow == true){
+                            }else if (CommonStaticData.openActivityShow == true){
                                 OpenActivity.getInstance().onBackPressed();
-                            }else if(CommonStaticData.aboutActivityShow == true){
+                            }else if (CommonStaticData.aboutActivityShow == true){
                                 AboutActivity.getInstance().onBackPressed();
                             }
                             TVlog.i("ChatMainActivity::", "usb dongle closed ! (by device detached)");
@@ -3600,7 +3840,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         if (chat_progressingChange != null) {
             chat_progressingChange.setVisibility(VISIBLE);
         }
-        if(_cas == false) {
+        if (_cas == false) {
             chat_loadingChannel.setVisibility(VISIBLE);
         }
         else{   // call from playback
@@ -3614,15 +3854,15 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
     public void channelChangeEndView(boolean _keepBG)
     {
-        if(_keepBG ==false)
+        if (_keepBG ==false)
         {
             chat_channelChangeBG.setVisibility(View.INVISIBLE);
         }
         chat_changeChannelView.setVisibility(View.INVISIBLE);
     }
 
-    private void hideChatController() {
-        //if(chat_controllerLayout.isShown()) {
+    public void hideChatController() {
+        //if (chat_controllerLayout.isShown()) {
 
 
         TVlog.i(TAG, "== hideChatController ==");
@@ -3639,7 +3879,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     {
         int visual = chat_changeChannelView.getVisibility();
 
-        if(visual == 0)
+        if (visual == 0)
         {
 
             TVlog.i(TAG, "Viewing Ch change view ");
@@ -3653,16 +3893,22 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void showChatController(){
-        if (CommonStaticData.handoverMode == 1) {
+        if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
 
         } else {
-
             chat_status_bar.setVisibility(VISIBLE);
             chat_controllerLayout.setVisibility(VISIBLE);
 
-        /*if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
-            chat_status_bar.setVisibility(View.VISIBLE);
-        }*/
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+                /*
+                int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
+                if (chat_btn_receiveMode != null) {
+                    chat_btn_receiveMode.setText(arr_svcmodeswitch_jp[receiveMode]);
+                }*/
+            }
             postEvent(TVEVENT.E_HIDE_CHAT_CONTROLER, CONTROLLER_HIDE_TIME);
         }
     }
@@ -3705,9 +3951,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void setChatSubSurfaceVisible(boolean _onoff) {
-        if(buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+        if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
             if (svSub_chatView !=null) {
-                if(_onoff) {
+                if (_onoff) {
                     TVlog.i(TAG, "= Sub Chat surface visible = ");
                     svSub_chatView.setVisibility(VISIBLE);
                 } else {
@@ -3720,7 +3966,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
             if (svSub_chatView !=null) {
-                if(_onoff) {
+                if (_onoff) {
                     TVlog.i(TAG, "= Sub Chat surface visible = ");
                     svSub_chatView.setVisibility(VISIBLE);
                 } else {
@@ -3733,12 +3979,43 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    public void sendSubtitle(String capContents) {
+        Bundle caption = new Bundle();
+        caption.putString("caption_info", capContents);
+        caption.putString("clear", "");
+        sendEvent(TVEVENT.E_CAPTION_NOTIFY_CHAT, 0, 0, caption);
+    }
+
+    public  void sendSuperimpose(String superContents) {
+        Bundle superimpose = new Bundle();
+        superimpose.putString("superimpose_info", superContents);
+        superimpose.putString("clear", "");
+        sendEvent(TVEVENT.E_SUPERIMPOSE_NOTIFY_CHAT, 0, 0, superimpose);
+    }
+
+    //JAPAN_CAPTION[[
+    public void sendSubtitleDirect(byte[] capData, int capLen, byte isClear, byte isEnd, int[] capInfo) {
+        if (ChatMainActivity.isChat) {
+            if (mCaptionView_chat != null && mCursor_chat != null) {
+                mCaptionView_chat.renderCaptionDirect(capData, capLen, isClear, isEnd, capInfo, mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV));
+            }
+        }
+    }
+
+    public void sendSuperimposeDirect(byte[] supData, int supLen, byte isClear, byte isEnd, int[] supInfo) {
+        if (ChatMainActivity.isChat) {
+            if (mSuperimposeView_chat != null && mCursor_chat != null) {
+                mSuperimposeView_chat.renderCaptionDirect(supData, supLen, isClear, isEnd, supInfo, mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV));
+            }
+        }
+    }
+    //]]JAPAN_CAPTION
+
     public void scanNotify_chat(int idx, String desc, byte type, byte vFormat, byte aFormat, byte iFree, int remoteKey, int svcNum, int freqKHz, byte bLast) {
         TVlog.i("live", " ===== scanNotify_chat() =====");
         ContentValues values = new ContentValues();
-        if(bLast==2) {
+        if (bLast==2) {
             if (MainActivity.getCursor() != null) {
-                mCursor_chat = MainActivity.getCursor();
                 int cursorCount = mCursor_chat.getCount();
                 if (cursorCount > 0 && cursorCount > mCursor_chat.getPosition()) {
                     TVBridge.setLastRemoteKey(mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_REMOTE_KEY));
@@ -3777,50 +4054,64 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void envSet_JP_chat() {
-
-        mFont_chat = Typeface.createFromAsset(getAssets(), "wlcmaru2004emoji.ttf");
-        chat_currCH.setTypeface(mFont_chat);
-        /*if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
-            chat_currProgram.setTypeface(mFont_chat);
-        }*/
+        if (MainActivity.getInstance() != null) {
+            mFont_chat = MainActivity.getInstance().mFont;
+        }
 
         //use free font
-        subTitleView_chat.setTypeface(mFont_chat);
-        superImposeView_chat.setTypeface(mFont_chat);
+        if (subTitleView_chat != null) {
+            subTitleView_chat.setTypeface(mFont_chat);
+        }
+        if (superImposeView_chat != null) {
+            superImposeView_chat.setTypeface(mFont_chat);
+        }
 
         //JAPAN_CAPTION[[
-        Display displayCap = getWindowManager().getDefaultDisplay();
-        Point sizeCap = new Point();
-        displayCap.getRealSize(sizeCap);
-        int capWidth = sv_chatView.getWidth();
-        int capHeight = sv_chatView.getHeight();
-        //TVlog.e(TAG, "caption real width="+capWidth+", caption real height="+capHeight);
+        int capWidth = 0;
+        int capHeight = 0;
+        if ((MainActivity.dpiName.contains("mdpi")) || (MainActivity.dpiName.contains("ldpi")) || (MainActivity.screenSize.contains("large"))) {
+            if (MainActivity.getInstance() != null) {
+                if (MainActivity.getInstance().frameHeight != 0 && MainActivity.getInstance().frameWidth != 0) {
+                    capWidth = MainActivity.getInstance().frameWidth/2;
+                    capHeight = MainActivity.getInstance().frameHeight/2;
+                }
+            }
+        } else {
+            if (MainActivity.getInstance() != null) {
+                if (MainActivity.getInstance().frameHeight != 0 && MainActivity.getInstance().frameWidth != 0) {
+                    capWidth = MainActivity.getInstance().frameHeight;
+                    capHeight =  MainActivity.getInstance().frameWidth / 3;
+                }
+            }
+        }
+
+        TVlog.i("live", ">>> caption real width ="+capWidth+", caption real height="+capHeight);
 
         //caption
         mCaptionLayout_chat = (FrameLayout)findViewById(R.id.chat_frameLayout);
-        mCaptionView_chat = new CaptionDirectView(this, mCaptionLayout_chat, capWidth, capHeight, mFont, M_TYPE_CAPTION_SUBTITLE);
+        mCaptionView_chat = new CaptionDirectView(this, mCaptionLayout_chat, capWidth, capHeight, mFont_chat, M_TYPE_CAPTION_SUBTITLE);
 
         //superimpose
-        mSuperimposeLayout_chat = (FrameLayout)findViewById(R.id.chat_frameLayout);
-        mSuperimposeView_chat = new CaptionDirectView(this, mSuperimposeLayout_chat, capWidth, capHeight, mFont, M_TYPE_CAPTION_SUPERIMPOSE);
+        mSuperimposeLayout_chat = (FrameLayout) findViewById(R.id.chat_frameLayout);
+        mSuperimposeView_chat = new CaptionDirectView(this, mSuperimposeLayout_chat, capWidth, capHeight, mFont_chat, M_TYPE_CAPTION_SUPERIMPOSE);
 
         //caption
         mCaptionView_chat.setVisibility(View.VISIBLE);
         mCaptionLayout_chat.addView(mCaptionView_chat);
-        setContentView(mCaptionLayout_chat);
+        //setContentView(mCaptionView_chat);
 
         //superimpose
-        mSuperimposeLayout_chat.addView(mSuperimposeView_chat);
-        setContentView(mSuperimposeLayout_chat);
         mSuperimposeView_chat.setVisibility(View.VISIBLE);
-
+        mSuperimposeLayout_chat.addView(mSuperimposeView_chat);
+        //setContentView(mSuperimposeLayout_chat);
         //]]JAPAN_CAPTION
     }
 
-    public void envSet_Normal() {
+    public void envSet_Normal_chat() {
         mFont_chat = Typeface.DEFAULT;
         chat_currCH.setTypeface(mFont_chat);
-        /*if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
+        /*
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 ) {
             chat_currProgram.setTypeface(mFont_chat);
         }*/
 

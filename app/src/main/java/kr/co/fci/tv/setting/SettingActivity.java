@@ -44,6 +44,7 @@ import kr.co.fci.tv.cReleaseOption;
 import kr.co.fci.tv.recording.thumbNailUpdate;
 import kr.co.fci.tv.saves.CommonStaticData;
 import kr.co.fci.tv.tvSolution.FCI_TVi;
+import kr.co.fci.tv.tvSolution.TVBridge;
 import kr.co.fci.tv.util.CustomToast;
 import kr.co.fci.tv.util.TVlog;
 
@@ -412,7 +413,8 @@ public class SettingActivity extends Activity {
                 case E_CHANNEL_LIST_REMOVED:
                 {
                     if (buildOption.ADD_TS_CAPTURE != true) {
-                        new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
+                        new InputDialog(instance, InputDialog.TYPE_RESTORE_NOCHANNEL, null, null, null);
+                        sendEvent(TVEVENT.E_SETTING_EXIT);
                     }
                 }
                 break;
@@ -968,10 +970,9 @@ public class SettingActivity extends Activity {
         textView_about.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
                 Intent intent = new Intent(SettingActivity.this, AboutActivity.class);
                 startActivity(intent);
-
+                finish();
             }
         });
 
@@ -1031,7 +1032,9 @@ public class SettingActivity extends Activity {
         button_captionselect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(DIALOG_SET_CAPTION);
+                if (CommonStaticData.captionSwitch == true) {
+                    showDialog(DIALOG_SET_CAPTION);
+                }
             }
         });
 
@@ -1138,7 +1141,9 @@ public class SettingActivity extends Activity {
         button_superimposeselect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(DIALOG_SET_SUPERIMPOSE);
+                if (CommonStaticData.superimposeSwitch == true) {
+                    showDialog(DIALOG_SET_SUPERIMPOSE);
+                }
             }
         });
 
@@ -1444,8 +1449,8 @@ public class SettingActivity extends Activity {
     protected void onResume() {
         CommonStaticData.settingActivityShow = true;
 
+        CommonStaticData.currentScaleMode = CommonStaticData.settings.getInt(CommonStaticData.currentScaleModeKey, 0);
         CommonStaticData.captionSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.captionSwitchKey, true);
-        CommonStaticData.captionSelect= CommonStaticData.settings.getInt(CommonStaticData.captionSetKey, 0);
         int captionNum = FCI_TVi.GetSubtitleNum();
         if (captionNum==0) {    // justin caption selection disable when no caption data
             textView_caption.setTextColor(Color.GRAY);
@@ -1527,7 +1532,6 @@ public class SettingActivity extends Activity {
         }
 */
         CommonStaticData.superimposeSwitch = CommonStaticData.settings.getBoolean(CommonStaticData.superimposeSwitchKey, true);
-        CommonStaticData.superimposeSelect= CommonStaticData.settings.getInt(CommonStaticData.superimposeSetKey, 0);
         int superimposeNum = FCI_TVi.GetSuperimposeNum();
         if (superimposeNum==0) {    // justin caption selection disable when no caption data
             textView_superimpose.setTextColor(Color.GRAY);
@@ -1614,13 +1618,13 @@ public class SettingActivity extends Activity {
 
         // live add
         if (MainActivity.getInstance().strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
-            CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 0);; // 1seg
+            CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_1SEG);; // 1seg
         } else {
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 2);  // auto
+                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
             } else {
-                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, 3);  // off
+                CommonStaticData.receivemode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_OFF);  // off
             }
         }
         button_svcmodeswitch.setText(arr_svcmodeswitch_jp[CommonStaticData.receivemode]);
@@ -1747,7 +1751,7 @@ public class SettingActivity extends Activity {
             button_locality.setText(arr_locality_77[Integer.parseInt(splitLocality[2])]);
         }
 
-        CommonStaticData.audiomodeSet = CommonStaticData.settings.getInt(CommonStaticData.audiomodeSwitchKey,0);     // main =1, sub=2, main+sub(stereo)=0
+        CommonStaticData.audiomodeSet = CommonStaticData.settings.getInt(CommonStaticData.audiomodeSwitchKey,1);     // main =1, sub=2, main+sub(stereo)=0
         button_audio.setText(arr_audio[CommonStaticData.audiomodeSet]);
         /*
         CommonStaticData.receivemode=CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey,0);     // 0=auto, 1=fullseg, 2=1seg
@@ -1868,7 +1872,6 @@ public class SettingActivity extends Activity {
         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
         editor.putBoolean(CommonStaticData.captionSwitchKey, CommonStaticData.captionSwitch);
-        editor.putInt(CommonStaticData.captionSetKey, CommonStaticData.captionSelect);
         editor.putInt(CommonStaticData.scaleSwitchKey, CommonStaticData.scaleSet);
         editor.putInt(CommonStaticData.brightnessKey, CommonStaticData.brightness);
         editor.putInt(CommonStaticData.transparentKey, CommonStaticData.transparent);
@@ -1899,7 +1902,6 @@ public class SettingActivity extends Activity {
         editor.putString(CommonStaticData.localityKey, CommonStaticData.localitySet);
 
         editor.putBoolean(CommonStaticData.superimposeSwitchKey, CommonStaticData.superimposeSwitch);
-        editor.putInt(CommonStaticData.superimposeSetKey, CommonStaticData.superimposeSelect);
 
         editor.commit();
 
@@ -1941,7 +1943,7 @@ public class SettingActivity extends Activity {
                         .titleColor(getResources().getColor(R.color.black))
                         .items(capLanguage)
                         .itemsColor(getResources().getColor(R.color.black))
-                        .itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
+                        .itemsCallbackSingleChoice(CommonStaticData.captionSelect /*0*/, new MaterialDialog.ListCallbackSingleChoice() {
                             @Override
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 dialog_caption_selected = which;
@@ -1972,7 +1974,7 @@ public class SettingActivity extends Activity {
                         .titleColor(getResources().getColor(R.color.black))
                         .items(superimposeLanguage)
                         .itemsColor(getResources().getColor(R.color.black))
-                        .itemsCallbackSingleChoice(0, new MaterialDialog.ListCallbackSingleChoice() {
+                        .itemsCallbackSingleChoice(CommonStaticData.superimposeSelect /*0*/, new MaterialDialog.ListCallbackSingleChoice() {
                             @Override
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 dialog_superimpose_selected = which;
@@ -2069,66 +2071,80 @@ public class SettingActivity extends Activity {
                         .itemsCallbackSingleChoice(CommonStaticData.receivemode, new MaterialDialog.ListCallbackSingleChoice() {
                             @Override
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
-                                int isChanged = 0;
-                                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
-                                int isPaired = 0;
-                                int pairedIndex = info[0];
-                                int segInfo = info[1];
-                                if (pairedIndex >= 0) {
-                                    isPaired = 1;
-                                }
-                                dialog_svcmodeswitch_selected = which;
-                                button_svcmodeswitch.setText(arr_svcmodeswitch_jp[dialog_svcmodeswitch_selected]);
-                                if (CommonStaticData.receivemode != dialog_svcmodeswitch_selected) {
-                                    CommonStaticData.receivemode = dialog_svcmodeswitch_selected;    // justin db save
-                                    isChanged = 1;
-                                }
-                                //FCI_TVi.set(CommonStaticData.svcmodeSwitchSet);
-                                if (dialog_svcmodeswitch_selected == 1) { // fullseg
-                                    if (isChanged == 1) {
-                                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                if (CommonStaticData.scanCHnum > 0) {
+                                    int isChanged = 0;
+                                    int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
+                                    int isPaired = 0;
+                                    int pairedIndex = info[0];
+                                    int segInfo = info[1];
+                                    int mainIndex = info[3];
+                                    int oneSegIndex = info[4];
+                                    if (pairedIndex >= 0) {
+                                        isPaired = 1;
                                     }
-                                } else if (dialog_svcmodeswitch_selected == 0) {  // 1seg
-                                    if (isChanged == 1) {
-                                        MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                                    CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = CommonStaticData.settings.edit();
+                                    dialog_svcmodeswitch_selected = which;
+                                    button_svcmodeswitch.setText(arr_svcmodeswitch_jp[dialog_svcmodeswitch_selected]);
+                                    if (CommonStaticData.receivemode != dialog_svcmodeswitch_selected) {
+                                        isChanged = 1;
                                     }
-                                }
-                                //dualdecode[[
-                                else if (dialog_svcmodeswitch_selected == 2) { //auto
-                                    if (isChanged == 1) {
-                                        if (isPaired == 1) {
-                                            if (segInfo == 1) { //F-seg
-                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
-                                            }
-                                            else { //O-seg
-                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
-                                            }
-                                        }
-                                        else {
-                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
-                                        }
-                                    }
-                                }
-                                else if (dialog_svcmodeswitch_selected == 3) { //off
-                                    if (isChanged == 1) {
-                                        if (isPaired == 1) {
-                                            if (segInfo == 1) { //F-seg
-                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
-                                            }
-                                            else {
-                                                FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
+
+                                    if (dialog_svcmodeswitch_selected == 1) { // to fullseg
+                                        if (isChanged == 1) {
+                                            if (mainIndex != -1) {
+                                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_FULLSEG;
+                                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 1, 0, null);
+                                                button_svcmodeswitch.setText(arr_svcmodeswitch_jp[1]);
+                                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                                editor.commit();
+                                            } else {
+                                                TVlog.i("live", " >>>> CommonStaticData.receivemode = "+CommonStaticData.receivemode);
+                                                button_svcmodeswitch.setText(arr_svcmodeswitch_jp[CommonStaticData.receivemode]);
+                                                CustomToast toast = new CustomToast(getApplicationContext());
+                                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.switch_fail_HD), Toast.LENGTH_SHORT);
                                             }
                                         }
-                                        else {
-                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
+                                    } else if (dialog_svcmodeswitch_selected == 0) {  // to 1seg
+                                        if (isChanged == 1) {
+                                            if (oneSegIndex != -1) {
+                                                CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_1SEG;
+                                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHANNEL_SWITCHING, 0, 0, null);
+                                                button_svcmodeswitch.setText(arr_svcmodeswitch_jp[0]);
+                                                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                                editor.commit();
+                                            } else {
+                                                TVlog.i("live", " >>>> CommonStaticData.receivemode = "+CommonStaticData.receivemode);
+                                                button_svcmodeswitch.setText(arr_svcmodeswitch_jp[CommonStaticData.receivemode]);
+                                                CustomToast toast = new CustomToast(getApplicationContext());
+                                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.switch_fail_SD), Toast.LENGTH_SHORT);
+                                            }
                                         }
                                     }
-                                }
-                                //]]dualdecode
-                                try {
-                                    removeDialog(DIALOG_SVCMODE_SWITCH_JP);
-                                } catch (IllegalArgumentException e) {
-                                    e.printStackTrace();
+                                    else if (dialog_svcmodeswitch_selected == 2) { //auto
+                                        if (isChanged == 1) {
+                                            CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_AUTO;
+                                            button_svcmodeswitch.setText(arr_svcmodeswitch_jp[2]);
+                                            editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                            editor.commit();
+                                        }
+                                    }
+                                    else if (dialog_svcmodeswitch_selected == 3) { // to off
+                                        if (isChanged == 1) {
+                                            CommonStaticData.receivemode = CommonStaticData.RECEIVE_MODE_OFF;
+                                            button_svcmodeswitch.setText(arr_svcmodeswitch_jp[3]);
+                                            editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
+                                            editor.commit();
+                                        }
+                                    }
+                                    try {
+                                        removeDialog(DIALOG_SVCMODE_SWITCH_JP);
+                                    } catch (IllegalArgumentException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    CustomToast toast = new CustomToast(getApplicationContext());
+                                    toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
                                 }
                                 return false;
                             }
@@ -3584,7 +3600,7 @@ public class SettingActivity extends Activity {
                             public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                                 dialog_locality25_selected = which;
                                 button_locality.setText(arr_locality_25[dialog_locality25_selected]);
-                                CommonStaticData.localitySet = "2/5" + "/" + "dialog_locality25_selected";    // justin db save
+                                CommonStaticData.localitySet = "2/5" + "/" + String.valueOf(dialog_locality24_selected);    // justin db save
                                 try {
                                     removeDialog(DIALOG_LOCALITY_25);
                                 } catch (IllegalArgumentException e) {
@@ -4811,17 +4827,7 @@ public class SettingActivity extends Activity {
                                     CommonStaticData.audiotrackSet = dialog_audiotrack_selected;    // justin db save
                                     FCI_TVi.AVStop();
                                     //dualdecode[[
-                                    if (isPaired == 1) {
-                                        if (segInfo == 1) { //F-seg
-                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
-                                        }
-                                        else {
-                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
-                                        }
-                                    }
-                                    else {
-                                        FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
-                                    }
+                                    TVBridge.dualAV_start(CommonStaticData.lastCH, true);
                                     //]]dualdecode
                                     FCI_TVi.SelectAudioLanguage(CommonStaticData.audiotrackSet);
                                     if (CommonStaticData.videotrackSet < FCI_TVi.GetVideoNum()) {
@@ -4864,24 +4870,7 @@ public class SettingActivity extends Activity {
                                     CommonStaticData.videotrackSet = dialog_videotrack_selected;    // justin db save
                                     FCI_TVi.AVStop();
                                     //dualdecode[[
-                                    int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.lastCH);
-                                    int isPaired = 0;
-                                    int pairedIndex = info[0];
-                                    int segInfo = info[1];
-                                    if (pairedIndex >= 0) {
-                                        isPaired = 1;
-                                    }
-                                    if (isPaired == 1) {
-                                        if (segInfo == 1) { //F-seg
-                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_F_SEG);
-                                        }
-                                        else { //O-seg
-                                            FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_DUAL_O_SEG);
-                                        }
-                                    }
-                                    else {
-                                        FCI_TVi.AVStart(CommonStaticData.lastCH, FCI_TV.CHSTART_SINGLE);
-                                    }
+                                    TVBridge.dualAV_start(CommonStaticData.lastCH, true);
                                     //]]dualdecode
                                     if (CommonStaticData.audiotrackSet < FCI_TVi.GetAudioNum()) {
                                         FCI_TVi.SelectAudioLanguage(CommonStaticData.audiotrackSet);
@@ -5237,12 +5226,13 @@ public class SettingActivity extends Activity {
                                 } else if (FloatingWindow.isFloating) {
                                     FloatingWindow.getInstance().sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING);
                                 }
+                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHLIST_REMOVE);
                                 MainActivity.getInstance().sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
                                 MainActivity.getInstance().removeEvent(TVEVENT.E_BATTERY_LIMITED_CHECK);
                                 MainActivity.getInstance().removeEvent(TVEVENT.E_SLEEP_TIMER);
-                                MainActivity.getInstance().sendEvent(TVEVENT.E_CHLIST_REMOVE);
                                 onResume();
                                 switchReset.setChecked(false);
+                                sendEvent(TVEVENT.E_CHANNEL_LIST_REMOVED);
                             }
 
                             @Override
@@ -5437,13 +5427,13 @@ public class SettingActivity extends Activity {
         editor.putInt(CommonStaticData.transparentKey, 50);
         //live add
         if (MainActivity.getInstance().strISDBMode.equalsIgnoreCase("ISDBT Oneseg")) {
-            editor.putInt(CommonStaticData.receivemodeSwitchKey, 0);
+            editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_1SEG);
         } else {
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-            editor.putInt(CommonStaticData.receivemodeSwitchKey, 2);
+                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);
             } else {
-                editor.putInt(CommonStaticData.receivemodeSwitchKey, 3);
+                editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_OFF);
             }
         }
         //
@@ -5460,7 +5450,7 @@ public class SettingActivity extends Activity {
         editor.putString(CommonStaticData.prefectureKey, "1/5");
         editor.putString(CommonStaticData.localityKey, "1/5/0");
 
-        editor.putInt(CommonStaticData.audiomodeSwitchKey, 0);
+        editor.putInt(CommonStaticData.audiomodeSwitchKey, 1);
         editor.putInt(CommonStaticData.sleeptimerSwitchKey, 0);
         if (buildOption.ADD_GINGA_NCL==true) {
             editor.putBoolean(CommonStaticData.interactiveKey, true);
@@ -5476,6 +5466,16 @@ public class SettingActivity extends Activity {
         // [[ solution switching mode 20170223
         editor.putInt(CommonStaticData.solutionModeKey, cReleaseOption.FCI_SOLUTION_MODE);
         editor.putInt(CommonStaticData.localeSetKey, 4);
+
+        // justin add
+        editor.putString(CommonStaticData.passwordKey,null);
+        editor.putInt(CommonStaticData.audiotrackSwitchKey,0);
+        editor.putInt(CommonStaticData.videotrackSwitchKey,0);
+        editor.putBoolean(CommonStaticData.superimposeSwitchKey, true);
+        CommonStaticData.scanCHnum = 0;
+        editor.putInt(CommonStaticData.scanedChannelsKey, CommonStaticData.scanCHnum);
+        CommonStaticData.currentScaleMode = 0; // normal ratio
+        editor.putInt(CommonStaticData.currentScaleModeKey, CommonStaticData.currentScaleMode);
 
         /*
         if (cReleaseOption.FCI_SOLUTION_MODE == cReleaseOption.JAPAN

@@ -12,7 +12,7 @@
     <string name="action_settings">設定</string>
     <string name="title_activity_translucent">半透明の</string>
     <string name="settings">設定</string>
-    <string name="about">約</string>
+    <string name="about">アプリ情報</string>
 
     <string name="caption_title">字幕</string>
     <string name="screen_title">画面比率</string>
@@ -30,7 +30,7 @@
     <string name="locale_title">地域</string>
     <string name="reset_title">設定を復元します</string>
     <string name="reset_msg">このアクションはデフォルト設定にすべての設定を復元します。\あなたは今、すべての設定を復元しますか？ </string>
-    <string name="about_title">約</string>
+    <string name="about_title">アプリ情報</string>
 
     <string name="ok">決定</string>
     <string name="cancel">取消</string>
@@ -418,5 +418,10 @@
     <string name="no_channel_msg">登録されたチャンネルがありません。\nサーチを実行してください。</string>
 
     <string name="audio_only_channel">音声のみのチャンネル！</string>
+    <string name="chat_sign_in">チャットするにはGoogleアカウントにログインしてください。</string>
+    <string name="type_SD">ワンセグ</string>
+    <string name="type_HD">地上D</string>
+    <string name="switch_fail_HD">切り替える地上Dチャンネルはありません。</string>
+    <string name="switch_fail_SD">切り替えるワンセグチャンネルはありません。</string>
 
 </resources>

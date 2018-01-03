@@ -12,7 +12,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_translucent">translucent</string>
     <string name="settings">Settings</string>
-    <string name="about">About</string>
+    <string name="about">App Information</string>
 
     <string name="caption_title">Caption</string>
     <string name="screen_title">Screen ratio</string>
@@ -416,5 +416,10 @@
     <string name="no_channel_msg">There are no registered channels.\nPlease run search.</string>
 
     <string name="audio_only_channel">Audio only channel!</string>
+    <string name="chat_sign_in">Please Sign in your Google account to chat.</string>
+    <string name="type_SD">SD</string>
+    <string name="type_HD">HD</string>
+    <string name="switch_fail_HD">There is no HD channel to switch.</string>
+    <string name="switch_fail_SD">There is no SD channel to switch.</string>
 
 </resources>
