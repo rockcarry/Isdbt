@@ -853,7 +853,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_gravity="center"
-            android:layout_marginBottom="25dp"
+            android:layout_marginBottom="32dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:background="@color/window_transparent_color"
