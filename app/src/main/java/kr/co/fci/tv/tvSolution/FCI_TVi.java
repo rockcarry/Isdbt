@@ -365,6 +365,12 @@ public class FCI_TVi {
                             TVBridge.subFloatingSurfaceViewOff();
                         }
                         break;
+
+                    case FCI_TV.MSG_AUDIO_CONFIG_UPDATE_NOTIFY: {
+                        TVlog.i(TAG, " MSG_AUDIO_CONFIG_UPDATE_NOTIFY");
+                        MainActivity.getInstance().sendEvent(TVEVENT.E_ADUIO_CONFIG_UPDATED);
+                    }
+                    break;
                 }
             }
         });
@@ -1392,5 +1398,23 @@ public class FCI_TVi {
             return 0;
         }
     }
-}
 
+    public final static int BB_MFD_MON_ON_EACHDIV = 0;
+    public final static int BB_MFD_MON_ON_BROADCAST = 1;
+    public final static int BB_MFD_MON_OFF = 2;
+    public static int devSetMFDMonitorMode(int mfd_mod) {
+        if (itv != null) {
+            return itv.MfdSetMode(mfd_mod);
+        } else {
+            return -1;
+        }
+    }
+
+    public static int devGetMFDMonitorMode() {
+        if (itv != null) {
+            return itv.MfdGetMode();
+        } else {
+            return -1;
+        }
+    }
+}

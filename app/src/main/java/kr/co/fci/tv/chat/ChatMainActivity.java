@@ -103,8 +103,6 @@ import kr.co.fci.tv.tvSolution.TVBridge;
 import kr.co.fci.tv.util.CustomToast;
 import kr.co.fci.tv.util.TVlog;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static java.lang.System.exit;
 import static kr.co.fci.tv.TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_CHAT;
 import static kr.co.fci.tv.TVEVENT.E_SCAN_MONITOR_CHAT;
@@ -222,7 +220,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     private final static int BUTTON_CLICK_TIME = 100;
     private final static int NO_SIGNAL_MSG_TIME = 5000;  // live add
     private final static int SIGNAL_MONITER_TIME = 1000;  // live change from 1000 to 2000
-    private final static int SIGNAL_MONITER_TIME_USB = 2000;  //
+    private final static int SIGNAL_MONITER_TIME_USB = 1500;  // live change from 2000 to 1500
     private final static int CONTROLLER_HIDE_TIME = 7000;
     private SignalMonitor signalMoniter = null;
     // parent rate checking
@@ -806,7 +804,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             MainActivity.isNoChannel = true;
 
                             chat_changeChannelView.setVisibility(View.INVISIBLE);
-                            chat_noChannel.setVisibility(VISIBLE);
+                            chat_noChannel.setVisibility(View.VISIBLE);
 
                             if (FCI_TVi.initiatedSol) {
                                 CommonStaticData.badSignalFlag = false;
@@ -872,14 +870,14 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
                     sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
 
-                    if (ll_chatAutoSearch.getVisibility() == VISIBLE) {
+                    if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                         ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                     }
-                    if (chat_noChannel.getVisibility() == VISIBLE) {
+                    if (chat_noChannel.getVisibility() == View.VISIBLE) {
                         chat_noChannel.setVisibility(View.INVISIBLE);
                     }
 
-                    if (chat_changeChannelView.getVisibility() == VISIBLE) {
+                    if (chat_changeChannelView.getVisibility() == View.VISIBLE) {
                         chat_changeChannelView.setVisibility(View.INVISIBLE);
                     }
 
@@ -901,7 +899,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
                     getContentResolver().delete(MainActivity.getInstance().mUri, null, null);  // justin DB
                     TVlog.i(TAG, " >>>>> press Scan  ");
-                    chat_ll_scan_progress.setVisibility(VISIBLE);
+                    chat_ll_scan_progress.setVisibility(View.VISIBLE);
                     doScan_chat = new ScanProcess_chat(instance);
                     TVBridge.scan();
                     break;
@@ -1002,7 +1000,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
                     CommonStaticData.isSwitched = false;
 
-                    if (chat_changeChannelView.getVisibility() == VISIBLE) {
+                    if (chat_changeChannelView.getVisibility() == View.VISIBLE) {
                         chat_changeChannelView.setVisibility(View.INVISIBLE);
                     }
                     channelChangeEndView(false);
@@ -1097,7 +1095,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
                     CommonStaticData.isSwitched = false;
 
-                    if (chat_changeChannelView.getVisibility() == VISIBLE) {
+                    if (chat_changeChannelView.getVisibility() == View.VISIBLE) {
                         chat_changeChannelView.setVisibility(View.INVISIBLE);
                     }
                     channelChangeEndView(false);
@@ -1345,7 +1343,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             CommonStaticData.badSignalFlag = false;  // live add
                             CommonStaticData.ageLimitFlag = false;
                             chat_noChannel.setVisibility(View.INVISIBLE);
-                            if (chat_ll_noSignal.getVisibility() == VISIBLE) {
+                            if (chat_ll_noSignal.getVisibility() == View.VISIBLE) {
                                 chat_ll_noSignal.setVisibility(View.INVISIBLE);
                             }
 
@@ -1379,7 +1377,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                     }
                                 }
                                 channelChangeEndView(true);
-                                chat_ll_scramble_msg.setVisibility(VISIBLE);
+                                chat_ll_scramble_msg.setVisibility(View.VISIBLE);
                             }
 
                             break;
@@ -1413,7 +1411,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                     }
                                 }
                                 chat_noChannel.setVisibility(View.INVISIBLE);
-                                chat_ll_noSignal.setVisibility(VISIBLE);
+                                chat_ll_noSignal.setVisibility(View.VISIBLE);
                                 if (chat_changeChannelView.getVisibility() == View.VISIBLE) {
                                     chat_changeChannelView.setVisibility(View.INVISIBLE);
                                 }
@@ -1461,11 +1459,11 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                                     }
                                 }
 
-                                if (chat_changeChannelView.getVisibility() == VISIBLE) {
+                                if (chat_changeChannelView.getVisibility() == View.VISIBLE) {
                                     chat_changeChannelView.setVisibility(View.INVISIBLE);
                                 }
                                 chat_noChannel.setVisibility(View.INVISIBLE);
-                                chat_ll_noSignal.setVisibility(VISIBLE);
+                                chat_ll_noSignal.setVisibility(View.VISIBLE);
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
@@ -1597,35 +1595,35 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             }
                         }
                         if (chat_curr_rate == 2) {
-                            chat_tv_age_limit_msg_10.setVisibility(VISIBLE);
+                            chat_tv_age_limit_msg_10.setVisibility(View.VISIBLE);
                             chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                         } else if (chat_curr_rate == 3) {
                             chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
-                            chat_tv_age_limit_msg_12.setVisibility(VISIBLE);
+                            chat_tv_age_limit_msg_12.setVisibility(View.VISIBLE);
                             chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                         } else if (chat_curr_rate == 4) {
                             chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
-                            chat_tv_age_limit_msg_14.setVisibility(VISIBLE);
+                            chat_tv_age_limit_msg_14.setVisibility(View.VISIBLE);
                             chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                         } else if (chat_curr_rate == 5) {
                             chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
-                            chat_tv_age_limit_msg_16.setVisibility(VISIBLE);
+                            chat_tv_age_limit_msg_16.setVisibility(View.VISIBLE);
                             chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                         } else if (chat_curr_rate == 6) {
                             chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
-                            chat_tv_age_limit_msg_18.setVisibility(VISIBLE);
+                            chat_tv_age_limit_msg_18.setVisibility(View.VISIBLE);
                         } else {
                             chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
@@ -1633,7 +1631,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                             chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                         }
-                        chat_ll_age_limit.setVisibility(VISIBLE);
+                        chat_ll_age_limit.setVisibility(View.VISIBLE);
                         chat_noChannel.setVisibility(View.INVISIBLE);
                         chat_ll_noSignal.setVisibility(View.INVISIBLE);
                         chat_ll_scramble_msg.setVisibility(View.INVISIBLE);
@@ -1715,7 +1713,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             //sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
 
                             channelChangeStartView(false);  // live remove
-                            //chat_changeChannelView.setVisibility(VISIBLE);
+                            //chat_changeChannelView.setVisibility(View.VISIBLE);
                             TVBridge.AVStartPlus();
 
                             postEvent(TVEVENT.E_AUTO_CHANGE_CHANNEL_TEST_CHAT,20*1000);
@@ -2051,7 +2049,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
         chat_noChannel = (TextView) findViewById(R.id.chat_noChannel);
         if (MainActivity.isNoChannel) {
-            chat_noChannel.setVisibility(VISIBLE);
+            chat_noChannel.setVisibility(View.VISIBLE);
         }
 
         chat_ll_age_limit = (LinearLayout) findViewById(R.id.chat_ll_age_limit);
@@ -2117,7 +2115,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
             if (chat_ll_noSignal.getVisibility() == View.INVISIBLE) {
-                chat_ll_noSignal.setVisibility(VISIBLE);
+                chat_ll_noSignal.setVisibility(View.VISIBLE);
             }
         } else if (CommonStaticData.badSignalFlag == false) {
             if (sv_chatView != null && sv_chatView.isShown()) {
@@ -2135,7 +2133,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
             }
-            if (chat_ll_noSignal.getVisibility() == VISIBLE) {
+            if (chat_ll_noSignal.getVisibility() == View.VISIBLE) {
                 chat_ll_noSignal.setVisibility(View.INVISIBLE);
             }
 
@@ -2158,8 +2156,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
             if (chat_tv_scramble_msg.getVisibility() == View.INVISIBLE) {
-                chat_tv_scramble_title.setVisibility(VISIBLE);
-                chat_tv_scramble_msg.setVisibility(VISIBLE);
+                chat_tv_scramble_title.setVisibility(View.VISIBLE);
+                chat_tv_scramble_msg.setVisibility(View.VISIBLE);
             }
 
         } else if (CommonStaticData.encryptFlag == false) {
@@ -2178,7 +2176,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     svSub_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
                 }
             }
-            if (chat_tv_scramble_msg.getVisibility() == VISIBLE) {
+            if (chat_tv_scramble_msg.getVisibility() == View.VISIBLE) {
                 chat_tv_scramble_title.setVisibility(View.INVISIBLE);
                 chat_tv_scramble_msg.setVisibility(View.INVISIBLE);
             }
@@ -2205,35 +2203,35 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
                 }
                 if (chat_curr_rate == 2) {
-                    chat_tv_age_limit_msg_10.setVisibility(VISIBLE);
+                    chat_tv_age_limit_msg_10.setVisibility(View.VISIBLE);
                     chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                 } else if (chat_curr_rate == 3) {
                     chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
-                    chat_tv_age_limit_msg_12.setVisibility(VISIBLE);
+                    chat_tv_age_limit_msg_12.setVisibility(View.VISIBLE);
                     chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                 } else if (chat_curr_rate == 4) {
                     chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
-                    chat_tv_age_limit_msg_14.setVisibility(VISIBLE);
+                    chat_tv_age_limit_msg_14.setVisibility(View.VISIBLE);
                     chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                 } else if (chat_curr_rate == 5) {
                     chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
-                    chat_tv_age_limit_msg_16.setVisibility(VISIBLE);
+                    chat_tv_age_limit_msg_16.setVisibility(View.VISIBLE);
                     chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                 } else if (chat_curr_rate == 6) {
                     chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_14.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
-                    chat_tv_age_limit_msg_18.setVisibility(VISIBLE);
+                    chat_tv_age_limit_msg_18.setVisibility(View.VISIBLE);
                 } else {
                     chat_tv_age_limit_msg_10.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_12.setVisibility(View.INVISIBLE);
@@ -2241,7 +2239,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     chat_tv_age_limit_msg_16.setVisibility(View.INVISIBLE);
                     chat_tv_age_limit_msg_18.setVisibility(View.INVISIBLE);
                 }
-                chat_ll_age_limit.setVisibility(VISIBLE);
+                chat_ll_age_limit.setVisibility(View.VISIBLE);
             } else if (CommonStaticData.ageLimitFlag == false) {
                 if (sv_chatView != null && sv_chatView.isShown()) {
                     sv_chatView.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -2306,9 +2304,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         chat_currChNo.setTextSize(18);
 
         if (buildOption.VIEW_PHY_CH) {
-            chat_currChNo.setVisibility(VISIBLE);
+            chat_currChNo.setVisibility(View.VISIBLE);
         } else {
-            chat_currChNo.setVisibility(GONE);
+            chat_currChNo.setVisibility(View.GONE);
         }
 
         rl_ChType_chat = (RelativeLayout) findViewById(R.id.rl_ChType_chat);
@@ -2316,6 +2314,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         iv_ChFree_chat = (ImageView) findViewById(R.id.iv_ChFree_chat);
 
         if (CommonStaticData.scanCHnum > 0) {
+            mCursor_chat = MainActivity.getCursor();
             if (mCursor_chat != null) {
                 int type = (int) mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
                 int free = (int) mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
@@ -2421,7 +2420,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
         chat_status_bar = (LinearLayout) findViewById(R.id.chat_status_bar);
         if (chat_status_bar != null) {
-            chat_status_bar.setVisibility(VISIBLE);
+            chat_status_bar.setVisibility(View.GONE);
         }
 
         chat_controllerLayout = (LinearLayout) findViewById(R.id.chat_controllerLayout);
@@ -2533,15 +2532,15 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                 channelChangeStartView(false);
                 hideChatController();
-                chat_changeChannelView.setVisibility(VISIBLE);
+                chat_changeChannelView.setVisibility(View.VISIBLE);
 
                 sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
                 sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
                 // live add
-                if (ll_chatAutoSearch.getVisibility() == VISIBLE) {
+                if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                     ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                 }
-                if (chat_ll_scramble_msg.getVisibility() == VISIBLE) {
+                if (chat_ll_scramble_msg.getVisibility() == View.VISIBLE) {
                     chat_ll_scramble_msg.setVisibility(View.INVISIBLE);
                 }
                 //
@@ -2594,15 +2593,15 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
                 channelChangeStartView(false);
                 hideChatController();
-                chat_changeChannelView.setVisibility(VISIBLE);
+                chat_changeChannelView.setVisibility(View.VISIBLE);
 
                 sendEvent(TVEVENT.E_CAPTION_CLEAR_NOTIFY_CHAT);
                 sendEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
                 // live add
-                if (ll_chatAutoSearch.getVisibility() == VISIBLE) {
+                if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
                     ll_chatAutoSearch.setVisibility(View.INVISIBLE);
                 }
-                if (chat_ll_scramble_msg.getVisibility() == VISIBLE) {
+                if (chat_ll_scramble_msg.getVisibility() == View.VISIBLE) {
                     chat_ll_scramble_msg.setVisibility(View.INVISIBLE);
                 }
                 chat_ll_age_limit.setVisibility(View.INVISIBLE);
@@ -2662,8 +2661,10 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                 am.abandonAudioFocus(AudioOut.afChangeListener);
 
+                /*
                 MainActivity.isMainActivity = true;
                 ChatMainActivity.isChat = false;
+                */
 
                 CommonStaticData.returnMainFromChat = true;
                 TVlog.i(TAG, " >>>>> CommonStaticData.returnMainFromChat = "+CommonStaticData.returnMainFromChat);
@@ -2785,7 +2786,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             chat_btn_receiveMode.setVisibility(View.GONE);
         }*/
 
-        postEvent(TVEVENT.E_HIDE_CHAT_CONTROLER, CONTROLLER_HIDE_TIME);
+        if (chat_controllerLayout != null) {
+            chat_controllerLayout.setVisibility(View.GONE);
+        }
 
         chat_room_title = (TextView) findViewById(R.id.chat_room_title);
 
@@ -2847,13 +2850,13 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         mChatAdapter = new ChatAdapter(this, 0);
         mCahtListView.setAdapter(mChatAdapter);
         if (isOnline()) {
-            mCahtListView.setVisibility(VISIBLE);
+            mCahtListView.setVisibility(View.VISIBLE);
             mNetworkMsg.setVisibility(View.GONE);
             /*mChatAdapter = new ChatAdapter(this, 0);
             mCahtListView.setAdapter(mChatAdapter);*/
         } else {
             mCahtListView.setVisibility(View.GONE);
-            mNetworkMsg.setVisibility(VISIBLE);
+            mNetworkMsg.setVisibility(View.VISIBLE);
         }
 
         mBtnGoogleSignIn = (SignInButton) findViewById(R.id.btn_google_signin);
@@ -3120,27 +3123,27 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             // not login state (cannot send message)
-            mBtnGoogleSignIn.setVisibility(VISIBLE);
-            mBtnGoogleSignOut.setVisibility(GONE);
-            mTxtProfileInfo.setVisibility(GONE);
-            mImgProfile.setVisibility(GONE);
+            mBtnGoogleSignIn.setVisibility(View.VISIBLE);
+            mBtnGoogleSignOut.setVisibility(View.GONE);
+            mTxtProfileInfo.setVisibility(View.GONE);
+            mImgProfile.setVisibility(View.GONE);
 
             //submitButton.setVisibility(View.GONE);
             rootView.setVisibility(View.GONE);
-            tv_message.setVisibility(VISIBLE);
+            tv_message.setVisibility(View.VISIBLE);
 
             mChatAdapter.setEmail(null);
             mChatAdapter.notifyDataSetChanged();
         } else {
             // login state
-            mBtnGoogleSignIn.setVisibility(GONE);
-            mBtnGoogleSignOut.setVisibility(VISIBLE);
-            mTxtProfileInfo.setVisibility(VISIBLE);
-            mImgProfile.setVisibility(VISIBLE);
+            mBtnGoogleSignIn.setVisibility(View.GONE);
+            mBtnGoogleSignOut.setVisibility(View.VISIBLE);
+            mTxtProfileInfo.setVisibility(View.VISIBLE);
+            mImgProfile.setVisibility(View.VISIBLE);
 
-            //submitButton.setVisibility(View.VISIBLE);
-            rootView.setVisibility(VISIBLE);
-            tv_message.setVisibility(GONE);
+//          submitButton.setVisibility(View.VISIBLE);
+            rootView.setVisibility(View.VISIBLE);
+            tv_message.setVisibility(View.GONE);
 
             userName = user.getDisplayName(); // set nick name
             String email = user.getEmail();
@@ -3290,8 +3293,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
         removeEvent(TVEVENT.E_HIDE_CHAT_CONTROLER);
 
-        chat_controllerLayout.setVisibility(View.INVISIBLE);
-        chat_status_bar.setVisibility(View.INVISIBLE);
+        chat_controllerLayout.setVisibility(View.GONE);
+        chat_status_bar.setVisibility(View.GONE);
 
         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -3394,8 +3397,10 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         am.abandonAudioFocus(AudioOut.afChangeListener);
 
+        /*
         MainActivity.isMainActivity = true;
         ChatMainActivity.isChat = false;
+        */
 
         CommonStaticData.returnMainFromChat = true;
         TVlog.i(TAG, " >>>>> CommonStaticData.returnMainFromChat = "+CommonStaticData.returnMainFromChat);
@@ -3743,10 +3748,10 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     if (ChatMainActivity.getInstance().mCahtListView != null && ChatMainActivity.getInstance().mNetworkMsg != null) {
                         if (status.equals("Not connected to Internet")) {
                             ChatMainActivity.getInstance().mCahtListView.setVisibility(View.GONE);
-                            ChatMainActivity.getInstance().mNetworkMsg.setVisibility(VISIBLE);
+                            ChatMainActivity.getInstance().mNetworkMsg.setVisibility(View.VISIBLE);
                         } else {
                             //ChatMainActivity.getInstance().updateProfile();
-                            ChatMainActivity.getInstance().mCahtListView.setVisibility(VISIBLE);
+                            ChatMainActivity.getInstance().mCahtListView.setVisibility(View.VISIBLE);
                             ChatMainActivity.getInstance().mNetworkMsg.setVisibility(View.GONE);
                             /*ChatMainActivity.getInstance().mChatAdapter = new ChatAdapter(context, 0);
                               ChatMainActivity.getInstance().mCahtListView.setAdapter(ChatMainActivity.getInstance().mChatAdapter);*/
@@ -3822,29 +3827,29 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
     public void channelChangeStartView(boolean _cas)
     {
-        if (ll_chatAutoSearch.getVisibility() == VISIBLE) {
+        if (ll_chatAutoSearch.getVisibility() == View.VISIBLE) {
             ll_chatAutoSearch.setVisibility(View.INVISIBLE);
         }
-        if (chat_noChannel.getVisibility() == VISIBLE) {
+        if (chat_noChannel.getVisibility() == View.VISIBLE) {
             chat_noChannel.setVisibility(View.INVISIBLE);
         }
-        if (chat_ll_noSignal.getVisibility() == VISIBLE) {
+        if (chat_ll_noSignal.getVisibility() == View.VISIBLE) {
             chat_ll_noSignal.setVisibility(View.INVISIBLE);
         }
-        if (chat_ll_scramble_msg.getVisibility() == VISIBLE) {
+        if (chat_ll_scramble_msg.getVisibility() == View.VISIBLE) {
             chat_ll_scramble_msg.setVisibility(View.INVISIBLE);
         }
 
-        chat_changeChannelView.setVisibility(VISIBLE);
-        chat_channelChangeBG.setVisibility(VISIBLE);
+        chat_changeChannelView.setVisibility(View.VISIBLE);
+        chat_channelChangeBG.setVisibility(View.VISIBLE);
         if (chat_progressingChange != null) {
-            chat_progressingChange.setVisibility(VISIBLE);
+            chat_progressingChange.setVisibility(View.VISIBLE);
         }
         if (_cas == false) {
-            chat_loadingChannel.setVisibility(VISIBLE);
+            chat_loadingChannel.setVisibility(View.VISIBLE);
         }
         else{   // call from playback
-            chat_loadingChannel.setVisibility(GONE);
+            chat_loadingChannel.setVisibility(View.GONE);
         }
 
         /*if (chat_ll_scramble_msg.getVisibility() == View.VISIBLE) {
@@ -3862,17 +3867,10 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void hideChatController() {
-        //if (chat_controllerLayout.isShown()) {
-
-
         TVlog.i(TAG, "== hideChatController ==");
-        /*uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        decorView.setSystemUiVisibility(uiOptions);*/
-
-        chat_status_bar.setVisibility(View.INVISIBLE);
-        chat_controllerLayout.setVisibility(View.INVISIBLE);
-
-        //}
+        removeEvent(TVEVENT.E_HIDE_CHAT_CONTROLER);
+        chat_status_bar.setVisibility(View.GONE);
+        chat_controllerLayout.setVisibility(View.GONE);
     }
 
     public int getChatChannelChangView()
@@ -3896,8 +3894,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
 
         } else {
-            chat_status_bar.setVisibility(VISIBLE);
-            chat_controllerLayout.setVisibility(VISIBLE);
+            removeEvent(TVEVENT.E_SHOW_CHAT_CONTROLER);
+            chat_status_bar.setVisibility(View.VISIBLE);
+            chat_controllerLayout.setVisibility(View.VISIBLE);
 
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
@@ -3919,8 +3918,8 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         switch (event.getAction()) {
 
             case MotionEvent.ACTION_UP:
-                if (ll_chatAutoSearch.getVisibility() != VISIBLE) {
-                    if (chat_controllerLayout.getVisibility() == VISIBLE) {
+                if (ll_chatAutoSearch.getVisibility() != View.VISIBLE) {
+                    if (chat_controllerLayout.getVisibility() == View.VISIBLE) {
                         hideChatController();
                     } else {
                         showChatController();
@@ -3955,7 +3954,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (svSub_chatView !=null) {
                 if (_onoff) {
                     TVlog.i(TAG, "= Sub Chat surface visible = ");
-                    svSub_chatView.setVisibility(VISIBLE);
+                    svSub_chatView.setVisibility(View.VISIBLE);
                 } else {
                     TVlog.i(TAG, "= Sub Chat surface invisible = ");
                     svSub_chatView.setVisibility(View.INVISIBLE);
@@ -3968,7 +3967,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
             if (svSub_chatView !=null) {
                 if (_onoff) {
                     TVlog.i(TAG, "= Sub Chat surface visible = ");
-                    svSub_chatView.setVisibility(VISIBLE);
+                    svSub_chatView.setVisibility(View.VISIBLE);
                 } else {
                     TVlog.i(TAG, "= Sub Chat surface invisible = ");
                     svSub_chatView.setVisibility(View.INVISIBLE);

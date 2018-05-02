@@ -12,7 +12,7 @@
     <string name="action_settings">සැකසුම්</string>
     <string name="title_activity_translucent">පාරභාසක</string>
     <string name="settings">සැකසුම්</string>
-    <string name="about">යෙදුම් තොරතුරු</string>
+    <string name="about">ගැන</string>
 
     <string name="caption_title">ශීර්ෂ පාඨය</string>
     <string name="screen_title">තිරය අනුපාතය</string>
@@ -30,7 +30,7 @@
     <string name="locale_title">පෙදෙසි</string>
     <string name="reset_title">සැකසුම්, පිළිනැගුම</string>
     <string name="reset_msg">මෙම ක්රියාවන් පෙරනිමි සැකසුම් සියලු සැකසුම් නැවත කරනු ඇත.\nඔබ දැන් සියලු සැකසුම් නැවත කැමතිද? </string>
-    <string name="about_title">යෙදුම් තොරතුරු</string>
+    <string name="about_title">ගැන</string>
 
     <string name="ok">හරි</string>
     <string name="cancel">අවලංගු කරන්න</string>
@@ -377,6 +377,7 @@
 
     <string name="continue_msg">දිගටම</string>
     <string name="usb_dongle_not_attach_msg">රූපවාහිනී USB Dongle අමුණා නැත. \nඔබ රූපවාහිනිය බලන්න අවශ්ය නම්, රූපවාහිනී USB Dongle අනුයුක්ත කරන්න. \nඔබ "දිගටම" බොත්තම ක්ලික් කර නම්, ඔබ පමණක් වාර්තා ගොනු තරගය භාවිතා කරනු ඇත.</string>
+    <string name="japan_usb_dongle_not_attach_msg">රූපවාහිනී USB Dongle අමුණා නැත. \nඔබ රූපවාහිනිය බලන්න අවශ්ය නම්, රූපවාහිනී USB Dongle අනුයුක්ත කරන්න.</string>
 
     <string name="need_network_connect_msg">චැට් කාර්යය භාවිතා කිරීම සඳහා, මෙම උපාංගය හට ජාලයක් අවශ්ය වේ.</string>
 

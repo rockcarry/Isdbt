@@ -153,6 +153,7 @@ public class EPGActivity extends Activity {
             @Override
             public void onClick(View v) {
                 MainActivity.getInstance().removeEvent(TVEVENT.E_EPG_UPDATE);
+                CommonStaticData.epgActivityShow = false;
                 finish();
             }
         });

@@ -26,6 +26,11 @@ public class buildOption {
     public final static int VIDEOCODEC_TYPE_SWCODEC = 1;
     public final static int VIDEOCODEC_TYPE_AUTODETECT = 2;
 
+    // Define MFD monitoring
+    public final static int BB_MFD_MON_ON_EACHDIV = 0;
+    public final static int BB_MFD_MON_ON_BROADCAST = 1;
+    public final static int BB_MFD_MON_OFF = 2;
+
     // Define Recording format
     public final static int RECORDING_TYPE_MP4 = 0;
     public final static int RECORDING_TYPE_TS = 1;
@@ -41,6 +46,9 @@ public class buildOption {
     public static int FCI_SOLUTION_MODE = cReleaseOption.FCI_SOLUTION_MODE;     // [[ solution switching mode 20170223
     public final static int VIDEO_CODEC_TYPE = cReleaseOption.VIDEO_CODEC_TYPE;
     public final static int RECORDING_TYPE = cReleaseOption.RECORDING_TYPE;
+
+    // MFD monitoring option
+    public static int BB_MFD_MON_MODE = cReleaseOption.BB_MFD_MON_MODE;
 
     // support Resolution Size
     public final static int SWCODEC_MAX_VIDEO_WIDTH = cReleaseOption.SWCODEC_MAX_VIDEO_WIDTH;

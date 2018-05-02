@@ -12,7 +12,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_translucent">translucent</string>
     <string name="settings">Settings</string>
-    <string name="about">App Information</string>
+    <string name="about">About</string>
 
     <string name="caption_title">Caption</string>
     <string name="screen_title">Screen ratio</string>
@@ -377,6 +377,7 @@
 
     <string name="continue_msg">CONTINUE</string>
     <string name="usb_dongle_not_attach_msg">TV USB dongle was not attached. \nIf you want watch TV, Please attach TV USB dongle. \nIf you press "CONTINUE", you will use only recorded file play.</string>
+    <string name="japan_usb_dongle_not_attach_msg">TV USB dongle was not attached. \nIf you want watch TV, Please attach TV USB dongle.</string>
 
     <string name="need_network_connect_msg">To use the chat function, this device need a network connection.</string>
 

@@ -367,6 +367,7 @@
             android:id="@+id/status_bar_floating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:background="@color/window_transparent_color"
             android:gravity="center"
             android:orientation="horizontal">
@@ -466,9 +467,10 @@
             android:id="@+id/channelLayout_floating"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_above="@+id/ll_controller"
+            android:layout_above="@+id/ll_controller_floating"
             android:layout_below="@+id/status_bar_floating"
             android:layout_gravity="center_vertical"
+            android:layout_marginBottom="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             android:background="@color/transparent"
@@ -503,41 +505,41 @@
 
 
         <LinearLayout
-            android:id="@+id/ll_controller"
+            android:id="@+id/ll_controller_floating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="false"
             android:background="@color/transparent"
             android:gravity="center"
             android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/iv_scan"
-            android:layout_width="66dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/circle_roundlayout"
-            android:padding="5dp"
-            android:src="@drawable/ic_search_white_48dp" />
+            <ImageButton
+                android:id="@+id/iv_scan"
+                android:layout_width="66dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/circle_roundlayout"
+                android:padding="5dp"
+                android:src="@drawable/ic_search_white_48dp" />
 
-        <ImageButton
-            android:id="@+id/iv_max"
-            android:layout_width="66dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/circle_roundlayout"
-            android:padding="5dp"
-            android:src="@drawable/maximize" />
+            <ImageButton
+                android:id="@+id/iv_max"
+                android:layout_width="66dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/circle_roundlayout"
+                android:padding="5dp"
+                android:src="@drawable/maximize" />
 
-        <ImageButton
-            android:id="@+id/iv_close"
-            android:layout_width="66dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/circle_roundlayout"
-            android:padding="5dp"
-            android:src="@drawable/close" />
-
+            <ImageButton
+                android:id="@+id/iv_close"
+                android:layout_width="66dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/circle_roundlayout"
+                android:padding="5dp"
+                android:src="@drawable/close" />
 
         </LinearLayout>
 

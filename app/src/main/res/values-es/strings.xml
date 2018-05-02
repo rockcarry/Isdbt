@@ -12,7 +12,7 @@
     <string name="action_settings">configuración</string>
     <string name="title_activity_translucent">translúcido</string>
     <string name="settings">configuración</string>
-    <string name="about">Información de la aplicación</string>
+    <string name="about">Acerca de</string>
 
     <string name="caption_title">Leyenda</string>
     <string name="screen_title">Formato de pantalla</string>
@@ -30,7 +30,7 @@
     <string name="locale_title">Local</string>
     <string name="reset_title">Restablecer configuración</string>
     <string name="reset_msg">Esta acción restablecerá todo a la configuración predeterminada. \n ¿Deseas restaurar toda la configuración ahora? </string>
-    <string name="about_title">Información de la aplicación</string>
+    <string name="about_title">Acerca de</string>
 
     <string name="ok">Aceptar</string>
     <string name="cancel">cancelación</string>
@@ -377,6 +377,7 @@
 
     <string name="continue_msg">CONTINUAR</string>
     <string name="usb_dongle_not_attach_msg">El dongle del USB de la TV no fue atado. \nSi desea ver TV, por favor, adjuntar dongle USB TV. \nSi pulsa "CONTINUAR", solo utilizará la reproducción de archivos grabados.</string>
+    <string name="japan_usb_dongle_not_attach_msg">El dongle del USB de la TV no fue atado. \nSi desea ver TV, por favor, adjuntar dongle USB TV.</string>
 
     <string name="need_network_connect_msg">Para utilizar la función de chat, este dispositivo necesita una conexión de red.</string>
 

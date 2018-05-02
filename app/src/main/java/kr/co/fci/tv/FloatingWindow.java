@@ -72,7 +72,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.lang.System.exit;
 import static kr.co.fci.tv.MainActivity.isChannelListViewOn;
-import static kr.co.fci.tv.R.id.ll_controller;
 import static kr.co.fci.tv.TVEVENT.E_CAPTION_CLEAR_NOTIFY_FLOATING;
 import static kr.co.fci.tv.TVEVENT.E_CHANNEL_CHANGE_TIMEOVER_FLOATING;
 import static kr.co.fci.tv.TVEVENT.E_HIDE_FLOATING_CONTROLLER;
@@ -239,7 +238,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     private final static int BUTTON_CLICK_TIME = 500;
     private final static int NO_SIGNAL_MSG_TIME = 5000;  // live add
     private final static int SIGNAL_MONITER_TIME = 1000;  // live change from 1000 to 2000
-    private final static int SIGNAL_MONITER_TIME_USB = 2000;  // live change from 1000 to 2000
+    private final static int SIGNAL_MONITER_TIME_USB = 1500;  // live change from 2000 to 1500
     private final static int CONTROLLER_HIDE_TIME = 7000;
 
     //public static boolean isChannelListViewOn =false;
@@ -548,7 +547,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                             }
                                             if (MainActivity.getInstance().mChannelIndex == 0) {   // not found channel
                                                 TVBridge.stop();
-                                                //channelChangeEndViewFloating(false);
+                                                channelChangeEndView(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
                                                 mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                                             }
@@ -565,7 +564,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                             }
                                             if (MainActivity.getInstance().mChannelIndex==0) {      // not found channel
                                                 TVBridge.stop();
-                                                //channelChangeEndViewFloating(false);
+                                                channelChangeEndView(false);
                                                 //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
                                                 mHandler_floating.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                                             }
@@ -728,6 +727,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                                         TVBridge.dualAV_start(MainActivity.getInstance().mChannelIndex, true);
                                     }
                                 } else {
+                                    channelChangeEndView(false);
                                     floating_changeChannelView.setVisibility(View.INVISIBLE);
                                     if (CommonStaticData.isAudioChannel == true) {
                                         if (floating_ll_black != null) {
@@ -2296,9 +2296,6 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         //floating_loadingChannel = (TextView) floating_view.findViewById(R.id.floating_loading_channel);
 
         status_bar_floating = (LinearLayout) floating_view.findViewById(R.id.status_bar_floating);
-        if (status_bar_floating != null) {
-            status_bar_floating.setVisibility(View.INVISIBLE);
-        }
 
         ImageView signalImage_floating = (ImageView) floating_view.findViewById(R.id.dtv_signal_floating);
         signalImage_floating.setScaleX(0.8f);
@@ -2376,8 +2373,11 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
         //currCH_floating.setSelected(true);
         //}
 
+        if (status_bar_floating != null) {
+            status_bar_floating.setVisibility(View.GONE);
+        }
+
         channelLayout_floating = (LinearLayout) floating_view.findViewById(R.id.channelLayout_floating);
-        channelLayout_floating.setVisibility(View.INVISIBLE);
 
         ch_up_floating = (ImageView) floating_view.findViewById(R.id.ch_up_floating);
         ch_up_floating.setOnTouchListener(new View.OnTouchListener() {
@@ -2526,8 +2526,11 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             }
         });
 
-        ll_controller_floating = (LinearLayout) floating_view.findViewById(ll_controller);
-        ll_controller_floating.setVisibility(View.INVISIBLE);
+        if (channelLayout_floating != null) {
+            channelLayout_floating.setVisibility(View.GONE);
+        }
+
+        ll_controller_floating = (LinearLayout) floating_view.findViewById(R.id.ll_controller_floating);
 
         iv_scan = (ImageView) floating_view.findViewById(R.id.iv_scan);
         iv_scan.setPadding(0, 10, 0, 10);
@@ -2613,9 +2616,11 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 CommonStaticData.returnMainFromFloating = true;
                 TVlog.i(TAG, " >>>>> CommonStaticData.returnMainFromFloating = "+CommonStaticData.returnMainFromFloating);
 
+                /*
                 MainActivity.isMainActivity = true;
                 isFloating = false;
                 ChatMainActivity.isChat = false;
+                */
 
                 CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -2793,6 +2798,10 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
             btn_receiveMode.setVisibility(View.GONE);
         }*/
 
+        if (ll_controller_floating != null) {
+            ll_controller_floating.setVisibility(View.GONE);
+        }
+
         subTitleView_floating = (TextView) floating_view.findViewById(R.id.floating_subTitleView);
 
         superImposeView_floating = (TextView) floating_view.findViewById(R.id.floating_superImposeView);
@@ -2928,15 +2937,10 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
                     case MotionEvent.ACTION_UP:
                         if (ll_floatingAutoSearch.getVisibility() != VISIBLE) {
-                            if (ll_controller_floating.getVisibility() != View.VISIBLE) {
-                                status_bar_floating.setVisibility(View.VISIBLE);
-                                channelLayout_floating.setVisibility(View.VISIBLE);
-                                ll_controller_floating.setVisibility(View.VISIBLE);
-                                postEvent(TVEVENT.E_HIDE_FLOATING_CONTROLLER, CONTROLLER_HIDE_TIME);
+                            if (status_bar_floating.getVisibility() == View.GONE) {
+                                sendEvent(TVEVENT.E_SHOW_FLOATING_CONTROLLER);
                             } else {
-                                status_bar_floating.setVisibility(View.INVISIBLE);
-                                channelLayout_floating.setVisibility(View.INVISIBLE);
-                                ll_controller_floating.setVisibility(View.INVISIBLE);
+                                sendEvent(TVEVENT.E_HIDE_FLOATING_CONTROLLER);
                             }
                         }
                         break;
@@ -3330,15 +3334,17 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
 
             if (action.equals(Intent.ACTION_SCREEN_OFF)) {
                 TVlog.i(TAG, " >>>>> Intent.ACTION_SCREEN_OFF");
-                //MainActivity.getInstance().SolutionStop();
-                if (floating_view != null) {
-                    mWindowManager.removeView(floating_view);
-                    mWindowManager = null;
+                try {
+                    if (floating_view != null) {
+                        mWindowManager.removeView(floating_view);
+                        mWindowManager = null;
+                    }
+                    stopSelf();
+                    exit(0);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
                 }
-                stopSelf();
-                exit(0);
             }
-
             /*
             if (action.equals(Intent.ACTION_SCREEN_ON)) {
                 TVlog.i(TAG, " >>>>> Intent.ACTION_SCREEN_ON");
@@ -3350,7 +3356,7 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
                 if (isRunningInForeground())
                 {
                     TVlog.i(TAG, " TV running fore ground");
-                    if (!CommonStaticData.ageLimitFlag) {
+                    if (CommonStaticData.ageLimitFlag == false) {
                         MainActivity.getInstance().onStart_TV();
                     }
                 }
@@ -3403,20 +3409,21 @@ public class FloatingWindow extends Service implements SurfaceHolder.Callback , 
     }*/
 
     private void hideFloatingController() {
-        //if (controllerLayout.isShown()) {
-        TVlog.i(TAG, "== hideController ==");
-        status_bar_floating.setVisibility(View.INVISIBLE);
-        channelLayout_floating.setVisibility(View.INVISIBLE);
-        ll_controller_floating.setVisibility(View.INVISIBLE);
-        //}
+        TVlog.i(TAG, "== hideFloatingController ==");
+        removeEvent(TVEVENT.E_HIDE_FLOATING_CONTROLLER);
+        status_bar_floating.setVisibility(View.GONE);
+        channelLayout_floating.setVisibility(View.GONE);
+        ll_controller_floating.setVisibility(View.GONE);
     }
 
     private void showFloatingController() {
         if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
         } else {
+            TVlog.i(TAG, "== showFloatingController ==");
+            removeEvent(TVEVENT.E_SHOW_FLOATING_CONTROLLER);
             status_bar_floating.setVisibility(View.VISIBLE);
-            channelLayout_floating.setVisibility(View.VISIBLE);
             ll_controller_floating.setVisibility(View.VISIBLE);
+            channelLayout_floating.setVisibility(View.VISIBLE);
 
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB

@@ -12,7 +12,7 @@
     <string name="action_settings">configurações</string>
     <string name="title_activity_translucent">translúcido</string>
     <string name="settings">configurações</string>
-    <string name="about">Informações da aplicação</string>
+    <string name="about">Sobre</string>
 
     <string name="caption_title">Legenda</string>
     <string name="screen_title">Tamanho da tela</string>
@@ -30,7 +30,7 @@
     <string name="locale_title">localidade</string>
     <string name="reset_title">Redefinir configurações</string>
     <string name="reset_msg">Esta ação irá restaurar todas as configurações para o padrão.\nDeseja restaurar todas as configurações agora? </string>
-    <string name="about_title">Informações da aplicação</string>
+    <string name="about_title">Sobre</string>
 
     <string name="ok">OK</string>
     <string name="cancel">cancelamento</string>
@@ -377,6 +377,7 @@
 
     <string name="continue_msg">CONTINUAR</string>
     <string name="usb_dongle_not_attach_msg">TV dongle USB não foi anexado. \nSe você quiser assistir TV, por favor, anexar dongle USB TV. \nSe você pressionar "CONTINUAR", você usará somente a reprodução de arquivos gravados.</string>
+    <string name="japan_usb_dongle_not_attach_msg">TV dongle USB não foi anexado. \nSe você quiser assistir TV, por favor, anexar dongle USB TV.</string>
 
     <string name="need_network_connect_msg">Para usar a função de bate-papo, este dispositivo precisa de uma conexão de rede.</string>
 

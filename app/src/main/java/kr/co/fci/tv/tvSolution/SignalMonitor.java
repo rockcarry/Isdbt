@@ -42,7 +42,13 @@ public class SignalMonitor {
     public boolean event_weakSignal = false;
     public boolean event_noSiganl = false;
 
-    public static int handover_counter = 0;
+    public int handover_counter = 0;
+
+    public static SignalMonitor instance;
+    public static SignalMonitor getInstance()
+    {
+        return instance;
+    }
 
     // eddy [[160708
     public static String hex(int n) {
@@ -92,9 +98,13 @@ public class SignalMonitor {
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
-            if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
+            if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0 && ((MainActivity.getInstance().is_inserted_card==1)||(MainActivity.getInstance().is_inserted_card==2))) {
                 if (CommonStaticData.isBadSignalFlag == true) {
-                    handover_counter++;
+                    if (CommonStaticData.scanningNow == false) {
+                        handover_counter++;
+                    } else {
+                        handover_counter = 0;
+                    }
                 } else {
                     handover_counter = 0;
                 }
@@ -182,9 +192,10 @@ public class SignalMonitor {
             } else if (MainActivity.withoutUSB) {     // justin add
                 oneSegBER = 1000;
             } else {
-                TVlog.i("Air SQ", ">>>>> 1-seg Signal Level = " + "\n"
-                        + oneSegCN + "," + "  BER = " + oneSegBER + ","+ "  PER = " + oneSegPER +"," + "  RSSI = " + oneSegRSSI
-                        +" " + LNA+" "+RFVGA+" " +CSF+" " +CCI+" " +cacPgd+" " +mrdPgd);
+                TVlog.i("Air SQ", ">>>>> 1-seg Signal Level = "
+                        +oneSegCN +", BER = "+oneSegBER+", PER = "+oneSegPER+", RSSI = "+oneSegRSSI
+                        +" " + LNA+" "+RFVGA+" " +CSF+" " +CCI+" " +cacPgd+" " +mrdPgd + "\n"
+                        + "      >>>>> Full-seg BER = "+fullSegBER+", PER = "+fullSegPER);
             }
 
             if (oneSegCN >= 100) {
@@ -298,9 +309,10 @@ public class SignalMonitor {
                 fullSegBER = 1000;
             } else {
                 // [[ eddy 160708
-                TVlog.i("Air SQ", ">>>>> Full-seg Signal Level = " + "\n"
-                        + fullSegCN + "  BER = " + fullSegBER + ","+ "  PER = " +fullSegPER +"," + "  RSSI = " + fullSegRSSI
-                        +" " + LNA+" " +RFVGA+" " +CSF+" " +CCI+" " +cacPgd+" " +mrdPgd);
+                TVlog.i("Air SQ", ">>>>> Full-seg Signal Level = "
+                        +fullSegCN + ", BER = " + fullSegBER +", PER = "+fullSegPER+", RSSI = "+fullSegRSSI
+                        +" " + LNA+" " +RFVGA+" " +CSF+" " +CCI+" " +cacPgd+" " +mrdPgd + "\n"
+                        + "      >>>>> 1-seg BER = "+oneSegBER+", PER = "+oneSegPER);
                 // ]] eddy 160708
             }
 

@@ -25,6 +25,10 @@ public class cReleaseOption {
     public final static int VIDEOCODEC_TYPE_SWCODEC = 1;
     public final static int VIDEOCODEC_TYPE_AUTODETECT = 2;
 
+    public final static int BB_MFD_MON_ON_EACHDIV = 0;
+    public final static int BB_MFD_MON_ON_BROADCAST = 1;
+    public final static int BB_MFD_MON_OFF = 2;
+
     public final static int SWCODEC_MAX_VIDEO_WIDTH = 1920;
     public final static int SWCODEC_MAX_VIDEO_HEIGHT = 1088;
 
@@ -36,6 +40,9 @@ public class cReleaseOption {
 
     public final static int VIDEO_CODEC_TYPE = VIDEOCODEC_TYPE_MEDIACODEC;
     public final static int RECORDING_TYPE = RECORDING_TYPE_TS;
+
+    // Select MFD monitoring mode
+    public final static int BB_MFD_MON_MODE = BB_MFD_MON_ON_BROADCAST;
 
     public final static int GUI_STYLE_DEFAULT = 0;
     public final static int GUI_STYLE_1 = 1;

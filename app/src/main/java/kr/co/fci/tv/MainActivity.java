@@ -153,7 +153,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private final static int BUTTON_CLICK_TIME = 100;
     private final static int CONTROLLER_HIDE_TIME = 7000;
     private final static int SIGNAL_MONITER_TIME = 1000;  // live change from 1000 to 2000
-    private final static int SIGNAL_MONITER_TIME_USB = 2000;  // live add
+    private final static int SIGNAL_MONITER_TIME_USB = 1500;  // live change from 2000 to 1500
     private final static int RECORDING_UPDATE_TIME = 200;
     private final static int CAPTION_CLEAR_TIME = 15000;
     private final static int SUPERIMPOSE_CLEAR_TIME = 15000;
@@ -955,6 +955,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 break;
 
+                case E_ADUIO_CONFIG_UPDATED:
+                {
+                    TVlog.i(TAG, "Audio configuration updated. set audio path = "+ CommonStaticData.loudSpeaker);
+                    audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+                }
+                break;
+
                 case E_HIDE_CONTROLER:
                     hideController();
                     break;
@@ -1433,7 +1440,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     removeEvent(E_SIGNAL_NOTI_MSG);
                     removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                     removeEvent(TVEVENT.E_CHANNEL_LIST_ENCRYPTED);
-                    SignalMonitor.handover_counter = 0;
 
                     if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
                         ll_mainAutoSearch.setVisibility(View.INVISIBLE);
@@ -1777,6 +1783,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                                 ll_scramble_msg.setVisibility(View.INVISIBLE);
                                 ll_noSignal.setVisibility(View.VISIBLE);
+
+                                if (  buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                                   || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                                   || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                   || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                                    ll_file_play_mode_usb.setVisibility(View.INVISIBLE);
+                                } else {
+                                    ll_file_play_mode.setVisibility(View.INVISIBLE);
+                                }
+
                                 if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
                                     ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                 }
@@ -1829,6 +1845,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                                 ll_scramble_msg.setVisibility(View.INVISIBLE);
                                 ll_noSignal.setVisibility(View.VISIBLE);
+
+                                if (  buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                                   || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                                   || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                   || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                                    ll_file_play_mode_usb.setVisibility(View.INVISIBLE);
+                                } else {
+                                    ll_file_play_mode.setVisibility(View.INVISIBLE);
+                                }
+
                                 if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
                                     ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                 }
@@ -1900,17 +1926,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         is_inserted_card_false_count =  is_inserted_card_false_count + 1;
                         TVlog.i(TAG, " >>>>> is_inserted_card = " + is_inserted_card);
                         if (is_inserted_card_false_count > 1) {
-                            if (ChannelListAdapter.getInstance() != null) {
-                                final Channel channel = (Channel) ChannelListAdapter.getInstance().getItem(mChannelIndex);
-                                if (channel != null) {
-                                    int type = (int) channel.getType();
-                                    if (type == 0) {  //1-seg
-                                        bcas_card_insert_msg.setVisibility(View.INVISIBLE);
-                                    } else {
-                                        bcas_card_insert_msg.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            }
+                            bcas_card_insert_msg.setVisibility(View.VISIBLE);
                         }
 
                         if (SettingActivity.getInstance() != null) {
@@ -3141,6 +3157,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         controllerLayout.setVisibility(View.VISIBLE);
                                         status_bar.setVisibility(View.VISIBLE);
                                         channelLayout.setVisibility(View.VISIBLE);
+                                        if (buildOption.USE_MULTI_WINDOW) {
+                                            if (changeChannelView.getVisibility() == View.VISIBLE) {
+                                                ll_multiWindow.setVisibility(View.GONE);
+                                            } else {
+                                                ll_multiWindow.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                        if (buildOption.USE_CHAT_FUNCTION) {
+                                            ll_chat.setVisibility(View.VISIBLE);
+                                        } else {
+                                            ll_chat.setVisibility(View.GONE);
+                                        }
                                         // ]
                                         postEvent(TVEVENT.E_HIDE_CONTROLER, CONTROLLER_HIDE_TIME);
                                     }
@@ -3149,7 +3177,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         controllerLayout.setVisibility(View.INVISIBLE);
                                         status_bar.setVisibility(View.INVISIBLE);
                                         channelLayout.setVisibility(View.INVISIBLE);
-
+                                        if (buildOption.USE_MULTI_WINDOW) {
+                                            ll_multiWindow.setVisibility(View.INVISIBLE);
+                                        }
+                                        if (buildOption.USE_CHAT_FUNCTION) {
+                                            ll_chat.setVisibility(View.INVISIBLE);
+                                        }
                                     }
                                 } else {
                                     if (controllerLayout.getVisibility() != View.VISIBLE) {
@@ -4048,6 +4081,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 recordAndCapturePath FixedRecPath = getCurrentRecordingPath();
                 FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle());
             }
+
+            if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_EACHDIV) {
+                int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+                int rc = 0;
+                TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+                rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+                if (rc == 0) {
+                    TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+                }
+            } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_BROADCAST) {
+                int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+                int rc = 0;
+                TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+                rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+                if (rc == 0) {
+                    TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+                }
+            } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_OFF) {
+                int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+                int rc = 0;
+                TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+                rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_OFF);
+                if (rc == 0) {
+                    TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_OFF);
+                }
+            }
         }
 
         // power button
@@ -4673,8 +4732,26 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             if (FCI_TVi.init(this.getPackageName(), null, mUsbFd, mUsbDeviceName, getVersionForDongle()) != 0) {
                 isBBFail = true;
                 TVlog.i("FCIISDBT::", "usb fd="+mUsbFd+", usb dev="+mUsbDeviceName);
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                            .theme(Theme.LIGHT)
+                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                            .title(R.string.alert)
+                            .titleColor(getResources().getColor(R.color.black))
+                            .content(R.string.japan_usb_dongle_not_attach_msg)
+                            .positiveText(R.string.exit)
+                            .positiveColor(getResources().getColor(R.color.blue3))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    sendEvent(TVEVENT.E_TERMINATE);
+                                }
+                            })
+                            .build();
+                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                    bb_fail_dialog.show();
+                    bb_fail_dialog.setCanceledOnTouchOutside(false);
+                } else if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
                     bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
@@ -4764,8 +4841,26 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
             if (FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle()) != 0) {
                 isBBFail = true;
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                            .theme(Theme.LIGHT)
+                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                            .title(R.string.alert)
+                            .titleColor(getResources().getColor(R.color.black))
+                            .content(R.string.japan_usb_dongle_not_attach_msg)
+                            .positiveText(R.string.exit)
+                            .positiveColor(getResources().getColor(R.color.blue3))
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    sendEvent(TVEVENT.E_TERMINATE);
+                                }
+                            })
+                            .build();
+                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                    bb_fail_dialog.show();
+                    bb_fail_dialog.setCanceledOnTouchOutside(false);
+                } else if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
                         buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
                     bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
@@ -4851,6 +4946,31 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         }
 
+        if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_EACHDIV) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+            if (rc == 0) {
+                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+            }
+        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_BROADCAST) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+            if (rc == 0) {
+                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+            }
+        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_OFF) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_OFF);
+            if (rc == 0) {
+                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_OFF);
+            }
+        }
         // showController();
 
         if (buildOption.SKIP_AV_ERROR_DATA == false) {
@@ -5575,9 +5695,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                             //removeEvent(TVEVENT.E_SIGNAL_MONITER);
 
+                            /*
                             isMainActivity = false;
                             ChatMainActivity.isChat = true;
                             FloatingWindow.isFloating = false;
+                            */
 
                             CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -5614,10 +5736,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             //android.os.Process.killProcess(android.os.Process.myPid());   // live
                         }
                     } else {
+                        /*
                         isMainActivity = false;
                         ChatMainActivity.isChat = true;
                         FloatingWindow.isFloating = false;
-
+                        */
                         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                         editor.putInt(CommonStaticData.lastChannelKey, CommonStaticData.lastCH);
@@ -5716,9 +5839,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         removeEvent(TVEVENT.E_NOSIGNAL_SHOW);
                         removeEvent(TVEVENT.E_CHANNEL_CHANGE_TIMEOVER);
 
+                        /*
                         isMainActivity = false;
                         ChatMainActivity.isChat = false;
                         FloatingWindow.isFloating = true;
+                        */
 
                         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -5851,7 +5976,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
             bcas_card_insert_msg = (TextView) findViewById(R.id.bcas_card_insert_msg);
-            bcas_card_insert_msg.setVisibility(View.INVISIBLE);
+            if (is_inserted_card == 1 || is_inserted_card == 2) {
+                bcas_card_insert_msg.setVisibility(View.INVISIBLE);
+            } else {
+                bcas_card_insert_msg.setVisibility(View.VISIBLE);
+            }
             if (SDK_INT <= 19) {
                 if (bcas_card_insert_msg.getVisibility() == View.VISIBLE) {
                     bcas_card_insert_msg.setTextColor(getResources().getColor(R.color.white));
@@ -11262,6 +11391,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         } else {
             recordAndCapturePath FixedRecPath=  getCurrentRecordingPath();
             FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle());
+        }
+
+        if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_EACHDIV) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+            if (rc == 0) {
+                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+            }
+        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_BROADCAST) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+            if (rc == 0) {
+                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+            }
+        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_OFF) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_OFF);
+            if (rc == 0) {
+                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_OFF);
+            }
         }
     }
     // ]]

@@ -5,7 +5,7 @@
     <string name="TVAppVersion">テレビアプリのバージョン：</string>
     <string name="TVSolutionVersion">ソリューションバージョン：</string>
 
-        <string name="version">
+    <string name="version">
          Release Date : Oct 08 2015\nFCI TV Solution Version : 1.0.328M</string>
 
     <string name="hello_world">こんにちは世界！</string>
@@ -318,7 +318,7 @@
     <string name="ewbs_title_end">緊急警告：終了しました</string>
     <string name="ewbs_siglevel_0">大規模地震警報</string>
     <string name="ewbs_siglevel_1">津波警報</string>
-    
+
     <string name="superimpose_title">文字ス-ム-設定 </string>
     <string name="select_superimpose">文字ス-ム-言語 </string>
     <string name="select_caption">字幕言語 </string>
@@ -379,6 +379,7 @@
 
     <string name="continue_msg">持続する</string>
     <string name="usb_dongle_not_attach_msg">テレビのUSBドングルは接続されていませんでした。 \nテレビを見たい場合は、テレビのUSBドングルを接続してください。 \n「持続する」を押すと、録音されたファイル再生だけが使用されます。</string>
+    <string name="japan_usb_dongle_not_attach_msg">テレビのUSBドングルは接続されていませんでした。 \nテレビを見たい場合は、テレビのUSBドングルを接続してください。</string>
 
     <string name="need_network_connect_msg">チャット機能を使用するには、このデバイスにネットワーク接続が必要です。</string>
 

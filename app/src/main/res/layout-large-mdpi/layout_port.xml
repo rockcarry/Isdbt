@@ -207,7 +207,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="@color/window_transparent_color"
-            android:id="@+id/status_bar">
+            android:id="@+id/status_bar"
+            android:gravity="center_vertical" >
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

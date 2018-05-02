@@ -44,7 +44,7 @@ public class ScanProcess {
         if (ScanOn) {
             if (_option == SHOW_PROGRESS_ON) {
 
-                if(scandialog.isCancelled())
+                if (!scandialog.isShowing())
                 {
                     TVlog.i(TAG, " - call cancel -");
                     TVBridge.scanStop();
@@ -77,10 +77,10 @@ public class ScanProcess {
                 toast.setGravity(Gravity.CENTER, 0, 200);
                 toast.show();
                 */
-                scandialog.cancel();
+                scandialog.dismiss();
             } else {
                 TVBridge.scanStop();
-                scandialog.cancel();
+                scandialog.dismiss();
             }
         }
     }

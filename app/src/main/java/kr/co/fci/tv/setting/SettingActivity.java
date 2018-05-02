@@ -918,43 +918,30 @@ public class SettingActivity extends Activity {
             }
         });
 
-        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+        ll_bcas_id = (LinearLayout) findViewById(R.id.ll_bcas_id);
+        ll_bcas_test = (LinearLayout) findViewById(R.id.ll_bcas_test);
+        bcas_id_title = (TextView) findViewById(R.id.tv_bcas_id_title);
+        tv_bcas_id = (TextView) findViewById(R.id.tv_bcas_id);
+        btn21 = (Button) findViewById(R.id.btn21);
+        btn22 = (Button) findViewById(R.id.btn22);
 
-            ll_bcas_id = (LinearLayout) findViewById(R.id.ll_bcas_id);
-            ll_bcas_test = (LinearLayout) findViewById(R.id.ll_bcas_test);
+        if (  buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+           || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+            ll_bcas_id.setVisibility(View.VISIBLE);
+            ll_bcas_test.setVisibility(View.VISIBLE);
+            btn21.setVisibility(View.VISIBLE);
+            btn22.setVisibility(View.VISIBLE);
+
             ll_bcas_test.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (CommonStaticData.scanningNow == false && (MainActivity.is_inserted_card==1)) {
-
                         sendEvent(TVEVENT.E_BCAS_TESTING_DIALOG);
-
                         FCI_TVi.bcasTest();
                         bcas_update();
                     }
-
                 }
-
             });
-
-            btn21 = (Button) findViewById(R.id.btn21);
-            btn22 = (Button) findViewById(R.id.btn22);
-            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                ll_bcas_id.setVisibility(View.VISIBLE);
-                ll_bcas_test.setVisibility(View.VISIBLE);
-                btn21.setVisibility(View.VISIBLE);
-                btn22.setVisibility(View.VISIBLE);
-            } else {
-                ll_bcas_id.setVisibility(View.GONE);
-                ll_bcas_test.setVisibility(View.GONE);
-                btn21.setVisibility(View.GONE);
-                btn22.setVisibility(View.GONE);
-            }
-
-            bcas_id_title = (TextView) findViewById(R.id.tv_bcas_id_title);
-
-            tv_bcas_id = (TextView) findViewById(R.id.tv_bcas_id);
 
             if (MainActivity.cardStr != null && (MainActivity.is_inserted_card==1)) {
                 tv_bcas_id.setText(MainActivity.cardStr);
@@ -963,9 +950,14 @@ public class SettingActivity extends Activity {
             }
 
             tv_bcas_test = (TextView) findViewById(R.id.tv_bcas_test);
-
             bcas_update();
+        } else {
+            ll_bcas_id.setVisibility(View.GONE);
+            ll_bcas_test.setVisibility(View.GONE);
+            btn21.setVisibility(View.GONE);
+            btn22.setVisibility(View.GONE);
         }
+
         textView_about = (TextView) findViewById(R.id.textView_about);
         textView_about.setOnClickListener(new View.OnClickListener() {
             @Override
