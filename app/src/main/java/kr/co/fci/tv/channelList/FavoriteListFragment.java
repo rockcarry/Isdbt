@@ -304,16 +304,18 @@ public class FavoriteListFragment extends Fragment {
         if (favorites != null) {
             favorites = null;
         }
-        favorites = sharedPreference.getFavorites(activity);
-        if (favorites != null) {
-            mCursor = MainActivity.getCursor();
-            if (channelListAdapter != null) {
-                channelListAdapter = null;
-            }
-            channelListAdapter = new ChannelListAdapter(activity, mCursor, null, favorites);
+        if (sharedPreference != null) {
+            favorites = sharedPreference.getFavorites(activity);
+            if (favorites != null) {
+                mCursor = MainActivity.getCursor();
+                if (channelListAdapter != null) {
+                    channelListAdapter = null;
+                }
+                channelListAdapter = new ChannelListAdapter(activity, mCursor, null, favorites);
 
-            favoriteList.setAdapter(channelListAdapter);
-            favoriteList.invalidate();
+                favoriteList.setAdapter(channelListAdapter);
+                favoriteList.invalidate();
+            }
         }
     }
 

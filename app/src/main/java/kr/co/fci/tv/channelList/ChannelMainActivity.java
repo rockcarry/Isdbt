@@ -5,6 +5,7 @@ package kr.co.fci.tv.channelList;
  */
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -19,6 +20,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+
+import java.util.List;
 
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
@@ -37,7 +42,6 @@ public class ChannelMainActivity extends FragmentActivity {
     private FavoriteListFragment  favListFragment;
     Button button_channels;
     Button button_favorites;
-    Button button_extra;
     private Button ind_channels;
     private Button ind_favorites;
     ChannelListAdapter mChannelListAdapter;
@@ -141,6 +145,26 @@ public class ChannelMainActivity extends FragmentActivity {
         MainActivity.getInstance().isChannelListViewOn = true;
         CommonStaticData.channelMainActivityShow = true;   // justin add for dongle detached
 
+        LinearLayout title_channels = (LinearLayout) findViewById(R.id.title_channels);
+        title_channels.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.getInstance().isChannelListViewOn = false;
+                CommonStaticData.channelMainActivityShow = false;
+                finish();
+            }
+        });
+
+        ImageButton btn_back_channels = (ImageButton) findViewById(R.id.btn_back_channels);
+        btn_back_channels.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity.getInstance().isChannelListViewOn = false;
+                CommonStaticData.channelMainActivityShow = false;
+                finish();
+            }
+        });
+
         button_channels = (Button) findViewById(R.id.button_channels);
         ind_channels = (Button) findViewById(R.id.ind_channels);
         button_favorites = (Button) findViewById(R.id.button_favorites);
@@ -198,21 +222,6 @@ public class ChannelMainActivity extends FragmentActivity {
                 ind_favorites.setBackgroundColor(Color.WHITE);
             }
         });
-
-        button_extra = (Button) findViewById(R.id.button_extra);
-        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
-            button_extra.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    MainActivity.getInstance().isChannelListViewOn = false;
-                    CommonStaticData.channelMainActivityShow = false;
-                    finish();
-                }
-            });
-        }else{
-            button_extra.setOnTouchListener(mTouchListener);
-        }
-
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
@@ -400,4 +409,14 @@ public class ChannelMainActivity extends FragmentActivity {
     }
 
 
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
+    }
 }

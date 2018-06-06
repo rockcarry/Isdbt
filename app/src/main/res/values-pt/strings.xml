@@ -422,5 +422,6 @@
     <string name="type_HD">HD</string>
     <string name="switch_fail_HD">Não existe um canal HD para alternar.</string>
     <string name="switch_fail_SD">Não há canal SD para alternar.</string>
+    <string name="init_device">inicialização do dispositivo ...</string>
 
 </resources>

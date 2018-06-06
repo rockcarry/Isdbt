@@ -5,6 +5,7 @@
     android:orientation="horizontal"
     android:background="@color/transparent">
 
+    <!--
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -92,43 +93,26 @@
         </LinearLayout>
 
     </LinearLayout>
+    -->
 
 
     <RelativeLayout
         android:id="@+id/centerlayout"
-        android:layout_width="600dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/window_transparent_color"
         android:orientation="horizontal">
+
         <ListView
-            android:layout_width="600dp"
-            android:layout_height="match_parent"
             android:id="@+id/list_channel"
-            android:groupIndicator="@drawable/group_indicator"
-            android:layout_gravity="center_horizontal"
-            android:background="@color/window_transparent_color"
-            android:divider="@color/window_transparent_color"
-            android:dividerHeight="2dp"
-            android:listSelector="@color/blue3">
-        </ListView>
-        <!--<TextView
-            android:id="@+id/no_chlist_msg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/channel_no"
-            android:textSize="15dp"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:visibility="visible"
-            android:gravity="top|left"
-            android:paddingTop="10dp"
-            android:paddingLeft="50dp" />-->
+            android:layout_gravity="center_horizontal"
+            android:background="@color/window_transparent_color"
+            android:groupIndicator="@drawable/group_indicator"
+            android:listSelector="@color/blue3"></ListView>
 
     </RelativeLayout>
-
-
-
-
-
 
 </LinearLayout>
 

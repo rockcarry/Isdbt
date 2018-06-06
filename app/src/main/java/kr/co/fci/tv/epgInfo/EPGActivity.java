@@ -1,6 +1,7 @@
 package kr.co.fci.tv.epgInfo;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -19,11 +20,13 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
@@ -37,6 +40,13 @@ import kr.co.fci.tv.util.TVlog;
 
 public class EPGActivity extends Activity {
     public static final String TAG= "EPG_Activity";
+
+    String logoDirPath = "";
+    File logoFile;
+    List logoList;
+
+    ImageView iv_ChType;
+    ImageView iv_ChFree;
 
     public static Context epgContext;
     public final int EPG_UPDATE_PERIOD = 1000 * 15; //15sec
@@ -72,6 +82,7 @@ public class EPGActivity extends Activity {
     public  TextView tv_phyChNo;
     public  TextView tv_remoteNo;
     public  TextView mTopBarText;
+    private ImageView iv_ChLogo;
 
     private ImageView iv_calendar;
     public  TextView tv_curDate;
@@ -195,7 +206,10 @@ public class EPGActivity extends Activity {
             tv_phyChNo.setVisibility(View.GONE);
         }
 
+        iv_ChType = (ImageView) findViewById(R.id.iv_ChType);
+        iv_ChFree = (ImageView) findViewById(R.id.iv_ChFree);
         tv_remoteNo = (TextView) findViewById(R.id.tv_remoteNo);
+        iv_ChLogo   = (ImageView) findViewById(R.id.iv_ChLogo);
         mTopBarText = (TextView) findViewById(R.id.epg_program);
         mTopBarText.setSelected(true);
 
@@ -244,6 +258,371 @@ public class EPGActivity extends Activity {
                     tv_phyChNo.setText(channelNo + "ch");
                 }
             }
+
+            int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+            int free = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
+            if (type == 0) { // if 1seg
+                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                    iv_ChType.setBackgroundResource(R.drawable.jp_1seg);
+                    iv_ChFree.setVisibility(View.GONE);
+                } else {
+                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_1seg);
+                    if (free == 0) {
+                        iv_ChFree.setVisibility(View.VISIBLE);
+                    } else {
+                        iv_ChFree.setVisibility(View.GONE);
+                    }
+                }
+            } else if (type == 1) { // if fullseg
+                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                    iv_ChType.setBackgroundResource(R.drawable.jp_fullseg);
+                    iv_ChFree.setVisibility(View.GONE);
+                } else {
+                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_fullseg);
+                    if (free == 0) {
+                        iv_ChFree.setVisibility(View.VISIBLE);
+                    } else {
+                        iv_ChFree.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            // for Broadcast Station Logo
+            if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                    && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                logoList = new ArrayList();
+                MainActivity.recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                if (mCursor != null) {
+                    int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                    int networkID = TVBridge.getNetworkID(serviceID);
+                    TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                    if (networkID == 32391) {  // in case of TYKYO MX
+                        if (type == 1) {  // full-seg
+                            if ((serviceID&7) == 0 || (serviceID&7) == 1) {
+                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if ((serviceID&7) == 2) {
+                                TVlog.i(TAG, " >>> This channel is MX2");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (type == 0) {
+                            if ((serviceID&7) == 0) {
+                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if ((serviceID&7) == 1) {
+                                TVlog.i(TAG, " >>> This channel is MX2");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        logoDirPath = filePath.fullPath+"TVLogos";
+                        TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                        logoFile = new File(logoDirPath);
+                        if (!logoFile.exists()) {
+                            logoFile.mkdirs();
+                            TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                        }
+                        File[] list = logoFile.listFiles();
+                        for (int i=0; i <list.length; i++) {
+                            logoList.add(list[i].getName());
+                        }
+                        TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                        File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                        String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                        File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                        String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                        File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                        String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                        File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                        String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                        File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                        String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                        File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                        String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                        if (iv_ChLogo != null) {
+                            if (file3.exists() && file3.length() > 200) {
+                                iv_ChLogo.setImageURI(Uri.parse(path3));
+                                iv_ChLogo.setVisibility(View.VISIBLE);
+                            } else {
+                                if (file5.exists() && file5.length() > 200) {
+                                    iv_ChLogo.setImageURI(Uri.parse(path5));
+                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                } else {
+                                    if (file4.exists() && file4.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path4));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file2.exists() && file2.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path2));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file0.exists() && file0.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file1.exists() && file1.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    iv_ChLogo.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                iv_ChLogo.setVisibility(View.GONE);
+            }
+            //
 
             String channelName = mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
             String[] split_channelName = channelName.split(" ");
@@ -457,6 +836,370 @@ public class EPGActivity extends Activity {
                     int channelNo = 14 + (int)((freq-473143)/6000);
                     tv_phyChNo.setText(channelNo + "ch");
                 }
+            }
+
+            int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+            int free = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_FREE);
+            if (type == 0) { // if 1seg
+                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                    iv_ChType.setBackgroundResource(R.drawable.jp_1seg);
+                    iv_ChFree.setVisibility(View.GONE);
+                } else {
+                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_1seg);
+                    if (free == 0) {
+                        iv_ChFree.setVisibility(View.VISIBLE);
+                    } else {
+                        iv_ChFree.setVisibility(View.GONE);
+                    }
+                }
+            } else if (type == 1) { // if fullseg
+                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                    iv_ChType.setBackgroundResource(R.drawable.jp_fullseg);
+                    iv_ChFree.setVisibility(View.GONE);
+                } else {
+                    iv_ChType.setBackgroundResource(R.drawable.tv_icon_fullseg);
+                    if (free == 0) {
+                        iv_ChFree.setVisibility(View.VISIBLE);
+                    } else {
+                        iv_ChFree.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            // for Broadcast Station Logo
+            if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                    && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                logoList = new ArrayList();
+                MainActivity.recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                if (mCursor != null) {
+                    int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                    int networkID = TVBridge.getNetworkID(serviceID);
+                    TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                    if (networkID == 32391) {  // in case of TYKYO MX
+                        if (type == 1) {  // full-seg
+                            if ((serviceID&7) == 0 || (serviceID&7) == 1) {
+                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if ((serviceID&7) == 2) {
+                                TVlog.i(TAG, " >>> This channel is MX2");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (type == 0) {
+                            if ((serviceID&7) == 0) {
+                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if ((serviceID&7) == 1) {
+                                TVlog.i(TAG, " >>> This channel is MX2");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        logoDirPath = filePath.fullPath+"TVLogos";
+                        TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                        logoFile = new File(logoDirPath);
+                        if (!logoFile.exists()) {
+                            logoFile.mkdirs();
+                            TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                        }
+                        File[] list = logoFile.listFiles();
+                        for (int i=0; i <list.length; i++) {
+                            logoList.add(list[i].getName());
+                        }
+                        TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                        File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                        String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                        File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                        String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                        File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                        String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                        File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                        String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                        File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                        String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                        File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                        String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                        if (iv_ChLogo != null) {
+                            if (file3.exists() && file3.length() > 200) {
+                                iv_ChLogo.setImageURI(Uri.parse(path3));
+                                iv_ChLogo.setVisibility(View.VISIBLE);
+                            } else {
+                                if (file5.exists() && file5.length() > 200) {
+                                    iv_ChLogo.setImageURI(Uri.parse(path5));
+                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                } else {
+                                    if (file4.exists() && file4.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path4));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file2.exists() && file2.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path2));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file0.exists() && file0.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file1.exists() && file1.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    iv_ChLogo.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                iv_ChLogo.setVisibility(View.GONE);
             }
 
             String channelName = mCursor.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME);
@@ -836,5 +1579,15 @@ public class EPGActivity extends Activity {
         return dayOfWeek;
     }
 
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
+    }
 }
 

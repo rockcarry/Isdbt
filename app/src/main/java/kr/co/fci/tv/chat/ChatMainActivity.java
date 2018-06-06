@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.hardware.usb.UsbDevice;
@@ -19,6 +21,7 @@ import android.hardware.usb.UsbManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -75,6 +78,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.lme.dtv.lmedtvsdk;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -116,7 +122,12 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
 
     private static String TAG = "ChatMainActivity ";
 
+    String logoDirPath = "";
+    File logoFile;
+    List logoList;
+
     CustomToast customToast = null;
+
     private long mLastClickTimeReturn = 0;
     private final static int DOUBLE_CLICK_TOLERANCE = 1000; // 3000;
     private static final int RC_SIGN_IN = 1001;
@@ -299,6 +310,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
     RelativeLayout rl_ChType_chat;
     ImageView iv_ChType_chat;
     ImageView iv_ChFree_chat;
+    ImageView iv_ChLogo_chat;
 
     public static ChatMainActivity instance;
     public static ChatMainActivity getInstance()
@@ -387,58 +399,60 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 break;
 
                 case E_SUPERIMPOSE_NOTIFY_CHAT: {
-                    try {
-                        Bundle newSuperimpose = (Bundle) msg.obj;
-                        String superimpose_info = newSuperimpose.getString("superimpose_info");
+                    if (CommonStaticData.superimposeSwitch == true) {
+                        try {
+                            Bundle newSuperimpose = (Bundle) msg.obj;
+                            String superimpose_info = newSuperimpose.getString("superimpose_info");
 
-                        if (superimpose_info.length() > 0) {
-                            //JAPAN_CAPTION[[
-                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
-                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                                if (mSuperimposeView_chat != null) {
-                                    mSuperimposeView_chat.setText(superimpose_info);
-                                    mSuperimposeView_chat.invalidate();
+                            if (superimpose_info.length() > 0) {
+                                //JAPAN_CAPTION[[
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                    if (mSuperimposeView_chat != null) {
+                                        mSuperimposeView_chat.setText(superimpose_info);
+                                        mSuperimposeView_chat.invalidate();
+                                    }
                                 }
-                            }
-                            //]]JAPAN_CAPTION
-                            else {
-                                // live modify
-                                if (CommonStaticData.superimposeSwitch == true) {
-                                    superImposeView_chat.setVisibility(View.VISIBLE);
-                                } else {
-                                    superImposeView_chat.setVisibility(View.INVISIBLE);
+                                //]]JAPAN_CAPTION
+                                else {
+                                    // live modify
+                                    if (CommonStaticData.superimposeSwitch == true) {
+                                        superImposeView_chat.setVisibility(View.VISIBLE);
+                                    } else {
+                                        superImposeView_chat.setVisibility(View.INVISIBLE);
+                                    }
+                                    //
+                                    superImposeView_chat.setText(Html.fromHtml(superimpose_info));
                                 }
-                                //
-                                superImposeView_chat.setText(Html.fromHtml(superimpose_info));
-                            }
 
-                            removeEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
-                            postEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT, SUPERIMPOSE_CLEAR_TIME_CHAT);
-                        } else {
-                            //JAPAN_CAPTION[[
-                            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
-                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                                if (mSuperimposeView_chat != null) {
-                                    mSuperimposeView_chat.setText("");
-                                    mSuperimposeView_chat.invalidate();
+                                removeEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT);
+                                postEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY_CHAT, SUPERIMPOSE_CLEAR_TIME_CHAT);
+                            } else {
+                                //JAPAN_CAPTION[[
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                    if (mSuperimposeView_chat != null) {
+                                        mSuperimposeView_chat.setText("");
+                                        mSuperimposeView_chat.invalidate();
+                                    }
+                                }
+                                //]]JAPAN_CAPTION
+                                else {
+                                    // live modify
+                                    if (CommonStaticData.superimposeSwitch == true) {
+                                        superImposeView_chat.setVisibility(View.VISIBLE);
+                                    } else {
+                                        superImposeView_chat.setVisibility(View.INVISIBLE);
+                                    }
+                                    //
+                                    superImposeView_chat.setText(Html.fromHtml(""));
                                 }
                             }
-                            //]]JAPAN_CAPTION
-                            else {
-                                // live modify
-                                if (CommonStaticData.superimposeSwitch == true) {
-                                    superImposeView_chat.setVisibility(View.VISIBLE);
-                                } else {
-                                    superImposeView_chat.setVisibility(View.INVISIBLE);
-                                }
-                                //
-                                superImposeView_chat.setText(Html.fromHtml(""));
-                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
                 break;
@@ -694,6 +708,80 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             }
                             rl_ChType_chat.setVisibility(View.VISIBLE);
 
+                            // for Broadcast Station Logo
+                            if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                                    && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                logoList = new ArrayList();
+                                MainActivity.recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+                                logoDirPath = filePath.fullPath + "TVLogos";
+                                TVlog.i(TAG, " >>> Path for TVLogo = " + logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  " + logoDirPath);
+                                }
+                                File list[] = logoFile.listFiles();
+                                for (int i = 0; i < list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = " + logoList);
+                                if (mCursor_chat != null) {
+                                    int networkID = TVBridge.getNetworkID((int) mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER));
+                                    File file0 = new File(logoDirPath + "/" + networkID + "_0" + ".png");
+                                    String path0 = logoDirPath + "/" + networkID + "_0" + ".png";
+                                    File file1 = new File(logoDirPath + "/" + networkID + "_1" + ".png");
+                                    String path1 = logoDirPath + "/" + networkID + "_1" + ".png";
+                                    File file2 = new File(logoDirPath + "/" + networkID + "_2" + ".png");
+                                    String path2 = logoDirPath + "/" + networkID + "_2" + ".png";
+                                    File file3 = new File(logoDirPath + "/" + networkID + "_3" + ".png");
+                                    String path3 = logoDirPath + "/" + networkID + "_3" + ".png";
+                                    File file4 = new File(logoDirPath + "/" + networkID + "_4" + ".png");
+                                    String path4 = logoDirPath + "/" + networkID + "_4" + ".png";
+                                    File file5 = new File(logoDirPath + "/" + networkID + "_5" + ".png");
+                                    String path5 = logoDirPath + "/" + networkID + "_5" + ".png";
+
+                                    if (iv_ChLogo_chat != null) {
+                                        if (file3.exists()) {
+                                            iv_ChLogo_chat.setImageURI(Uri.parse(path3));
+                                            iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file5.exists()) {
+                                                iv_ChLogo_chat.setImageURI(Uri.parse(path5));
+                                                iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file4.exists()) {
+                                                    iv_ChLogo_chat.setImageURI(Uri.parse(path4));
+                                                    iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file2.exists()) {
+                                                        iv_ChLogo_chat.setImageURI(Uri.parse(path2));
+                                                        iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists()) {
+                                                            iv_ChLogo_chat.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file0.exists()) {
+                                                                iv_ChLogo_chat.setImageURI(Uri.parse(path0));
+                                                                iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                iv_ChLogo_chat.setVisibility(View.GONE);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                iv_ChLogo_chat.setVisibility(View.GONE);
+                            }
+                            //
+
                             MainActivity.getInstance().sendEvent(TVEVENT.E_UPDATE_EPG_NAME_AND_DURATION);
 
                             AudioFormat = mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_AUDFORM);
@@ -942,9 +1030,13 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                        doScan_chat.showProgress_chat(0, 0, 474000, doScan_chat.SHOW_PROGRESS_OFF_CHAT);
+                        if (doScan_chat != null) {
+                            doScan_chat.showProgress_chat(0, 0, 474000, doScan_chat.SHOW_PROGRESS_OFF_CHAT);
+                        }
                     } else {
-                        doScan_chat.showProgress_chat(0, 0, 473143, doScan_chat.SHOW_PROGRESS_OFF_CHAT);
+                        if (doScan_chat != null) {
+                            doScan_chat.showProgress_chat(0, 0, 473143, doScan_chat.SHOW_PROGRESS_OFF_CHAT);
+                        }
                     }
                     chat_ll_scan_progress.setVisibility(View.INVISIBLE);
                     TVBridge.scanStop();
@@ -1823,6 +1915,80 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                             }
                             rl_ChType_chat.setVisibility(View.VISIBLE);
 
+                            //for Broadcast Station Logo
+                            if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                                    && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                logoList = new ArrayList();
+                                MainActivity.recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+                                logoDirPath = filePath.fullPath + "TVLogos";
+                                TVlog.i(TAG, " >>> Path for TVLogo = " + logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  " + logoDirPath);
+                                }
+                                File list[] = logoFile.listFiles();
+                                for (int i = 0; i < list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = " + logoList);
+                                if (mCursor_chat != null) {
+                                    int networkID = TVBridge.getNetworkID((int) mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER));
+                                    File file0 = new File(logoDirPath + "/" + networkID + "_0" + ".png");
+                                    String path0 = logoDirPath + "/" + networkID + "_0" + ".png";
+                                    File file1 = new File(logoDirPath + "/" + networkID + "_1" + ".png");
+                                    String path1 = logoDirPath + "/" + networkID + "_1" + ".png";
+                                    File file2 = new File(logoDirPath + "/" + networkID + "_2" + ".png");
+                                    String path2 = logoDirPath + "/" + networkID + "_2" + ".png";
+                                    File file3 = new File(logoDirPath + "/" + networkID + "_3" + ".png");
+                                    String path3 = logoDirPath + "/" + networkID + "_3" + ".png";
+                                    File file4 = new File(logoDirPath + "/" + networkID + "_4" + ".png");
+                                    String path4 = logoDirPath + "/" + networkID + "_4" + ".png";
+                                    File file5 = new File(logoDirPath + "/" + networkID + "_5" + ".png");
+                                    String path5 = logoDirPath + "/" + networkID + "_5" + ".png";
+
+                                    if (iv_ChLogo_chat != null) {
+                                        if (file3.exists()) {
+                                            iv_ChLogo_chat.setImageURI(Uri.parse(path3));
+                                            iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file5.exists()) {
+                                                iv_ChLogo_chat.setImageURI(Uri.parse(path5));
+                                                iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file4.exists()) {
+                                                    iv_ChLogo_chat.setImageURI(Uri.parse(path4));
+                                                    iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file2.exists()) {
+                                                        iv_ChLogo_chat.setImageURI(Uri.parse(path2));
+                                                        iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists()) {
+                                                            iv_ChLogo_chat.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file0.exists()) {
+                                                                iv_ChLogo_chat.setImageURI(Uri.parse(path0));
+                                                                iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                iv_ChLogo_chat.setVisibility(View.GONE);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                iv_ChLogo_chat.setVisibility(View.GONE);
+                            }
+                            //
+
                             MainActivity.getInstance().sendEvent(TVEVENT.E_UPDATE_EPG_NAME_AND_DURATION);
 
                             //chat_currCH.setText(mCursor_chat.getString(CommonStaticData.COLUMN_INDEX_SERVICE_NAME));
@@ -1858,12 +2024,142 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                 }
                 break;
 
+                case E_LOGO_UPDATE_CHAT:
+                {
+                    int logoLen = (int) msg.arg1;
+                    int[] logoInfo = (int[]) msg.obj;
+                    Bundle data = msg.getData();
+                    byte[] bmpArray = data.getByteArray("logoData");
+
+                    int type = logoInfo[0];
+                    int id = logoInfo[1];
+                    int version = logoInfo[2];
+                    int downDataId = logoInfo[3];
+                    int trasmissionType = logoInfo[4];
+                    int netId = logoInfo[5];
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE_CHAT : logo_type = " + type);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE_CHAT : logo_id = " + id);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE_CHAT : logo_version = " + version);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE_CHAT : logo_downDataId = " + downDataId);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE_CHAT : logo_transmissionType = " + trasmissionType);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE_CHAT : logo_netId = " + netId);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE_CHAT : logo_logo size = " + logoLen);
+                    byte[] pngArray = FCI_TVi.getPngFromAribPng(bmpArray);
+
+                    if (pngArray != null) {
+                        Bitmap bmpPNG = null;
+                        bmpPNG = BitmapFactory.decodeByteArray(pngArray, 0, pngArray.length);
+
+                        // save TVlogo
+                        MainActivity.recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+                        logoDirPath = filePath.fullPath+"TVLogos";
+                        TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                        File dir_exist = new File(logoDirPath);
+                        if (!dir_exist.exists()) {
+                            dir_exist.mkdirs();
+                            TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                        }
+                        String logoFilePath = logoDirPath+"/"+netId+"_"+type+".png";
+                        File logoCacheItem = new File(logoFilePath);
+                        try {
+                            FileOutputStream fos = new FileOutputStream(logoCacheItem);
+                            bmpPNG.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        instance.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + logoCacheItem)));
+                        //
+
+                        if (bmpPNG != null) {
+                            sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE_CHAT);
+                        }
+                        else {
+                            TVlog.e("fcilogo", "PNG NG, PNG len = " + pngArray.length);
+                        }
+                    }
+                }
+                break;
+
                 case E_HIDE_CHAT_CONTROLER :
                     hideChatController();
                     break;
 
                 case E_SHOW_CHAT_CONTROLER :
                     // mIsTouchFlag =true;
+
+                    // for Broadcast Station Logo
+                    if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                            && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                        logoList = new ArrayList();
+                        MainActivity.recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+                        logoDirPath = filePath.fullPath + "TVLogos";
+                        TVlog.i(TAG, " >>> Path for TVLogo = " + logoDirPath);
+                        logoFile = new File(logoDirPath);
+                        if (!logoFile.exists()) {
+                            logoFile.mkdirs();
+                            TVlog.i(TAG, "==== make new folder for TVLogo ====  " + logoDirPath);
+                        }
+                        File list[] = logoFile.listFiles();
+                        for (int i = 0; i < list.length; i++) {
+                            logoList.add(list[i].getName());
+                        }
+                        TVlog.i(TAG, " >>> logoList = " + logoList);
+                        if (mCursor_chat != null) {
+                            int networkID = TVBridge.getNetworkID((int) mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER));
+                            File file0 = new File(logoDirPath + "/" + networkID + "_0" + ".png");
+                            String path0 = logoDirPath + "/" + networkID + "_0" + ".png";
+                            File file1 = new File(logoDirPath + "/" + networkID + "_1" + ".png");
+                            String path1 = logoDirPath + "/" + networkID + "_1" + ".png";
+                            File file2 = new File(logoDirPath + "/" + networkID + "_2" + ".png");
+                            String path2 = logoDirPath + "/" + networkID + "_2" + ".png";
+                            File file3 = new File(logoDirPath + "/" + networkID + "_3" + ".png");
+                            String path3 = logoDirPath + "/" + networkID + "_3" + ".png";
+                            File file4 = new File(logoDirPath + "/" + networkID + "_4" + ".png");
+                            String path4 = logoDirPath + "/" + networkID + "_4" + ".png";
+                            File file5 = new File(logoDirPath + "/" + networkID + "_5" + ".png");
+                            String path5 = logoDirPath + "/" + networkID + "_5" + ".png";
+
+                            if (iv_ChLogo_chat != null) {
+                                if (file3.exists()) {
+                                    iv_ChLogo_chat.setImageURI(Uri.parse(path3));
+                                    iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                } else {
+                                    if (file5.exists()) {
+                                        iv_ChLogo_chat.setImageURI(Uri.parse(path5));
+                                        iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file4.exists()) {
+                                            iv_ChLogo_chat.setImageURI(Uri.parse(path4));
+                                            iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file2.exists()) {
+                                                iv_ChLogo_chat.setImageURI(Uri.parse(path2));
+                                                iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file1.exists()) {
+                                                    iv_ChLogo_chat.setImageURI(Uri.parse(path1));
+                                                    iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists()) {
+                                                        iv_ChLogo_chat.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        iv_ChLogo_chat.setVisibility(View.GONE);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        iv_ChLogo_chat.setVisibility(View.GONE);
+                    }
+                    //
                     showChatController();
                     break;
             }
@@ -2312,6 +2608,9 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         rl_ChType_chat = (RelativeLayout) findViewById(R.id.rl_ChType_chat);
         iv_ChType_chat = (ImageView) findViewById(R.id.iv_ChType_chat);
         iv_ChFree_chat = (ImageView) findViewById(R.id.iv_ChFree_chat);
+        // for Broadcast Station Logo
+        iv_ChLogo_chat = (ImageView) findViewById(R.id.iv_ChLogo);
+        //
 
         if (CommonStaticData.scanCHnum > 0) {
             mCursor_chat = MainActivity.getCursor();
@@ -2350,6 +2649,80 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
                     }
                 }
                 rl_ChType_chat.setVisibility(View.VISIBLE);
+
+                // for Broadcast Station Logo
+                if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                        && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                    logoList = new ArrayList();
+                    MainActivity.recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+                    logoDirPath = filePath.fullPath + "TVLogos";
+                    TVlog.i(TAG, " >>> Path for TVLogo = " + logoDirPath);
+                    logoFile = new File(logoDirPath);
+                    if (!logoFile.exists()) {
+                        logoFile.mkdirs();
+                        TVlog.i(TAG, "==== make new folder for TVLogo ====  " + logoDirPath);
+                    }
+                    File list[] = logoFile.listFiles();
+                    for (int i = 0; i < list.length; i++) {
+                        logoList.add(list[i].getName());
+                    }
+                    TVlog.i(TAG, " >>> logoList = " + logoList);
+                    if (mCursor_chat != null) {
+                        int networkID = TVBridge.getNetworkID((int) mCursor_chat.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER));
+                        File file0 = new File(logoDirPath + "/" + networkID + "_0" + ".png");
+                        String path0 = logoDirPath + "/" + networkID + "_0" + ".png";
+                        File file1 = new File(logoDirPath + "/" + networkID + "_1" + ".png");
+                        String path1 = logoDirPath + "/" + networkID + "_1" + ".png";
+                        File file2 = new File(logoDirPath + "/" + networkID + "_2" + ".png");
+                        String path2 = logoDirPath + "/" + networkID + "_2" + ".png";
+                        File file3 = new File(logoDirPath + "/" + networkID + "_3" + ".png");
+                        String path3 = logoDirPath + "/" + networkID + "_3" + ".png";
+                        File file4 = new File(logoDirPath + "/" + networkID + "_4" + ".png");
+                        String path4 = logoDirPath + "/" + networkID + "_4" + ".png";
+                        File file5 = new File(logoDirPath + "/" + networkID + "_5" + ".png");
+                        String path5 = logoDirPath + "/" + networkID + "_5" + ".png";
+
+                        if (iv_ChLogo_chat != null) {
+                            if (file3.exists()) {
+                                iv_ChLogo_chat.setImageURI(Uri.parse(path3));
+                                iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                            } else {
+                                if (file5.exists()) {
+                                    iv_ChLogo_chat.setImageURI(Uri.parse(path5));
+                                    iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                } else {
+                                    if (file4.exists()) {
+                                        iv_ChLogo_chat.setImageURI(Uri.parse(path4));
+                                        iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file2.exists()) {
+                                            iv_ChLogo_chat.setImageURI(Uri.parse(path2));
+                                            iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file1.exists()) {
+                                                iv_ChLogo_chat.setImageURI(Uri.parse(path1));
+                                                iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file0.exists()) {
+                                                    iv_ChLogo_chat.setImageURI(Uri.parse(path0));
+                                                    iv_ChLogo_chat.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    iv_ChLogo_chat.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    iv_ChLogo_chat.setVisibility(View.GONE);
+                }
+                //
             }
         } else {
             rl_ChType_chat.setVisibility(View.GONE);
@@ -3582,7 +3955,7 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         /*if (!CommonStaticData.returnMainFromChat) {
             MainActivity.getInstance().SolutionStop();
         }*/
-        if (CommonStaticData.scanningNow) {
+        if (CommonStaticData.scanningNow && doScan_chat != null) {
             doScan_chat.showProgress_chat(0, 0, 0, ScanProcess_chat.SHOW_PROGRESS_CLEAR_CHAT);
         }
         /*if (audioOut != null) {
@@ -3796,6 +4169,21 @@ public class ChatMainActivity extends AppCompatActivity implements View.OnClickL
         msg.arg1 = _arg1;
         msg.arg2 = _arg2;
         msg.obj = _obj;
+        Chat_Handler.sendMessage(msg);
+    }
+
+    public void sendEvent(TVEVENT _Event, int _arg1, byte[] _arg2, Object _obj) {
+        int m;
+        m = _Event.ordinal();
+        Message msg = Chat_Handler.obtainMessage(m);
+
+        Bundle bundle = new Bundle();
+        bundle.putByteArray("logoData", _arg2);
+        msg.setData(bundle);
+
+        msg.arg1 = _arg1;
+        msg.obj = _obj;
+
         Chat_Handler.sendMessage(msg);
     }
 

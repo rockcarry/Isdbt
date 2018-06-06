@@ -3,7 +3,8 @@ package kr.co.fci.tv.setting;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.media.Ringtone;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import kr.co.fci.tv.MainActivity;
@@ -35,7 +37,7 @@ import static kr.co.fci.tv.MainActivity.DIALOG_SCAN_RESTORE;
  * Created by eddy.lee on 2015-08-27.
  */
 public class InputDialog {
-
+    public static MediaPlayer mMediaPlayer = null;
     public Context inputDialog_mContext;
     public static MaterialDialog inputDialog = null;
     private MaterialDialog batteryNotifyDialog;
@@ -1011,8 +1013,14 @@ public class InputDialog {
                 String strMessage_2 = "" ;
                 StringBuilder tMsg= new StringBuilder(" ");
 
-                Uri ringtoneUri = RingtoneManager.getActualDefaultRingtoneUri(inputDialog_mContext,RingtoneManager.TYPE_ALARM);
-                final Ringtone ringtone = RingtoneManager.getRingtone(inputDialog_mContext, ringtoneUri);
+                Uri alert =  RingtoneManager.getActualDefaultRingtoneUri(inputDialog_mContext, RingtoneManager.TYPE_ALARM);
+                mMediaPlayer = new MediaPlayer();
+                try {
+                    mMediaPlayer.setDataSource(inputDialog_mContext, alert);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                final AudioManager audioManager = (AudioManager) inputDialog_mContext.getSystemService(Context.AUDIO_SERVICE);
 
                 //start/end flag
                 if (startEndFlag == 1) {
@@ -1042,8 +1050,9 @@ public class InputDialog {
                 }
 
                 if (ewsNotiDialog != null && ewsNotiDialog.isShowing()) {
-                    if (ringtone.isPlaying()) {
-                        ringtone.stop();
+                    if (mMediaPlayer.isPlaying()) {
+                        mMediaPlayer.stop();
+                        mMediaPlayer.release();
                     }
                     ewsNotiDialog.dismiss();
                 }
@@ -1060,13 +1069,15 @@ public class InputDialog {
                             .onPositive(new MaterialDialog.SingleButtonCallback() {
                                 @Override
                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    ringtone.stop();
+                                    mMediaPlayer.stop();
+                                    mMediaPlayer.release();
                                     dialog.dismiss();
                                 }
                             })
                             .build();
                     ewsNotiDialog.getWindow().setGravity(Gravity.CENTER);
                     ewsNotiDialog.show();
+                    ewsNotiDialog.setCanceledOnTouchOutside(false);
                     decorView = ewsNotiDialog.getWindow().getDecorView();
                 } else {
                     ewsNotiDialog = new MaterialDialog.Builder(inputDialog_mContext)
@@ -1082,12 +1093,14 @@ public class InputDialog {
                                 @Override
                                 public void onPositive(MaterialDialog dialog) {
                                     super.onPositive(dialog);
-                                    ringtone.stop();
+                                    mMediaPlayer.stop();
+                                    mMediaPlayer.release();
                                     dialog.dismiss();
                                 }
                             }).build();
                     ewsNotiDialog.getWindow().setGravity(Gravity.CENTER);
                     ewsNotiDialog.show();
+                    ewsNotiDialog.setCanceledOnTouchOutside(false);
                     decorView = ewsNotiDialog.getWindow().getDecorView();
 
                 }
@@ -1095,7 +1108,19 @@ public class InputDialog {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE ;
                 decorView.setSystemUiVisibility(uiOptions);
 
-                ringtone.play();
+                if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                    mMediaPlayer.setLooping(true);
+                    try {
+                        mMediaPlayer.prepare();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    mMediaPlayer.start();
+                    TVlog.i(TAG, " >>> mMediaPlayer.getTrackInfo() = "+String.valueOf(mMediaPlayer.getTrackInfo()));
+                } else {
+                    TVlog.i(TAG, " >>> audioManager.getStreamVolume(AudioManager.STREAM_RING) = "+String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_ALARM)));
+                }
             }
             break;
             case TYPE_RECOVER_FOCUS:

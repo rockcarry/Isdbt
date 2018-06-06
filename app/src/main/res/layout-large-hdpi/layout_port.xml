@@ -66,11 +66,11 @@
             android:layout_margin="10dp"
             android:background="@drawable/circle_roundlayout"
             android:orientation="horizontal"
-            android:padding="10dp"
             android:visibility="gone">
 
             <ImageView
                 android:id="@+id/iv_uiLocked"
+                android:padding="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_lock_outline_white_48dp"
@@ -113,8 +113,49 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
                 android:layout_marginTop="10dp"
-                android:id="@+id/loading_fileplay" />    
+                android:id="@+id/loading_fileplay" />
+        </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/ll_initDevice"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:animateLayoutChanges="false"
+            android:background="@color/black"
+            android:baselineAligned="false"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!--
+            <ProgressBar
+                android:id="@+id/progressing_initDevice"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:background="@color/transparent" />
+            -->
+
+            <!--
+            <com.wang.avi.AVLoadingIndicatorView
+                android:id="@+id/progressing_initDevice"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:indicatorName="BallBeatIndicator"
+                android:layout_gravity="center"
+                android:background="@color/transparent"/>
+            -->
+
+            <TextView
+                android:id="@+id/init_device"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:gravity="center_horizontal"
+                android:text="Device Initialing..."
+                android:textColor="@color/light_gray"
+                android:textSize="12dp" />
         </LinearLayout>
 
         <TextView
@@ -176,6 +217,7 @@
                     android:id="@+id/iv_chat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/btn_selector"
                     android:src="@drawable/ic_chat_white_48dp" />
             </LinearLayout>
 
@@ -186,13 +228,14 @@
                 android:background="@drawable/circle_roundlayout"
                 android:gravity="center_vertical|center_horizontal"
                 android:orientation="horizontal"
-                android:padding="10dp"
                 android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/iv_multiWindow"
+                    android:padding="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/btn_selector"
                     android:src="@drawable/ic_multi_window" />
             </LinearLayout>
 
@@ -289,10 +332,29 @@
                         android:background="@drawable/rectangle_outline"
                         android:paddingLeft="4dp"
                         android:paddingRight="4dp" />
+
+                    <LinearLayout
+                        android:id="@+id/ll_ChLogo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="5dp"
+                        android:baselineAligned="true"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/iv_ChLogo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/transparent"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+
                     <TextView
                         android:id="@+id/servicename"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:singleLine="true"
                         android:textColor="@color/white"
                         android:textSize="15dp"
@@ -301,6 +363,7 @@
                         android:marqueeRepeatLimit="marquee_forever"
                         android:padding="2dp" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -350,19 +413,37 @@
             <LinearLayout
                 android:id="@+id/ll_uiLock"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="30dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="10dp">
+                android:orientation="horizontal" >
 
                 <ImageView
                     android:id="@+id/iv_uiLock"
+                    android:padding="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/btn_selector"
                     android:src="@drawable/ic_lock_outline_white_48dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_exit"
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/btn_selector"
+                    android:src="@drawable/close" />
             </LinearLayout>
 
         </LinearLayout>
@@ -397,7 +478,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="70dp"
+            android:layout_marginTop="55dp"
             android:gravity="center_vertical|center_horizontal"
             android:id="@+id/earphoneLayout">
 
@@ -407,18 +488,18 @@
                 android:id="@+id/earphone"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_earphone_bg"
-                android:background="@drawable/circle_roundlayout"
+                android:background="@drawable/btn_selector"
                 android:visibility="visible"
-                android:padding="5dp" />
+                android:padding="10dp" />
 
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/speaker"
-                android:background="@drawable/circle_roundlayout"
+                android:background="@drawable/btn_selector"
                 android:src="@drawable/ic_speaker_bg"
                 android:visibility="invisible"
-                android:padding="5dp" />
+                android:padding="10dp" />
 
         </RelativeLayout>
 
@@ -756,15 +837,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/bcas_card_insert_msg"
-                android:textSize="18dp"
+                android:textSize="15dp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:id="@+id/bcas_card_insert_msg"
                 android:visibility="invisible"
                 android:background="@color/window_transparent_color"
-                android:layout_marginTop="180dp" />
+                android:layout_marginTop="100dp" />
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -788,7 +868,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:background="@drawable/circle_roundlayout"
+                    android:background="@drawable/btn_selector"
                     android:padding="5dp"
                     android:src="@drawable/arrow_up_f" />
                 <!--
@@ -808,11 +888,11 @@
                     android:id="@+id/button_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="120dp"
+                    android:layout_marginBottom="40dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginTop="120dp"
-                    android:background="@drawable/circle_roundlayout"
+                    android:layout_marginTop="40dp"
+                    android:background="@drawable/btn_selector"
                     android:padding="5dp"
                     android:src="@drawable/tv_ch_f" />
 
@@ -822,7 +902,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:background="@drawable/circle_roundlayout"
+                    android:background="@drawable/btn_selector"
                     android:padding="5dp"
                     android:src="@drawable/arrow_down_f" />
             </LinearLayout>

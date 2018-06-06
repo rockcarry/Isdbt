@@ -1,6 +1,7 @@
 package kr.co.fci.tv.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,8 @@ import android.widget.LinearLayout;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
 
+import java.util.List;
+
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.buildOption;
 import kr.co.fci.tv.saves.CommonStaticData;
@@ -25,6 +28,8 @@ import kr.co.fci.tv.saves.CommonStaticData;
 public class OpenActivity extends Activity {
 
     //ActionBar abar;
+
+    private static String TAG = "OpenActivity ";
 
     Context mContext;
 
@@ -77,7 +82,7 @@ public class OpenActivity extends Activity {
         title_open.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-            		CommonStaticData.openActivityShow = false;   // justin add for dongle detached
+                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 Intent intent = new Intent(kr.co.fci.tv.activity.OpenActivity.this, AboutActivity.class);
                 startActivity(intent);
                 finish();
@@ -157,7 +162,7 @@ public class OpenActivity extends Activity {
         button_extra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            		CommonStaticData.openActivityShow = false;   // justin add for dongle detached
+                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 finish();
             }
         });
@@ -167,7 +172,7 @@ public class OpenActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-            	CommonStaticData.openActivityShow = false;   // justin add for dongle detached
+                CommonStaticData.openActivityShow = false;   // justin add for dongle detached
                 Intent homeIntent = new Intent(this, AboutActivity.class);
                 homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(homeIntent);
@@ -303,4 +308,14 @@ public class OpenActivity extends Activity {
         //return super.onCreateDialog(id);
     }
 
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
+    }
 }

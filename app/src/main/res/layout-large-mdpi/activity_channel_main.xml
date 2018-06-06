@@ -9,7 +9,47 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:background="@drawable/tab_bg_selector"
+            android:id="@+id/title_channels">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_arrow_back_white"
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center_vertical"
+                android:background="@color/transparent"
+                android:id="@+id/btn_back_channels" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="@string/channels"
+                android:textColor="@color/white"
+                android:textSize="18dp"
+                android:gravity="center_vertical"
+                android:textStyle="bold"
+                android:layout_marginLeft="10dp"
+                android:background="@color/transparent"
+                android:paddingLeft="10dp"
+                android:paddingRight="20dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:background="@drawable/tab_bg_unselected"></LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -19,16 +59,15 @@
             android:layout_weight="1">
             <Button
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="50dp"
                 android:text="@string/channels"
                 android:id="@+id/button_channels"
                 android:gravity="center"
-                android:textColor="@drawable/tab_text_selector"
                 android:textStyle="bold"
                 android:singleLine="false"
                 android:src="@drawable/tab_bg_selector"
                 android:background="@drawable/tab_bg_selector"
-                android:textSize="25dp" />
+                android:textSize="18dp" />
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
@@ -54,20 +93,19 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_weight="1">
             <Button
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="50dp"
                 android:text="@string/favorites"
                 android:id="@+id/button_favorites"
                 android:gravity="center"
-                android:textColor="@drawable/tab_text_selector"
                 android:textStyle="bold"
                 android:src="@drawable/tab_bg_selector"
                 android:background="@drawable/tab_bg_selector"
-                android:textSize="25dp"/>
+                android:textSize="18dp"/>
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
@@ -85,15 +123,9 @@
 
         <FrameLayout
             android:id="@+id/content_frame"
-            android:layout_width="600dp"
-            android:layout_height="wrap_content" >
-        </FrameLayout>
-
-        <Button
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/button_extra"
-            android:background="@color/transparent" />
+            android:layout_height="match_parent">
+        </FrameLayout>
 
 
     </LinearLayout>

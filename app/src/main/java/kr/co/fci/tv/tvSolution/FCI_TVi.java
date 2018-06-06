@@ -36,9 +36,11 @@ public class FCI_TVi {
     private static int devUsbFd = -1;
     private static String devUsbName = null;
     private static int devOSVersion = 0;
+    private static String mPackageName = null;
     // ]]usbdongle
     //device init failed[[
     public static boolean initiatedSol = true;
+    public static boolean BBStateOn = false;
     //]]device init failed
 
     public static int currentDualmode = FCI_TV.CHSTART_SINGLE;
@@ -58,8 +60,18 @@ public class FCI_TVi {
     private static void setCallback()
     {
         itv.setCallback(new FCI_TV.Callback() {
-            public void Cb(int _result, int arg1, int arg2, String arg3, Object arg4 ){
+            public void Cb(int _result, int arg1, int arg2, Object arg3, Object arg4 ){
                 switch (_result) {
+                    case FCI_TV.MSG_BB_INIT_REQUEST: {
+                        final BBInitRunnable runnable = new BBInitRunnable();
+                        Thread thrBB = new Thread(runnable);
+                        BBStateOn = false;
+                        TVlog.i(TAG, "-------------BB not yet initalized---------------");
+                        TVlog.i(TAG, "-------------send E_BB_INIT---------------");
+                        TVBridge.sendEventToMain(TVEVENT.E_BB_INIT);
+                        thrBB.start();
+                    }
+                    break;
 
                     case FCI_TV.MSG_FIRST_VIDEO_START: {
                         TVlog.i(TAG, " MSG_FIRST_VIDEO_START ");
@@ -179,7 +191,7 @@ public class FCI_TVi {
                         int found = (int)notiMSG.found;
                         int freqKHz = (int)notiMSG.freqKHz;
                         String svcName = (String) arg3;
-                        TVBridge.handoverProgress(progressPercent, found, freqKHz, svcName);
+                        TVBridge.handoverProgress(progressPercent, found, freqKHz, svcName, (int)notiMSG.loopCount);
                     }
                     break;
 
@@ -188,6 +200,11 @@ public class FCI_TVi {
                         int total = (int)arg2;
                         int updateMode = (int)arg4;
                         TVBridge.handoverSuccess(index, total, updateMode);
+                    }
+                    break;
+
+                    case FCI_TV.MSG_HANDOVER_FAILURE_NOTIFY: {
+                        TVBridge.handoverFailure((int)arg1, (int)arg2, (int)arg4);
                     }
                     break;
 
@@ -216,6 +233,27 @@ public class FCI_TVi {
                             areaCodes = (int[])arg4;
                         }
                         TVBridge.ewsInfoNoti(startEndFlag, signalLevel, areaCodes);
+                    }
+                    break;
+
+
+                    case FCI_TV.MSG_LOGO_UPDATE_NOTIFY: {
+                        int dataLen = (int)arg1;
+                        byte[] logo = null;
+                        int [] logoInfo = null;
+                        if (arg3 != null) {
+                            logo = (byte[])arg3;
+                        }
+                        if (arg4 != null) {
+                            logoInfo = (int[])arg4;
+                        }
+                        if (FloatingWindow.isFloating) {
+                            TVBridge.logoInfoNotiFloating(dataLen, logo, logoInfo);
+                        } else if (ChatMainActivity.isChat) {
+                            TVBridge.logoInfoNotiChat(dataLen, logo, logoInfo);
+                        } else {
+                            TVBridge.logoInfoNoti(dataLen, logo, logoInfo);
+                        }
                     }
                     break;
 
@@ -368,7 +406,7 @@ public class FCI_TVi {
 
                     case FCI_TV.MSG_AUDIO_CONFIG_UPDATE_NOTIFY: {
                         TVlog.i(TAG, " MSG_AUDIO_CONFIG_UPDATE_NOTIFY");
-                        MainActivity.getInstance().sendEvent(TVEVENT.E_ADUIO_CONFIG_UPDATED);
+                        MainActivity.getInstance().sendEvent(TVEVENT.E_AUDIO_CONFIG_UPDATED);
                     }
                     break;
                 }
@@ -529,33 +567,10 @@ public class FCI_TVi {
         devUsbFd = _param1;
         devUsbName = _param2;
         devOSVersion = _param3;
+        mPackageName = _name;
         //]]usbdongle
         rcode = itv.init(_name, devUsbFd, devUsbName, devOSVersion);
-//device init failed[[
-        if (rcode != 0) {
-            initiatedSol = false;
-            if (buildOption.FCI_SOLUTION_MODE != buildOption.JAPAN_FILE &&
-                    buildOption.FCI_SOLUTION_MODE != buildOption.BRAZIL_FILE &&
-                    buildOption.FCI_SOLUTION_MODE != buildOption.PHILIPPINES_FILE) {
 
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                    itv.ChangeMWMode(buildOption.JAPAN_FILE);
-                }
-                else if (buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB) {
-                    itv.ChangeMWMode(buildOption.PHILIPPINES_FILE);
-                }
-                else {
-                    itv.ChangeMWMode(buildOption.BRAZIL_FILE);
-                }
-                itv.init(_name, devUsbFd, devUsbName, devOSVersion);
-            }
-        } else {
-            initiatedSol = true;
-        }
-
-//]]device init failed
         if (buildOption.RECORDING_FILE_SYSTEM_MODE == 0) {
             itv.setRecordingMode(buildOption.RECORDING_CLIP_SIZE, FCI_TV.RECORDING_SYSTEM_SETTING_SUPPORT_MODE, _forceRecPath);
         } else {
@@ -688,6 +703,12 @@ public class FCI_TVi {
     public static void AVStart(int _ID, int _switchMode) {
         if (itv != null) {
             CommonStaticData.isSwitched = false;
+            // live add - 180524
+            if (SignalMonitor.getInstance() != null) {
+                CommonStaticData.isBadSignalFlag = false;
+                SignalMonitor.getInstance().handover_counter = 0;
+            }
+
             if (buildOption.LOG_CAPTURE_MODE == 2 || buildOption.LOG_CAPTURE_MODE == 3) {
                 startLogCaptue(_ID);
             }
@@ -730,6 +751,12 @@ public class FCI_TVi {
             if ( currentDualmode  == _mode)
             {
                 subSurfaceViewOnOff(_mode);
+            }
+
+            // live add - 180524
+            if (SignalMonitor.getInstance() != null) {
+                CommonStaticData.isBadSignalFlag = false;
+                SignalMonitor.getInstance().handover_counter = 0;
             }
 
             retSwitch = itv.AVSwitch(_ID, _mode);
@@ -805,7 +832,7 @@ public class FCI_TVi {
             itv = getFCITV();
             if (buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_TS) {
                 itv.TSRecStop();
-            } else { //(buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_MP4)
+            } else { // (buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_MP4)
                 itv.RecStop(_background);
             }
         }
@@ -881,6 +908,10 @@ public class FCI_TVi {
 
     public static int ScanStart(byte _opMode) {
         if (itv != null) {
+            if (_opMode < FCI_TV.BB_HANDOVER_RELAY_N_AFFILIATION || _opMode > FCI_TV.BB_HANDOVER_RELAY_ONLY_ONESHOT_FULLSCAN) {
+                TVlog.e(TAG, "scan handover mode invalid! (_mode=" + _opMode + ")");
+                return -1;
+            }
             return itv.ScanStart(_opMode);
         }
         else {
@@ -1417,4 +1448,53 @@ public class FCI_TVi {
             return -1;
         }
     }
+
+    // Runnable class for BB init
+    static class BBInitRunnable implements Runnable{
+        @Override
+        public void run() {
+            if (itv != null) {
+                int rcode = 0;
+                rcode = itv.initBB(mPackageName, devUsbFd, devUsbName, devOSVersion);
+                if (rcode != 0) {
+                    initiatedSol = false;
+                    if (buildOption.FCI_SOLUTION_MODE != buildOption.JAPAN_FILE &&
+                            buildOption.FCI_SOLUTION_MODE != buildOption.BRAZIL_FILE &&
+                            buildOption.FCI_SOLUTION_MODE != buildOption.PHILIPPINES_FILE) {
+
+                        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                            itv.ChangeMWMode(buildOption.JAPAN_FILE);
+                        } else if (buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES ||
+                                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB) {
+                            itv.ChangeMWMode(buildOption.PHILIPPINES_FILE);
+                        } else {
+                            itv.ChangeMWMode(buildOption.BRAZIL_FILE);
+                        }
+                        itv.initBB(mPackageName, devUsbFd, devUsbName, devOSVersion);
+                        TVlog.i(TAG, "-------------send E_BB_FAILURE---------------");
+                        TVBridge.sendEventToMain(TVEVENT.E_BB_FAILURE);
+                    }
+                } else {
+                    if (buildOption.FCI_SOLUTION_MODE != itv.GetMWMode()) {
+                        initiatedSol = false;
+                        TVlog.i(TAG, "-------------send E_BB_FAILURE2---------------");
+                        TVBridge.sendEventToMain(TVEVENT.E_BB_FAILURE);
+                    } else {
+                        initiatedSol = true;
+                        TVlog.i(TAG, "-------------send E_BB_SUCCESS---------------");
+                        TVBridge.sendEventToMain(TVEVENT.E_BB_SUCCESS);
+                    }
+                }
+
+            }
+            while(BBStateOn == false) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } // end while
+        } // end run()
+    } // end class BBInitRunnable
 }

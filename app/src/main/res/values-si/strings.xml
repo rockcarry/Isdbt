@@ -422,5 +422,6 @@
     <string name="type_HD">HD</string>
     <string name="switch_fail_HD">මාරුවීමට HD නාලිකාව නොමැත.</string>
     <string name="switch_fail_SD">මාරු කිරීම සඳහා SD චැනලයක් නැත.</string>
+    <string name="init_device">උපාංගය ආරම්භ කිරීම ...</string>
 
 </resources>

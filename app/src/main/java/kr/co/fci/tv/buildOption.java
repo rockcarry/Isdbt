@@ -5,21 +5,21 @@ package kr.co.fci.tv;
 public class buildOption {
 
     // Define Country and Mode
-    public final static int JAPAN = 0;
-    public final static int BRAZIL = 1;
-    public final static int PHILIPPINES = 2;
-    public final static int SRILANKA = 3;
-    public final static int JAPAN_ONESEG = 4;
-    public final static int BRAZIL_ONESEG = 5;
-    public final static int PHILIPPINES_ONESEG = 6;
-    public final static int SRILANKA_ONESEG = 7;
-    public final static int JAPAN_USB = 8;
-    public final static int BRAZIL_USB = 9;
-    public final static int PHILIPPINES_USB = 10;
-    public final static int SRILANKA_USB = 11;
-    public final static int JAPAN_FILE = 12;
-    public final static int BRAZIL_FILE = 13;
-    public final static int PHILIPPINES_FILE = 14;
+    public final static int JAPAN = 1;
+    public final static int BRAZIL = 2;
+    public final static int PHILIPPINES = 3;
+    public final static int SRILANKA = 4;
+    public final static int JAPAN_ONESEG = 5;
+    public final static int BRAZIL_ONESEG = 6;
+    public final static int PHILIPPINES_ONESEG = 7;
+    public final static int SRILANKA_ONESEG = 8;
+    public final static int JAPAN_USB = 9;
+    public final static int BRAZIL_USB = 10;
+    public final static int PHILIPPINES_USB = 11;
+    public final static int SRILANKA_USB = 12;
+    public final static int JAPAN_FILE = 13;
+    public final static int BRAZIL_FILE = 14;
+    public final static int PHILIPPINES_FILE = 15;
 
     // Define SW or H/W
     public final static int VIDEOCODEC_TYPE_MEDIACODEC = 0;
@@ -97,6 +97,8 @@ public class buildOption {
     public final static boolean SKIP_AV_ERROR_DATA = cReleaseOption.SKIP_AV_ERROR_DATA; //true = no mosaic / false = mosaic allowed
     public final static boolean USE_MULTI_WINDOW = cReleaseOption.USE_MULTI_WINDOW;
     public final static boolean USE_CHAT_FUNCTION = cReleaseOption.USE_CHAT_FUNCTION;
+    public final static boolean VIEW_BROADCAT_STATION_LOGO =  cReleaseOption.VIEW_BROADCAT_STATION_LOGO;
+    public final static boolean VIEW_EXIT_BUTTON =  cReleaseOption.VIEW_EXIT_BUTTON;
 
     // File system path
     //public final static String PHONE_DRIVE_PATH = cReleaseOption.PHONE_DRIVE_PATH;

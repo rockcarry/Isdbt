@@ -1,9 +1,11 @@
 package kr.co.fci.tv.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +23,8 @@ import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.util.List;
 
 import kr.co.fci.tv.MainActivity;
 import kr.co.fci.tv.R;
@@ -123,6 +127,7 @@ public class IntroActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
 
         getIntent().addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);      
@@ -452,6 +457,16 @@ public class IntroActivity extends Activity {
         set.setFillAfter(true);
 
         return set;
+    }
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
     }
 }
 

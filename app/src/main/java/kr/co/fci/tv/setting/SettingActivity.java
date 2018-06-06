@@ -1,6 +1,7 @@
 package kr.co.fci.tv.setting;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -30,8 +31,8 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
-import com.fci.tv.FCI_TV;
 
+import java.util.List;
 import java.util.Locale;
 
 import kr.co.fci.tv.FloatingWindow;
@@ -596,6 +597,16 @@ public class SettingActivity extends Activity {
 
 
         button_svcmodeswitch = (Button) findViewById(R.id.button_svcmodeswitch);
+        arr_svcmodeswitch_jp = getResources().getStringArray(R.array.svcmode_switch_jp);
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+            int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
+            if (button_svcmodeswitch != null) {
+                button_svcmodeswitch.setText(arr_svcmodeswitch_jp[receiveMode]);
+            }
+        }
         button_svcmodeswitch.setTextColor(getResources().getColorStateList(R.color.blue3));
         button_svcmodeswitch.setTypeface(null, Typeface.BOLD);
         //button_svcmodeswitch.setShadowLayer(10.0f, 0.0f, 0.0f, Color.WHITE);
@@ -5072,111 +5083,79 @@ public class SettingActivity extends Activity {
                                     CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = CommonStaticData.settings.edit();
                                     CommonStaticData.localeSet = dialog_locale_selected;
-
+                                    settingRestore();   // 20180329 justin
                                     switch(CommonStaticData.localeSet) {
-                                        case 4:     //brazil
-                                            //    MainActivity.getInstance().envSet_Normal();
-                                            settingRestore();
-                                            if (cReleaseOption.FCI_SOLUTION_MODE >= 8 && cReleaseOption.FCI_SOLUTION_MODE <= 11) {
+                                    case 4:     // brazil
+                                        if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_USB && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_USB) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_USB;
+                                            CommonStaticData.solutionMode = buildOption.BRAZIL_USB;
+                                        } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_ONESEG) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL;
+                                            CommonStaticData.solutionMode = buildOption.BRAZIL;
+                                        } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_FILE) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_FILE;
+                                            CommonStaticData.solutionMode = buildOption.BRAZIL_FILE;
+                                        }
+                                        break;
+                                    case 10:    // japan
+                                        if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_USB && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_USB) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.JAPAN_USB;
+                                            CommonStaticData.solutionMode = buildOption.JAPAN_USB;
+                                        } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_ONESEG) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.JAPAN;
+                                            CommonStaticData.solutionMode = buildOption.JAPAN;
+                                        } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_FILE) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.JAPAN_FILE;
+                                            CommonStaticData.solutionMode = buildOption.JAPAN_FILE;
+                                        }
+                                        break;
+
+                                    case 15:    // philippines
+                                        if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_USB && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_USB) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.PHILIPPINES_USB;
+                                            CommonStaticData.solutionMode = buildOption.PHILIPPINES_USB;
+                                        } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_ONESEG) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.PHILIPPINES;
+                                            CommonStaticData.solutionMode = buildOption.PHILIPPINES;
+                                        } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_FILE) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.PHILIPPINES_FILE;
+                                            CommonStaticData.solutionMode = buildOption.PHILIPPINES_FILE;
+                                        }
+                                        break;
+
+                                    case 16:    // sri_kanka
+                                        if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_USB && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_USB) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.SRILANKA_USB;
+                                            CommonStaticData.solutionMode = buildOption.SRILANKA_USB;
+                                        } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_FILE) {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_FILE;
+                                            CommonStaticData.solutionMode = buildOption.BRAZIL_FILE;
+                                        } else {
+                                            buildOption.FCI_SOLUTION_MODE = buildOption.SRILANKA;
+                                            CommonStaticData.solutionMode = buildOption.SRILANKA;
+                                        }
+                                        break;
+                                    default:    // default all Brazil
+                                        if (CommonStaticData.solutionMode != buildOption.BRAZIL && CommonStaticData.solutionMode != buildOption.BRAZIL_USB) {
+                                            if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_USB && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_USB) {
                                                 buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_USB;
                                                 CommonStaticData.solutionMode = buildOption.BRAZIL_USB;
-                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= 0 && cReleaseOption.FCI_SOLUTION_MODE <= 7) {
+                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_ONESEG) {
                                                 buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL;
                                                 CommonStaticData.solutionMode = buildOption.BRAZIL;
-                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= 12) {
+                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_FILE) {
                                                 buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_FILE;
                                                 CommonStaticData.solutionMode = buildOption.BRAZIL_FILE;
                                             }
-                                            editor.putInt(CommonStaticData.localeSetKey, CommonStaticData.localeSet);
-                                            editor.putInt(CommonStaticData.solutionModeKey, CommonStaticData.solutionMode);
-                                            editor.commit();
-
-                                            MainActivity.getInstance().reStart_TV();
-                                            postEvent(TVEVENT.E_SOLUTION_MODE_SWITCHING, SCAN_WAIT_TIME);
-                                            break;
-                                        case 10:     // japan
-                                            //MainActivity.getInstance().envSet_JP();
-                                            settingRestore();
-                                            if (cReleaseOption.FCI_SOLUTION_MODE >= 8 && cReleaseOption.FCI_SOLUTION_MODE <= 11) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.JAPAN_USB;
-                                                CommonStaticData.solutionMode = buildOption.JAPAN_USB;
-                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= 0 && cReleaseOption.FCI_SOLUTION_MODE <= 7) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.JAPAN;
-                                                CommonStaticData.solutionMode = buildOption.JAPAN;
-                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= 12) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.JAPAN_FILE;
-                                                CommonStaticData.solutionMode = buildOption.JAPAN_FILE;
-                                            }
-                                            editor.putInt(CommonStaticData.localeSetKey, CommonStaticData.localeSet);
-                                            editor.putInt(CommonStaticData.solutionModeKey, CommonStaticData.solutionMode);
-                                            editor.commit();
-
-                                            MainActivity.getInstance().reStart_TV();
-                                            postEvent(TVEVENT.E_SOLUTION_MODE_SWITCHING, SCAN_WAIT_TIME);
-                                            break;
-
-                                        case 15:    // philippines
-                                            //   MainActivity.getInstance().envSet_Normal();
-                                            if (cReleaseOption.FCI_SOLUTION_MODE >= 8 && cReleaseOption.FCI_SOLUTION_MODE <= 11) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.PHILIPPINES_USB;
-                                                CommonStaticData.solutionMode = buildOption.PHILIPPINES_USB;
-                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= 0 && cReleaseOption.FCI_SOLUTION_MODE <= 7) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.PHILIPPINES;
-                                                CommonStaticData.solutionMode = buildOption.PHILIPPINES;
-                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= 12) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.PHILIPPINES_FILE;
-                                                CommonStaticData.solutionMode = buildOption.PHILIPPINES_FILE;
-                                            }
-                                            editor.putInt(CommonStaticData.localeSetKey, CommonStaticData.localeSet);
-                                            editor.putInt(CommonStaticData.solutionModeKey, CommonStaticData.solutionMode);
-                                            editor.commit();
-
-                                            MainActivity.getInstance().reStart_TV();
-                                            postEvent(TVEVENT.E_SOLUTION_MODE_SWITCHING, SCAN_WAIT_TIME);
-                                            break;
-
-                                        case 16:    // sri_kanka
-                                            //    MainActivity.getInstance().envSet_Normal();
-                                            if (cReleaseOption.FCI_SOLUTION_MODE >= 8 && cReleaseOption.FCI_SOLUTION_MODE <=11) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.SRILANKA_USB;
-                                                CommonStaticData.solutionMode = buildOption.SRILANKA_USB;
-                                            } else if (cReleaseOption.FCI_SOLUTION_MODE >= 12) {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_FILE;
-                                                CommonStaticData.solutionMode = buildOption.BRAZIL_FILE;
-                                            } else {
-                                                buildOption.FCI_SOLUTION_MODE = buildOption.SRILANKA;
-                                                CommonStaticData.solutionMode = buildOption.SRILANKA;
-                                            }
-                                            editor.putInt(CommonStaticData.localeSetKey, CommonStaticData.localeSet);
-                                            editor.putInt(CommonStaticData.solutionModeKey, CommonStaticData.solutionMode);
-                                            editor.commit();
-
-                                            MainActivity.getInstance().reStart_TV();
-                                            postEvent(TVEVENT.E_SOLUTION_MODE_SWITCHING, SCAN_WAIT_TIME);
-                                            break;
-                                        default:    // default all Brazil
-                                            if (CommonStaticData.solutionMode != buildOption.BRAZIL && CommonStaticData.solutionMode != buildOption.BRAZIL_USB) {
-                                                //    MainActivity.getInstance().envSet_Normal();
-                                                if (cReleaseOption.FCI_SOLUTION_MODE >= 8 && cReleaseOption.FCI_SOLUTION_MODE <= 11) {
-                                                    buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_USB;
-                                                    CommonStaticData.solutionMode = buildOption.BRAZIL_USB;
-                                                } else if (cReleaseOption.FCI_SOLUTION_MODE >= 0 && cReleaseOption.FCI_SOLUTION_MODE <= 7) {
-                                                    buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL;
-                                                    CommonStaticData.solutionMode = buildOption.BRAZIL;
-                                                } else if (cReleaseOption.FCI_SOLUTION_MODE >= 12) {
-                                                    buildOption.FCI_SOLUTION_MODE = buildOption.BRAZIL_FILE;
-                                                    CommonStaticData.solutionMode = buildOption.BRAZIL_FILE;
-                                                }
-                                                editor.putInt(CommonStaticData.localeSetKey, CommonStaticData.localeSet);
-                                                editor.putInt(CommonStaticData.solutionModeKey, CommonStaticData.solutionMode);
-                                                editor.commit();
-
-                                                MainActivity.getInstance().reStart_TV();
-                                                postEvent(TVEVENT.E_SOLUTION_MODE_SWITCHING, SCAN_WAIT_TIME);
-
-                                            }
-                                            break;
+                                        }
+                                        break;
                                     }
+                                    editor.putInt(CommonStaticData.localeSetKey, CommonStaticData.localeSet);
+                                    editor.putInt(CommonStaticData.solutionModeKey, CommonStaticData.solutionMode);
+                                    editor.commit();
+
+                                    MainActivity.getInstance().reStart_TV();
+                                    postEvent(TVEVENT.E_SOLUTION_MODE_SWITCHING, SCAN_WAIT_TIME);
                                 }
                                 //]]
                                 try {
@@ -5677,5 +5656,15 @@ public class SettingActivity extends Activity {
         super.onResume();
     }
     */
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
+    }
 }
 

@@ -424,5 +424,6 @@
     <string name="type_HD">地上D</string>
     <string name="switch_fail_HD">切り替える地上Dチャンネルはありません。</string>
     <string name="switch_fail_SD">切り替えるワンセグチャンネルはありません。</string>
+    <string name="init_device">デバイスの初期化中...</string>
 
 </resources>

@@ -422,5 +422,6 @@
     <string name="type_HD">HD</string>
     <string name="switch_fail_HD">There is no HD channel to switch.</string>
     <string name="switch_fail_SD">There is no SD channel to switch.</string>
+    <string name="init_device">Device Initializing...</string>
 
 </resources>

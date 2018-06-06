@@ -60,6 +60,7 @@ public class SignalMonitor {
     public SignalMonitor(ImageView _img)
     {
         signalImage = _img;
+        instance = this;
     }
 
     public int getSignal()
@@ -98,17 +99,13 @@ public class SignalMonitor {
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
-            if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0 && ((MainActivity.getInstance().is_inserted_card==1)||(MainActivity.getInstance().is_inserted_card==2))) {
-                if (CommonStaticData.isBadSignalFlag == true) {
-                    if (CommonStaticData.scanningNow == false) {
-                        handover_counter++;
-                    } else {
-                        handover_counter = 0;
-                    }
+            if (CommonStaticData.autoSearch == 0 && CommonStaticData.scanCHnum > 0) {
+                if (CommonStaticData.isBadSignalFlag == true && CommonStaticData.scanningNow == false) {
+                    handover_counter++;
                 } else {
                     handover_counter = 0;
                 }
-                TVlog.i("live", " >>> handover_counter = "+handover_counter);
+                TVlog.i(TAG, " >>> handover_counter = "+handover_counter);
                 if (handover_counter == MainActivity.HANDOVER_COUNT) {
                     MainActivity.getInstance().sendEvent(TVEVENT.E_SCAN_HANDOVER_START);
                     handover_counter = 0;

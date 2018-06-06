@@ -1,6 +1,8 @@
 package kr.co.fci.tv.recording;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -14,8 +16,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.fci.tv.FCI_TV;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -514,4 +514,14 @@ public class RecordedFileListActivity extends Activity {
             return collator.compare(lhs.getFileName(),rhs.getFileName());
         }
     };
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
+    }
 }

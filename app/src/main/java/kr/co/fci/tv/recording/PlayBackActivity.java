@@ -1,6 +1,7 @@
 package kr.co.fci.tv.recording;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -1234,6 +1235,17 @@ public class PlayBackActivity extends Activity {
             MainActivity.sv.setBackgroundResource(R.color.black);
         }
         super.onDestroy();
+    }
+
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
     }
 }
 

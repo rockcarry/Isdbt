@@ -18,6 +18,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -75,10 +77,10 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
-import com.fci.tv.FCI_TV;
 import com.lme.dtv.lmedtvsdk;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -86,6 +88,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,7 +100,6 @@ import java.util.Locale;
 import kr.co.fci.tv.activity.AboutActivity;
 import kr.co.fci.tv.activity.OpenActivity;
 import kr.co.fci.tv.channelList.Channel;
-import kr.co.fci.tv.channelList.ChannelListAdapter;
 import kr.co.fci.tv.channelList.ChannelMainActivity;
 import kr.co.fci.tv.chat.ChatMainActivity;
 import kr.co.fci.tv.epgInfo.EPGActivity;
@@ -133,6 +136,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     private static String TAG = "FCITvApp ";
     private static String TAG_Debug = "Debugging ";
+
+    CustomToast customToast = null;
+    Handler mHandler_toast;
+
+    public Context mContext = MainActivity.this;
+
+    String logoDirPath = "";
+    File logoFile;
+    List logoList;
 
     public static int lastIndex = -1;
 
@@ -245,6 +257,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     public static ProgressBar progressingChange;
     public static TextView loadingChannel;
     private TextView loadingFilePlay;
+
+    public static LinearLayout initDeviceView = null;
+    public static TextView initDevice;
+
     public static ImageView channelChangeBG = null;
 
     public static LinearLayout ll_mainAutoSearch;
@@ -293,6 +309,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     ImageView iv_uiLocked;
     public boolean isUiLocked = false;
 
+    LinearLayout ll_exit;
     ImageButton earphone;
     ImageButton speaker;
     ImageButton ch_up;
@@ -565,11 +582,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
-    CustomToast customToast = null;
-
     public RelativeLayout rl_ChType;
     ImageView iv_ChType;
     ImageView iv_ChFree;
+    ImageView iv_ChLogo;
 
     public Handler TVUI_Handler = new Handler() {
 
@@ -582,6 +598,49 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 TVlog.i(TAG, "---------------- TV OFF -------------------");
                 return;
             }
+            if (FCI_TVi.BBStateOn == false) {
+                TVlog.i(TAG, "-------------BB not yet initalized---------------");
+                switch (event) {
+                    case E_TERMINATE: {
+                        TVlog.i(TAG, "==== call finish before initBB ======");
+                        finish();
+                    }
+                    break;
+
+                    case E_BB_INIT: {
+                        if (initDeviceView != null) {
+                            initDeviceView.setVisibility(View.VISIBLE);
+                        }
+                        hideAllViewDisplay();
+                    }
+                    break;
+
+                    case E_BB_FAILURE: {
+                        TVlog.i(TAG, "E_BB_FAILURE: received");
+                        doProcessAfterInitBB();
+                        if (FCI_TVi.initiatedSol == false) {
+                            showBBInitFailDialog();
+                        }
+                        FCI_TVi.BBStateOn = true;
+                    }
+                    break;
+
+                    case E_BB_SUCCESS: {
+                        TVlog.i(TAG, "E_BB_SUCCESS: received");
+                        doProcessAfterInitBB();
+                        FCI_TVi.BBStateOn = true;
+                    }
+                    break;
+                }
+                return;
+            } else {
+                if (initDeviceView != null) {
+                    if (initDeviceView.getVisibility() == View.VISIBLE) {
+                        initDeviceView.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+
             switch (event) {
                 case E_CAPTION_NOTIFY: {
                     if (CommonStaticData.captionSwitch == true) {
@@ -647,60 +706,62 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 break;
 
                 case E_SUPERIMPOSE_NOTIFY: {
-                    try {
-                        Bundle newSuperimpose = (Bundle) msg.obj;
-                        if (newSuperimpose != null) {
-                            String superimpose_info = newSuperimpose.getString("superimpose_info");
+                    if (CommonStaticData.superimposeSwitch == true) {
+                        try {
+                            Bundle newSuperimpose = (Bundle) msg.obj;
+                            if (newSuperimpose != null) {
+                                String superimpose_info = newSuperimpose.getString("superimpose_info");
 
-                            if (superimpose_info.length() > 0) {
-                                //JAPAN_CAPTION[[
-                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                                    if (mSuperimposeView != null) {
-                                        mSuperimposeView.setText(superimpose_info);
-                                        mSuperimposeView.invalidate();
+                                if (superimpose_info.length() > 0) {
+                                    //JAPAN_CAPTION[[
+                                    if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                        if (mSuperimposeView != null) {
+                                            mSuperimposeView.setText(superimpose_info);
+                                            mSuperimposeView.invalidate();
+                                        }
                                     }
-                                }
-                                //]]JAPAN_CAPTION
-                                else {
-                                    // live modify
-                                    if (CommonStaticData.superimposeSwitch == true) {
-                                        superImposeView.setVisibility(View.VISIBLE);
-                                    } else {
-                                        superImposeView.setVisibility(View.INVISIBLE);
+                                    //]]JAPAN_CAPTION
+                                    else {
+                                        // live modify
+                                        if (CommonStaticData.superimposeSwitch == true) {
+                                            superImposeView.setVisibility(View.VISIBLE);
+                                        } else {
+                                            superImposeView.setVisibility(View.INVISIBLE);
+                                        }
+                                        //
+                                        superImposeView.setText(Html.fromHtml(superimpose_info));
                                     }
-                                    //
-                                    superImposeView.setText(Html.fromHtml(superimpose_info));
-                                }
 
-                                removeEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
-                                postEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY, SUPERIMPOSE_CLEAR_TIME);
-                            } else {
-                                //JAPAN_CAPTION[[
-                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
-                                    if (mSuperimposeView != null) {
-                                        mSuperimposeView.setText("");
-                                        mSuperimposeView.invalidate();
+                                    removeEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY);
+                                    postEvent(TVEVENT.E_SUPERIMPOSE_CLEAR_NOTIFY, SUPERIMPOSE_CLEAR_TIME);
+                                } else {
+                                    //JAPAN_CAPTION[[
+                                    if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                            || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+                                        if (mSuperimposeView != null) {
+                                            mSuperimposeView.setText("");
+                                            mSuperimposeView.invalidate();
+                                        }
                                     }
-                                }
-                                //]]JAPAN_CAPTION
-                                else {
-                                    // live modify
-                                    if (CommonStaticData.superimposeSwitch == true) {
-                                        superImposeView.setVisibility(View.VISIBLE);
-                                    } else {
-                                        superImposeView.setVisibility(View.INVISIBLE);
+                                    //]]JAPAN_CAPTION
+                                    else {
+                                        // live modify
+                                        if (CommonStaticData.superimposeSwitch == true) {
+                                            superImposeView.setVisibility(View.VISIBLE);
+                                        } else {
+                                            superImposeView.setVisibility(View.INVISIBLE);
+                                        }
+                                        //
+                                        superImposeView.setText(Html.fromHtml(""));
                                     }
-                                    //
-                                    superImposeView.setText(Html.fromHtml(""));
                                 }
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
                 break;
@@ -764,6 +825,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         CommonStaticData.ageLimitFlag = false;
                     }
                     CommonStaticData.isSwitched = false;
+
+                    // live add - 180524
+                    if (signalMoniter != null) {
+                        signalMoniter.handover_counter = 0;
+                    }
+                    //
 
                     if (sv != null && sv.isShown()) {
                         sv.setBackgroundColor(getResources().getColor(R.color.transparent));
@@ -871,6 +938,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
                     CommonStaticData.isSwitched = false;
 
+                    // live add - 180524
+                    if (signalMoniter != null) {
+                        signalMoniter.handover_counter = 0;
+                    }
+                    //
+
                     if (sv != null && sv.isShown()) {
                         sv.setBackgroundColor(getResources().getColor(R.color.transparent));
                     }
@@ -955,10 +1028,23 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 break;
 
-                case E_ADUIO_CONFIG_UPDATED:
+                case E_AUDIO_CONFIG_UPDATED:
                 {
                     TVlog.i(TAG, "Audio configuration updated. set audio path = "+ CommonStaticData.loudSpeaker);
-                    audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+                    if (audioOut != null) {
+                        audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+                    }
+                    //live add - 180502
+
+                    if ((mCursor != null) && (mCursor.getCount() > 0) && (mCursor.getPosition() < mCursor.getCount())) {
+                        int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                        if (type == 0) { // 1seg
+                            CommonStaticData.audiomodeSet = CommonStaticData.settings.getInt(CommonStaticData.audiomodeSwitchKey, 1);
+                            TVlog.i(TAG, " >>> E_AUDIO_CONFIG_UPDATED :: CommonStaticData.audiomodeSet = " + CommonStaticData.audiomodeSet);
+                            FCI_TVi.setAudioMode(CommonStaticData.audiomodeSet);
+                        }
+                    }
+                    //
                 }
                 break;
 
@@ -996,24 +1082,26 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     if (msg.obj != null) {
                         freqKHz = (int) msg.obj;
                     }
-                    //   TVlog.e(TAG, "E_SCAN_PROCESS " + progress + " % " + found + " found");
-                    if (progress < 97) {
-                        if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
-                                || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                            doScan.showProgress(progress, found, freqKHz + 8000, doScan.SHOW_PROGRESS_ON);
+                    // TVlog.e(TAG, "E_SCAN_PROCESS " + progress + " % " + found + " found");
+                    if (doScan != null) {
+                        if (progress < 97) {
+                            if (buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_ONESEG
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                                doScan.showProgress(progress, found, freqKHz + 8000, doScan.SHOW_PROGRESS_ON);
+                            } else {
+                                doScan.showProgress(progress, found, freqKHz + 6000, doScan.SHOW_PROGRESS_ON);
+                            }
+                            CommonStaticData.scanCHnum = found;
+                            mChannelIndex = 0;
+                        } else if (progress >= 97 && progress < 100) {
+                            doScan.showProgress(progress, found, freqKHz, doScan.SHOW_PROGRESS_ON);
+                            CommonStaticData.scanCHnum = found;
+                            mChannelIndex = 0;
                         } else {
-                            doScan.showProgress(progress, found, freqKHz + 6000, doScan.SHOW_PROGRESS_ON);
+                            doScan.showProgress(progress, found, freqKHz, doScan.SHOW_PRORESS_OFF);
+                            //CommonStaticData.scanCHnum = found;
                         }
-                        CommonStaticData.scanCHnum = found;
-                        mChannelIndex = 0;
-                    } else if (progress >= 97 && progress < 100) {
-                        doScan.showProgress(progress, found, freqKHz, doScan.SHOW_PROGRESS_ON);
-                        CommonStaticData.scanCHnum = found;
-                        mChannelIndex = 0;
-                    } else {
-                        doScan.showProgress(progress, found, freqKHz, doScan.SHOW_PRORESS_OFF);
-                        //CommonStaticData.scanCHnum = found;
                     }
                     break;
 
@@ -1061,10 +1149,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     num_Fullseg++;
                                 }
                             }
-                            CustomToast toast = new CustomToast(getApplicationContext());
-                            toast.showToast(getApplicationContext(), CommonStaticData.scanCHnum  + " " + getApplicationContext().getString(R.string.channel_found)
+                            mHandler_toast.post(new ToastRunnable(CommonStaticData.scanCHnum  + " " + getApplicationContext().getString(R.string.channel_found)
                                     +"\n"+getApplicationContext().getString(R.string.type_HD)+" : "+num_Fullseg
-                                    +"\n"+getApplicationContext().getString(R.string.type_SD)+" : "+num_1seg, Toast.LENGTH_LONG);
+                                    +"\n"+getApplicationContext().getString(R.string.type_SD)+" : "+num_1seg));
                         }
 
                         CommonStaticData.scanningNow = false;
@@ -1155,9 +1242,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                             if (CommonStaticData.scanCHnum == 0){   // not found channel
                                                 TVBridge.stop();
                                                 channelChangeEndView(false);
-                                                //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
-                                                CustomToast toast = new CustomToast(getApplicationContext());
-                                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
+                                                //live modify for toast
+                                                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                                             }
                                         }
                                         break;
@@ -1173,9 +1259,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                             if (CommonStaticData.scanCHnum == 0) {   // not found channel
                                                 TVBridge.stop();
                                                 channelChangeEndView(false);
-                                                //viewToastMSG(getResources().getString(R.string.ch_change_fail), false);
-                                                CustomToast toast = new CustomToast(getApplicationContext());
-                                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
+                                                //live modify for toast
+                                                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                                             }
                                         }
                                         break;
@@ -1284,6 +1369,337 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     }
                                 }
                             }
+                            // for Broadcast Station Logo
+                            if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                                    && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                logoList = new ArrayList();
+                                recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                                if (mCursor != null) {
+                                    int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                                    int networkID = TVBridge.getNetworkID(serviceID);
+                                    TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                                    if (networkID == 32391) {  // in case of TYKYO MX
+                                        if (type == 1) { // full-seg
+                                            if ((serviceID&7) == 0 | (serviceID&7) == 1) {
+                                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else if ((serviceID&7) == 2) {
+                                                TVlog.i(TAG, " >>> This channel is MX2");
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else if (type == 0) {
+                                            if ((serviceID&7) == 0) {
+                                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else if ((serviceID&7) == 1) {
+                                                TVlog.i(TAG, " >>> This channel is MX2");
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        logoDirPath = filePath.fullPath+"TVLogos";
+                                        TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                        logoFile = new File(logoDirPath);
+                                        if (!logoFile.exists()) {
+                                            logoFile.mkdirs();
+                                            TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                        }
+                                        File[] list = logoFile.listFiles();
+                                        for (int i=0; i <list.length; i++) {
+                                            logoList.add(list[i].getName());
+                                        }
+                                        TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                        File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                                        String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                                        File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                                        String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                                        File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                                        String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                                        File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                                        String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                                        File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                                        String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                                        File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                                        String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                                        if (iv_ChLogo != null) {
+                                            if (file3.exists() && file3.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file5.exists() && file5.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file4.exists() && file4.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file2.exists() && file2.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file0.exists() && file0.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file1.exists() && file1.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    iv_ChLogo.setVisibility(View.GONE);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                iv_ChLogo.setVisibility(View.GONE);
+                            }
+                            //
+
                             rl_ChType.setVisibility(View.VISIBLE);
 
                             // live add
@@ -1371,6 +1787,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (isScreenOn)
                         {
                             TVlog.i(TAG, " =====  no scan =========");
+                            if (buildOption.ADD_TS_CAPTURE != true) {
+                                TVlog.i("live", " >>> CommonStaticData.scanningNow = "+CommonStaticData.scanningNow);
+                                if (CommonStaticData.scanningNow == false) {  // 20180329 justin
+                                    new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
+                                }
+                            }
+
                             if (currChNo != null && currCH != null&& currRemoteNo != null ) {
                                 currChNo.setText("- -ch");
                                 currRemoteNo.setText("- - -");
@@ -1405,10 +1828,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             {
                                 TVlog.i(TAG, " playback running  ");
                                 break;
-                            }
-
-                            if (buildOption.ADD_TS_CAPTURE != true) {
-                                new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
                             }
                         } else {
                             TVlog.i(TAG, " =====  no scan and screen off =========");
@@ -1471,6 +1890,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     int[] regionCh = (int[]) msg.obj;
                     if (regionCh != null) {
                         TVlog.i(TAG, " >>>>> E_REGION_SCAN_START regionCh length = "+ regionCh.length);
+                        if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
+                            ll_mainAutoSearch.setVisibility(View.INVISIBLE);
+                        }
                         recordingStop(true);
                         TVBridge.scanStop();  //live add
                         TVBridge.stop();
@@ -1659,8 +2081,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_CHANNEL_CHANGE_FAIL:
                     channelChangeEndView(false);
-                    CustomToast toast6 = new CustomToast(getApplicationContext());
-                    toast6.showToast(getApplicationContext(), getApplicationContext().getString(R.string.ch_change_fail), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.ch_change_fail)));
                     break;
 
                 case E_SIGNAL_MONITER:
@@ -1668,7 +2090,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     {
                         int segType;
 
-                        signalMoniter.getSignal();
+                        if (CommonStaticData.scanningNow == false) {
+                            signalMoniter.getSignal();
+                        }
 
                         if (buildOption.ADD_DEBUG_SCREEN) {
                             checkDebugInfo();
@@ -1758,6 +2182,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             break;
                         case 3: //RF signal bad
                             TVlog.i("live", " === E_BADSIGNAL_CHECK case 3 ===");
+
                             CommonStaticData.badSignalFlag = true;
                             CommonStaticData.encryptFlag = false;
                             CommonStaticData.ageLimitFlag = false;
@@ -1765,67 +2190,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 ll_mainAutoSearch.setVisibility(View.INVISIBLE);
                             }
                             if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
-                                if (sv != null && sv.isShown()) {
-                                    sv.setBackgroundColor(getResources().getColor(R.color.black));
-                                }
-                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
-                                    if (svSub != null && svSub.isShown()) {
-                                        svSub.setBackgroundColor(getResources().getColor(R.color.black));
-                                    }
-                                } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
-                                        (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
-                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
-                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
-                                    if (svSub != null && svSub.isShown()) {
-                                        svSub.setBackgroundColor(getResources().getColor(R.color.black));
-                                    }
-                                }
-
-                                ll_scramble_msg.setVisibility(View.INVISIBLE);
-                                ll_noSignal.setVisibility(View.VISIBLE);
-
-                                if (  buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                                   || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                                   || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                   || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                                    ll_file_play_mode_usb.setVisibility(View.INVISIBLE);
-                                } else {
-                                    ll_file_play_mode.setVisibility(View.INVISIBLE);
-                                }
-
-                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
-                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
-                                }
-
-                                signal_check_cnt = 0;
-                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
-                                    if (CommonStaticData.scanCHnum > 0) {
-                                        CommonStaticData.isBadSignalFlag = true;
-                                    }
-                                }
-                            } else {
-                                removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
-                            }
-                            break;
-                        case 4: //program not available
-                            TVlog.i("live", " === E_BADSIGNAL_CHECK case 4 ===");
-                            CommonStaticData.badSignalFlag = true;
-                            CommonStaticData.encryptFlag = false;
-                            CommonStaticData.ageLimitFlag = false;
-                            if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
-                                ll_mainAutoSearch.setVisibility(View.INVISIBLE);
-                            }
-                            if (CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
-                                channelChangeEndView(false);
-                                /*
-                                CustomToast toast7 = new CustomToast(getApplicationContext());
-                                toast7.showToast(getApplicationContext(),
-                                        getApplicationContext().getString(R.string.no_signal_msg)+"\n"+
-                                                getApplicationContext().getString(R.string.program_not_available), Toast.LENGTH_SHORT);
-                                */
-
+                                //new InputDialog(instance, InputDialog.TYPE_SIGNALSTAT_NOTI, null, null, null);
 
                                 if (sv != null && sv.isShown()) {
                                     sv.setBackgroundColor(getResources().getColor(R.color.black));
@@ -1858,7 +2223,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
                                     ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                                 }
-                                //}
+                                signal_check_cnt = 0;
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
@@ -1866,8 +2231,57 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         CommonStaticData.isBadSignalFlag = true;
                                     }
                                 }
+                            } else {
+                                removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                             }
-                            else {
+                            break;
+                        case 4: // program not available
+                            TVlog.i("live", " === E_BADSIGNAL_CHECK case 4 ===");
+
+                            CommonStaticData.badSignalFlag = true;
+                            CommonStaticData.encryptFlag = false;
+                            CommonStaticData.ageLimitFlag = false;
+                            if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
+                                ll_mainAutoSearch.setVisibility(View.INVISIBLE);
+                            }
+                            if(CommonStaticData.scanningNow==false && CommonStaticData.scanCHnum > 0) {
+                                channelChangeEndView(false);
+                                if (sv != null && sv.isShown()) {
+                                    sv.setBackgroundColor(getResources().getColor(R.color.black));
+                                }
+                                if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_AUTODETECT) {
+                                    if (svSub != null && svSub.isShown()) {
+                                        svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                                    }
+                                } else if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_MEDIACODEC &&
+                                        (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN ||
+                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                                                buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                    if (svSub != null && svSub.isShown())  {
+                                        svSub.setBackgroundColor(getResources().getColor(R.color.black));
+                                    }
+                                }
+                                ll_scramble_msg.setVisibility(View.INVISIBLE);
+                                ll_noSignal.setVisibility(View.VISIBLE);
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                                    ll_file_play_mode_usb.setVisibility(View.INVISIBLE);
+                                } else {
+                                    ll_file_play_mode.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG) {
+                                    if (CommonStaticData.scanCHnum > 0) {
+                                        CommonStaticData.isBadSignalFlag = true;
+                                    }
+                                }
+                            } else {
                                 removeEvent(TVEVENT.E_BADSIGNAL_CHECK);
                             }
                             break;
@@ -1889,6 +2303,99 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
                 break;
 
+                case E_LOGO_UPDATE:
+                {
+                    int logoLen = (int) msg.arg1;
+                    int[] logoInfo = (int[]) msg.obj;
+                    Bundle data = msg.getData();
+                    byte[] bmpArray = data.getByteArray("logoData");
+
+                    int type = logoInfo[0];
+                    int id = logoInfo[1];
+                    int version = logoInfo[2];
+                    int downDataId = logoInfo[3];
+                    int trasmissionType = logoInfo[4];
+                    int netId = logoInfo[5];
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE : logo_type = " + type);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE : logo_id = " + id);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE : logo_version = " + version);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE : logo_downDataId = " + downDataId);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE : logo_transmissionType = " + trasmissionType);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE : logo_netId = " + netId);
+                    TVlog.i(TAG, " >>> E_LOGO_UPDATE : logo_logo size = " + logoLen);
+                    byte[] pngArray = FCI_TVi.getPngFromAribPng(bmpArray);
+
+                    if (pngArray != null) {
+                        Bitmap bmpPNG = null;
+                        bmpPNG = BitmapFactory.decodeByteArray(pngArray, 0, pngArray.length);
+
+                        // save TVlogo
+                        recordAndCapturePath filePath = getCurrentRecordingPath();
+                        int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                        int networkID = TVBridge.getNetworkID(serviceID);
+                        TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                        if (networkID == 32391) {
+                            if (downDataId == 1) {
+                                TVlog.i(TAG, " >>> This channel is MX1");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                            } else if (downDataId == 2) {
+                                TVlog.i(TAG, " >>> This channel is MX2");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                            }
+                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                            File dir_exist = new File(logoDirPath);
+                            if (!dir_exist.exists()) {
+                                dir_exist.mkdirs();
+                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                            }
+                            String logoFilePath = logoDirPath+"/"+netId+"_"+type+"_"+downDataId+".png";
+                            File logoCacheItem = new File(logoFilePath);
+                            try {
+                                FileOutputStream fos = new FileOutputStream(logoCacheItem);
+                                if (bmpPNG != null) {
+                                    bmpPNG.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            instance.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + logoCacheItem)));
+                            //
+
+                            if (bmpPNG != null) {
+                                sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE);
+                            } else {
+                                TVlog.e("fcilogo", "PNG NG, PNG len = " + pngArray.length);
+                            }
+                        } else {
+                            logoDirPath = filePath.fullPath+"TVLogos";
+                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                            File dir_exist = new File(logoDirPath);
+                            if (!dir_exist.exists()) {
+                                dir_exist.mkdirs();
+                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                            }
+                            String logoFilePath = logoDirPath+"/"+netId+"_"+type+".png";
+                            File logoCacheItem = new File(logoFilePath);
+                            try {
+                                FileOutputStream fos = new FileOutputStream(logoCacheItem);
+                                if (bmpPNG != null) {
+                                    bmpPNG.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            instance.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + logoCacheItem)));
+                            if (bmpPNG != null) {
+                                sendEvent(TVEVENT.E_CHANNEL_NAME_UPDATE);
+                            }
+                            else {
+                                TVlog.e("fcilogo", "PNG NG, PNG len = " + pngArray.length);
+                            }
+                        }
+                    }
+                }
+                break;
                 case E_BCAS_CARD_READY:
                 {
                     if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
@@ -1897,7 +2404,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         is_inserted_card_false_count = 0;
                         is_inserted_card = 1;
                         TVlog.i(TAG, " >>>>> is_inserted_card = "+is_inserted_card);
-                        bcas_card_insert_msg.setVisibility(View.INVISIBLE);
+                        if (bcas_card_insert_msg != null) { // 20180329 justin
+                            bcas_card_insert_msg.setVisibility(View.INVISIBLE);
+                        }
                         byte[] cardId = (byte[]) msg.obj;
                         if (cardId != null) {
                             cardStr = String.format("%c%c%c%c %c%c%c%c %c%c%c%c %c%c%c%c %c%c%c%c",
@@ -1926,7 +2435,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         is_inserted_card_false_count =  is_inserted_card_false_count + 1;
                         TVlog.i(TAG, " >>>>> is_inserted_card = " + is_inserted_card);
                         if (is_inserted_card_false_count > 1) {
-                            bcas_card_insert_msg.setVisibility(View.VISIBLE);
+                            if (bcas_card_insert_msg != null) {
+                                bcas_card_insert_msg.setVisibility(View.VISIBLE);
+                            }
                         }
 
                         if (SettingActivity.getInstance() != null) {
@@ -1946,8 +2457,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 case E_SIGNAL_NOTI_MSG:
                     if (CommonStaticData.scanningNow==false) {
                         TVlog.i("live", " === E_SIGNAL_NOTI_MSG ===");
-                        CustomToast toast8 = new CustomToast(getApplicationContext());
-                        toast8.showToast(getApplicationContext(), getApplicationContext().getString(R.string.signal_weak), Toast.LENGTH_SHORT);
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.signal_weak)));
                         SignalStatFlag = false;
                         postEvent(TVEVENT.E_NOSIGNAL_SHOW, NO_SIGNAL_MSG_TIME);     // 5sec
                     }
@@ -2093,14 +2603,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         leftB.setVisibility(View.VISIBLE);
                     }
                     if (1 == errorType) {
-                        CustomToast toast9 = new CustomToast(getApplicationContext());
-                        toast9.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recordFileSizeError), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recordFileSizeError)));
                     } else if (2 == errorType) {
-                        CustomToast toast10 = new CustomToast(getApplicationContext());
-                        toast10.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recordNotSupportFormat), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recordNotSupportFormat)));
                     } else if (3 == errorType) {
-                        CustomToast toast11 = new CustomToast(getApplicationContext());
-                        toast11.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recorded_fail_too_shot), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recorded_fail_too_shot)));
+                    } else if (4 == errorType) {
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(""));
                     }
                 }
                 break;
@@ -2112,8 +2625,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         boolean fileExist = chkFile.exists();
 
                         if (fileExist && (buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_TS)) {
-                            CustomToast toast15 = new CustomToast(getApplicationContext());
-                            toast15.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recorded) + " : " + recordingFileName, Toast.LENGTH_SHORT);
+                            //live modify for toast
+                            mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recorded) + " : " + recordingFileName));
                         }
                     }
                 }
@@ -2246,6 +2759,337 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 }
                             }
 
+                            // for Broadcast Station Logo
+                            if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                                    && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                logoList = new ArrayList();
+                                recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                                if (mCursor != null) {
+                                    int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                                    int networkID = TVBridge.getNetworkID(serviceID);
+                                    TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                                    if (networkID == 32391) {  // in case of TYKYO MX
+                                        if (type == 1) { // full-seg
+                                            if ((serviceID&7) == 0 | (serviceID&7) == 1) {
+                                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else if ((serviceID&7) == 2) {
+                                                TVlog.i(TAG, " >>> This channel is MX2");
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else if (type == 0) {
+                                            if ((serviceID&7) == 0) {
+                                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else if ((serviceID&7) == 1) {
+                                                TVlog.i(TAG, " >>> This channel is MX2");
+                                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                logoFile = new File(logoDirPath);
+                                                if (!logoFile.exists()) {
+                                                    logoFile.mkdirs();
+                                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                }
+                                                File[] list = logoFile.listFiles();
+                                                for (int i=0; i <list.length; i++) {
+                                                    logoList.add(list[i].getName());
+                                                }
+                                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                if (iv_ChLogo != null) {
+                                                    if (file3.exists() && file3.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file5.exists() && file5.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file4.exists() && file4.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file2.exists() && file2.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file0.exists() && file0.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file1.exists() && file1.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        logoDirPath = filePath.fullPath+"TVLogos";
+                                        TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                        logoFile = new File(logoDirPath);
+                                        if (!logoFile.exists()) {
+                                            logoFile.mkdirs();
+                                            TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                        }
+                                        File[] list = logoFile.listFiles();
+                                        for (int i=0; i <list.length; i++) {
+                                            logoList.add(list[i].getName());
+                                        }
+                                        TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                        File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                                        String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                                        File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                                        String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                                        File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                                        String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                                        File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                                        String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                                        File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                                        String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                                        File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                                        String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                                        if (iv_ChLogo != null) {
+                                            if (file3.exists() && file3.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file5.exists() && file5.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file4.exists() && file4.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file2.exists() && file2.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file0.exists() && file0.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file1.exists() && file1.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    iv_ChLogo.setVisibility(View.GONE);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                iv_ChLogo.setVisibility(View.GONE);
+                            }
+                            //
+
                             sendEvent(TVEVENT.E_UPDATE_EPG_NAME_AND_DURATION);
 
                             AudioFormat = mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_AUDFORM);
@@ -2269,8 +3113,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                                    CustomToast toast = new CustomToast(getApplicationContext());
-                                    toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                                    // live modify for toast
+                                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                                 } else {
                                     Intent intentA = new Intent(MainActivity.this, EPGActivity.class);
                                     intentA.putExtra("curIndex", mChannelIndex);
@@ -2300,8 +3144,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 case E_NO_DECODER_NOTIFY:
                 {
-                    CustomToast toast11 = new CustomToast(getApplicationContext());
-                    toast11.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_decoder), Toast.LENGTH_SHORT);
+                    // live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.no_decoder)));
                 }
                 break;
 
@@ -2345,6 +3189,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         TVlog.i(TAG, " >>>>> E_SCAN_HANDOVER_START ");
                         CommonStaticData.handoverMode = CommonStaticData.HANDOVER_MODE_ON_NORMAL;
                         CommonStaticData.handoverIndex = mChannelIndex;
+                        CommonStaticData.badSignalFlag = false;  //live add
                         CommonStaticData.scanningNow = true;  //live add
                         CommonStaticData.fromFindFail = false;  //live add
                         CommonStaticData.captionSelect = 0;    // justin add
@@ -2401,7 +3246,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             ll_mainAutoSearch.setVisibility(View.VISIBLE);
 
                             //doScan = new ScanProcess(instance);
-                            TVBridge.scan((byte) 0);
+                            if (buildOption.CUSTOMER.contains("NEXELL")) {
+                                TVBridge.scan(TVBridge.HANDOVER_RELAY_ONLY_ONESHOT);
+                            }
+                            else {
+                                TVBridge.scan(TVBridge.HANDOVER_RELAY_N_AFFILIATION);
+                            }
                             //doScan.showProgress(1, 0, 473143, doScan.SHOW_PRGRESS_ON);
                         } else if (FloatingWindow.isFloating) {
                             removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG_FLOATING);
@@ -2436,7 +3286,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             FloatingWindow.getInstance().ll_floatingAutoSearch.setVisibility(View.VISIBLE);
 
                             //doScan = new ScanProcess(instance);
-                            TVBridge.scan((byte) 0);
+                            if (buildOption.CUSTOMER.contains("NEXELL")) {
+                                TVBridge.scan(TVBridge.HANDOVER_RELAY_ONLY);
+                            }
+                            else {
+                                TVBridge.scan(TVBridge.HANDOVER_RELAY_N_AFFILIATION);
+                            }
                             //doScan.showProgress(1, 0, 473143, doScan.SHOW_PRGRESS_ON);
                         } else if (ChatMainActivity.isChat) {
                             removeEvent(TVEVENT.E_SIGNAL_NOTI_MSG_CHAT);
@@ -2465,7 +3320,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             ChatMainActivity.getInstance().chat_ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                             ChatMainActivity.getInstance().hideChatController();
                             ChatMainActivity.getInstance().ll_chatAutoSearch.setVisibility(View.VISIBLE);
-                            TVBridge.scan((byte) 0);
+
+                            if (buildOption.CUSTOMER.contains("NEXELL")) {
+                                TVBridge.scan(TVBridge.HANDOVER_RELAY_ONLY);
+                            }
+                            else {
+                                TVBridge.scan(TVBridge.HANDOVER_RELAY_N_AFFILIATION);
+                            }
                         }
                     }
                     break;
@@ -2473,6 +3334,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 case E_SCAN_HANDOVER_PROCESS :
                     if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {  // handover is running
                         TVlog.i(TAG, "---------------- E_SCAN_HANDOVER_PROCESS -------------------");
+                        Bundle data = msg.getData();
+                        int loopCount = data.getInt("loopCount");
                         int progress2 = (int) msg.arg1;
                         int found2 = (int) msg.arg2;
                         int freqKHz2 = 0;
@@ -2496,7 +3359,20 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 CommonStaticData.handoverIndex = -1;
                             } else {
                                 CommonStaticData.handoverIndex = index;
-                                CommonStaticData.lastCH = index;  //live
+                                //CommonStaticData.lastCH = index;  //live
+
+                                int[] info = FCI_TVi.GetPairNSegInfoOfCHIndex(CommonStaticData.handoverIndex);
+                                int mainIndex = info[3];
+                                int oneSegIndex = info[4];
+
+                                if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_FULLSEG
+                                        || CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_AUTO) {
+                                    CommonStaticData.lastCH = mainIndex;
+                                    TVlog.e(TAG, " E_SCAN_HANDOVER_SUCESS: CommonStaticData.lastCH = " + CommonStaticData.lastCH);
+                                } else {
+                                    CommonStaticData.lastCH = oneSegIndex;
+                                    TVlog.e(TAG, " E_SCAN_HANDOVER_SUCESS: CommonStaticData.lastCH = " + CommonStaticData.lastCH);
+                                }
                             }
                             if (total != mCursor.getCount() || updateMode > 0) {
                                 CommonStaticData.handoverMode = CommonStaticData.HANDOVER_MODE_ON_UPDATE_LIST;  // list will be updated
@@ -2515,6 +3391,31 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         }
 
                         //doScan.showProgress(100, 1, 0, doScan.SHOW_PRORESS_OFF);
+                    }
+                    break;
+
+                case E_SCAN_HANDOVER_FAILURE:
+                    TVBridge.scanStop();
+
+                    TVlog.i(TAG, "E_SCAN_HANDOVER_FAILURE received");
+
+                    if (buildOption.CUSTOMER.contains("NEXELL")) {
+                        //this event can receive only after TVBridge.scan(TVBridge.HANDOVER_RELAY_ONLY_ONESHOT), TVBridge.scan(TVBridge.HANDOVER_AFFILIATION_ONLY_ONESHOT),
+                        // or TVBridge.scan(TVBridge.HANDOVER_RELAY_ONESHOT_FULLSCAN called
+                        //if you stop handover, do this logic
+                        if (false) {
+                            if (CommonStaticData.handoverMode == CommonStaticData.HANDOVER_MODE_ON_NORMAL) {
+                                sendEvent(TVEVENT.E_SCAN_COMPLETED);
+                            }
+                        }
+                        //if you wanna more handover, do this logic
+                        else {
+                            CommonStaticData.handoverMode = CommonStaticData.HANDOVER_MODE_OFF;
+                            CommonStaticData.scanningNow = false;
+                            removeEvent(TVEVENT.E_SCAN_HANDOVER_START);
+                            sendEvent(TVEVENT.E_SCAN_HANDOVER_START);
+                            signalMoniter.handover_counter = 0;
+                        }
                     }
                     break;
 
@@ -2666,8 +3567,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     if (isStoragePermissionGranted() == true) {  // for Android M Permission
                         saveLogcatToFile(instance);
                     } else {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), "Permission is needed to save FCI_TV_log!", Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable("Permission is needed to save FCI_TV_log!"));
                     }
                 }
                 break;
@@ -2906,6 +3807,38 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         TVUI_Handler.sendMessage(msg);
     }
 
+    public void sendEvent(TVEVENT _Event, int _arg1, int _arg2, Object _obj, Object _obj2) {
+        int m;
+        m = _Event.ordinal();
+        Message msg = TVUI_Handler.obtainMessage(m);
+
+
+        Bundle bundle = new Bundle();
+        bundle.putInt("loopCount", (int)_obj2);
+        msg.setData(bundle);
+
+        msg.arg1 = _arg1;
+        msg.arg2 = _arg2;
+        msg.obj = _obj;
+
+        TVUI_Handler.sendMessage(msg);
+    }
+
+    public void sendEvent(TVEVENT _Event, int _arg1, byte[] _arg2, Object _obj) {
+        int m;
+        m = _Event.ordinal();
+        Message msg = TVUI_Handler.obtainMessage(m);
+
+        Bundle bundle = new Bundle();
+        bundle.putByteArray("logoData", _arg2);
+        msg.setData(bundle);
+
+        msg.arg1 = _arg1;
+        msg.obj = _obj;
+
+        TVUI_Handler.sendMessage(msg);
+    }
+
     public void postEvent(TVEVENT _Event,int _time )
     {
         int m;
@@ -2976,26 +3909,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
 
         TVlog.i(TAG, "==========surfaceCreated   ======================");
-        //usbdongle[[
-        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
-                buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
-                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
-                buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB)
-        {
-            TVlog.i("FCIISDBT::", "usb device chip=" + mUsbChipType);
-            if (mUsbChipType == USB_CHIP_TYPE_LME) {
-                int loopCount = 0;
-                while (mUsbLMEMode != USB_LME_MODE_WARM && loopCount++ < 10) {
-                    TVlog.i("FCIISDBT::", "LME dongle not warm mode ...");
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException var5) {
-                        var5.printStackTrace();
-                    }
-                }
-            }
-        }
-        //]]usbdongle
 
         onStart_TV();
 
@@ -3154,7 +4067,346 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         TVlog.i(TAG, "===TOuch outside the dialog *********=");
                                         //  showController();
                                         // [ nexell touch 20170223
+                                        CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
+                                        /*
+                                        int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
+                                        if (receiveModeB != null) {
+                                            receiveModeB.setText(arr_svcmodeswitch_jp[receiveMode]);
+                                        }*/
                                         controllerLayout.setVisibility(View.VISIBLE);
+
+                                        // for Broadcast Station Logo
+                                        if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                                                && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                            logoList = new ArrayList();
+                                            recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                                            if (mCursor != null) {
+                                                int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                                                int networkID = TVBridge.getNetworkID(serviceID);
+                                                int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                                                TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                                                if (networkID == 32391) {  // in case of TYKYO MX
+                                                    if (type == 1) { // full-seg
+                                                        if ((serviceID&7) == 0 | (serviceID&7) == 1) {
+                                                            TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                            logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                            logoFile = new File(logoDirPath);
+                                                            if (!logoFile.exists()) {
+                                                                logoFile.mkdirs();
+                                                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                            }
+                                                            File[] list = logoFile.listFiles();
+                                                            for (int i=0; i <list.length; i++) {
+                                                                logoList.add(list[i].getName());
+                                                            }
+                                                            TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                            File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                            String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                            File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                            String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                            File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                            String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                            File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                            String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                            File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                            String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                            File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                            String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                            if (iv_ChLogo != null) {
+                                                                if (file3.exists() && file3.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file5.exists() && file5.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file4.exists() && file4.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file2.exists() && file2.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                if (file0.exists() && file0.length() > 200) {
+                                                                                    iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                } else {
+                                                                                    if (file1.exists() && file1.length() > 200) {
+                                                                                        iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                    } else {
+                                                                                        iv_ChLogo.setVisibility(View.GONE);
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        } else if ((serviceID&7) == 2) {
+                                                            TVlog.i(TAG, " >>> This channel is MX2");
+                                                            logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                            logoFile = new File(logoDirPath);
+                                                            if (!logoFile.exists()) {
+                                                                logoFile.mkdirs();
+                                                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                            }
+                                                            File[] list = logoFile.listFiles();
+                                                            for (int i=0; i <list.length; i++) {
+                                                                logoList.add(list[i].getName());
+                                                            }
+                                                            TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                            File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                            String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                            File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                            String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                            File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                            String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                            File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                            String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                            File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                            String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                            File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                            String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                            if (iv_ChLogo != null) {
+                                                                if (file3.exists() && file3.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file5.exists() && file5.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file4.exists() && file4.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file2.exists() && file2.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                if (file0.exists() && file0.length() > 200) {
+                                                                                    iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                } else {
+                                                                                    if (file1.exists() && file1.length() > 200) {
+                                                                                        iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                    } else {
+                                                                                        iv_ChLogo.setVisibility(View.GONE);
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    } else if (type == 0) {
+                                                        if ((serviceID&7) == 0) {
+                                                            TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                            logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                            logoFile = new File(logoDirPath);
+                                                            if (!logoFile.exists()) {
+                                                                logoFile.mkdirs();
+                                                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                            }
+                                                            File[] list = logoFile.listFiles();
+                                                            for (int i=0; i <list.length; i++) {
+                                                                logoList.add(list[i].getName());
+                                                            }
+                                                            TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                            File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                            String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                            File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                            String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                            File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                            String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                            File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                            String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                            File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                            String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                            File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                            String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                            if (iv_ChLogo != null) {
+                                                                if (file3.exists() && file3.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file5.exists() && file5.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file4.exists() && file4.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file2.exists() && file2.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                if (file0.exists() && file0.length() > 200) {
+                                                                                    iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                } else {
+                                                                                    if (file1.exists() && file1.length() > 200) {
+                                                                                        iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                    } else {
+                                                                                        iv_ChLogo.setVisibility(View.GONE);
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        } else if ((serviceID&7) == 1) {
+                                                            TVlog.i(TAG, " >>> This channel is MX2");
+                                                            logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                            logoFile = new File(logoDirPath);
+                                                            if (!logoFile.exists()) {
+                                                                logoFile.mkdirs();
+                                                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                            }
+                                                            File[] list = logoFile.listFiles();
+                                                            for (int i=0; i <list.length; i++) {
+                                                                logoList.add(list[i].getName());
+                                                            }
+                                                            TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                            File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                            String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                            File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                            String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                            File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                            String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                            File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                            String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                            File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                            String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                            File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                            String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                            if (iv_ChLogo != null) {
+                                                                if (file3.exists() && file3.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file5.exists() && file5.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file4.exists() && file4.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file2.exists() && file2.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                if (file0.exists() && file0.length() > 200) {
+                                                                                    iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                } else {
+                                                                                    if (file1.exists() && file1.length() > 200) {
+                                                                                        iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                                    } else {
+                                                                                        iv_ChLogo.setVisibility(View.GONE);
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                } else {
+                                                    logoDirPath = filePath.fullPath+"TVLogos";
+                                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                    logoFile = new File(logoDirPath);
+                                                    if (!logoFile.exists()) {
+                                                        logoFile.mkdirs();
+                                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                    }
+                                                    File[] list = logoFile.listFiles();
+                                                    for (int i=0; i <list.length; i++) {
+                                                        logoList.add(list[i].getName());
+                                                    }
+                                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                                                    String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                                                    String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                                                    String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                                                    String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                                                    String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                                                    String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                                                    if (iv_ChLogo != null) {
+                                                        if (file3.exists() && file3.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file5.exists() && file5.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file4.exists() && file4.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file2.exists() && file2.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file0.exists() && file0.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file1.exists() && file1.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            iv_ChLogo.setVisibility(View.GONE);
+                                        }
+                                        //
+
                                         status_bar.setVisibility(View.VISIBLE);
                                         channelLayout.setVisibility(View.VISIBLE);
                                         if (buildOption.USE_MULTI_WINDOW) {
@@ -3265,8 +4517,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
                                     if (event.getAction() == MotionEvent.ACTION_UP) {
-                                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                                        //live modify for toast
+                                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                                     }
                                 } else {
                                     if (mIsTouchCHList == false && mEnableChannellist == false) {
@@ -3763,8 +5015,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     boolean fileExist = chkFile.exists();
 
                     if (fileExist && (buildOption.RECORDING_TYPE == buildOption.RECORDING_TYPE_MP4)) {
-                        CustomToast toast15 = new CustomToast(getApplicationContext());
-                        toast15.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recorded) + " : " + recordingFileName, Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recorded) + " : " + recordingFileName));
                     }
                 } else {
                     recordAndCapturePath filePath = getCurrentRecordingPath();
@@ -3777,24 +5029,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     }
 
                     if (filePath.pathName.equalsIgnoreCase("SD")) {
-
-                        CustomToast toast = new CustomToast(this);
-                        //toast.showToast(this, this.getString(R.string.recorded) + " : " + recordingFileName, Toast.LENGTH_SHORT);
-                        toast.showToast(this, this.getString(R.string.recorded_to_file) + "\n"
-                                + this.getString(R.string.sd_storage_record) + "\n"
-                                + filename[filename.length-1], Toast.LENGTH_LONG);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recorded_to_file) + "\n"
+                                + getApplicationContext().getString(R.string.sd_storage_record) + "\n"
+                                + filename[filename.length-1]));
                     } else {
-                        CustomToast toast = new CustomToast(this);
-                        //toast.showToast(this, this.getString(R.string.recorded) + " : " + recordingFileName, Toast.LENGTH_SHORT);
-                        toast.showToast(this, this.getString(R.string.recorded_to_file) + "\n"
-                                + this.getString(R.string.phone_storage_record) + "\n"
-                                + filename[filename.length-1], Toast.LENGTH_LONG);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recorded_to_file) + "\n"
+                                + getApplicationContext().getString(R.string.phone_storage_record) + "\n"
+                                + filename[filename.length-1]));
                     }
                 }
             } else {
                 if (_isOtherEvent ==false) {
-                    CustomToast toast16 = new CustomToast(getApplicationContext());
-                    toast16.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recorded_fail_too_shot), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recorded_fail_too_shot)));
                 }
             }
         }
@@ -3939,7 +5188,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         isMainActivity = true;
         FloatingWindow.isFloating = false;
         ChatMainActivity.isChat = false;
-        CommonStaticData.isBadSignalFlag = false;
+        TVBridge.setContext(this);
         // live add
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
@@ -3959,6 +5208,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             recfileB.setVisibility(View.VISIBLE);
             recfileB.setEnabled(true);
         }
+
+        //live add - 20180329
+        /*
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            receiveModeB.setVisibility(View.VISIBLE);
+        } else {
+            receiveModeB.setVisibility(View.GONE);
+        }*/
         //
 
         if ((mUsbChipType != USB_CHIP_TYPE_NONE) && (CommonStaticData.scanCHnum < 1)){
@@ -4032,22 +5291,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             TVlog.i("FCIISDBT::", "onResume() call seupUsbDevice() 2222");
             if (mUsbFd == -1) {
                 TVlog.i("FCIISDBT::", "usb dongle closed ! (by device not attached)");
-                // live chage toast message to dialog
-                CustomToast toast = new CustomToast(getApplicationContext());
-                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_LONG);
+                // live modify for toast
+                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 ll_noChannel.setVisibility(View.INVISIBLE);
                 ll_noSignal.setVisibility(View.INVISIBLE);
                 ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
                 ll_file_play_mode_usb.setVisibility(View.VISIBLE);
                 //
+                FCI_TVi.initiatedSol = false;
             }
             else {
                 UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
                 if (manager != null && mUsbDevice != null) {
                     if (manager.hasPermission(mUsbDevice) != true) {
                         TVlog.i("FCIISDBT::", "usb dongle closed ! (by permission not granted)");
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_permission_not_granted), Toast.LENGTH_LONG);
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_permission_not_granted)));
+                        FCI_TVi.initiatedSol = false;
                     }
                     else {
                         openUsbDevice(mUsbDevice);
@@ -4069,8 +5328,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 buildOption.FCI_SOLUTION_MODE != buildOption.BRAZIL_FILE &&
                 buildOption.FCI_SOLUTION_MODE != buildOption.PHILIPPINES_FILE) {
 
-            FCI_TVi.AVStop();
-            FCI_TVi.deInit();
+//          FCI_TVi.AVStop();
+//          FCI_TVi.deInit();
 
             TVlog.i(TAG, "onResume():: solution to be re-initialed...");
 
@@ -4080,32 +5339,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             else {
                 recordAndCapturePath FixedRecPath = getCurrentRecordingPath();
                 FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle());
-            }
-
-            if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_EACHDIV) {
-                int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-                int rc = 0;
-                TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-                rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_EACHDIV);
-                if (rc == 0) {
-                    TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_EACHDIV);
-                }
-            } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_BROADCAST) {
-                int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-                int rc = 0;
-                TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-                rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_BROADCAST);
-                if (rc == 0) {
-                    TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_BROADCAST);
-                }
-            } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_OFF) {
-                int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-                int rc = 0;
-                TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-                rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_OFF);
-                if (rc == 0) {
-                    TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_OFF);
-                }
             }
         }
 
@@ -4181,6 +5414,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         TVlog.i(TAG, "== onPause ==");
         removeEvent(TVEVENT.E_HIDE_CONTROLER);
         removeEvent(TVEVENT.E_HIDE_GESTURE);
+
+        // live add - 180530
+        if (InputDialog.mMediaPlayer != null) {
+            try {
+                InputDialog.mMediaPlayer.pause();
+                InputDialog.mMediaPlayer.stop();
+                InputDialog.mMediaPlayer.release();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
+        }
+        //
+
         controllerLayout.setVisibility(View.INVISIBLE);
         if (isUiLocked) {
             ll_uiLocked.setVisibility(View.INVISIBLE);
@@ -4274,10 +5520,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 TVlog.i("FCIISDBT::", "usb dongle closed ! (by device not attached)");
                                 //viewToastMSG("USB device not attached & TV close...", true);
 //device init failed[[
-
-                                // live chage toast message to dialog
-                                CustomToast toast = new CustomToast(getApplicationContext());
-                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_LONG);
+                                //live modify for toast
+                                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                                 ll_noChannel.setVisibility(View.INVISIBLE);
                                 ll_noSignal.setVisibility(View.INVISIBLE);
                                 ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
@@ -4291,9 +5535,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     if (manager.hasPermission(mUsbDevice) != true) {
                                         TVlog.i("FCIISDBT::", "usb dongle closed ! (by permission not granted)");
 //device init failed[[
-                                        CustomToast toast = new CustomToast(getApplicationContext());
-                                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_permission_not_granted), Toast.LENGTH_LONG);
-//]]device init failed
+                                        //live modify for toast
+                                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_permission_not_granted)));//]]device init failed
                                     } else {
                                         openUsbDevice(mUsbDevice);
                                         if (bb_fail_dialog != null) {
@@ -4655,8 +5898,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             if (isStoragePermissionGranted() == true) {  // for Android M Permission
                 saveLogcatToFile(this);
             } else {
-                CustomToast toast = new CustomToast(getApplicationContext());
-                toast.showToast(getApplicationContext(), "Permission is needed to save FCI_TV_log!", Toast.LENGTH_SHORT);
+                //live modify for toast
+                mHandler_toast.post(new ToastRunnable("Permission is needed to save FCI_TV_log!"));
             }
         }
         TVlog.i(TAG, " ===========================");
@@ -4691,6 +5934,27 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         CommonStaticData.loadingNow = true;
         TVBridge.setContext(this);
 
+        //usbdongle[[
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB)
+        {
+            TVlog.i("FCIISDBT::", "usb device chip=" + mUsbChipType);
+            if (mUsbChipType == USB_CHIP_TYPE_LME) {
+                int loopCount = 0;
+                while (mUsbLMEMode != USB_LME_MODE_WARM && loopCount++ < 10) {
+                    TVlog.i("FCIISDBT::", "LME dongle not warm mode ...");
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException var5) {
+                        var5.printStackTrace();
+                    }
+                }
+            }
+        }
+        //]]usbdongle
+
         TVlog.i(TAG, " ==> onStart_TV() CommonStaticData.isChat = "+ChatMainActivity.isChat);
 
         if (ChatMainActivity.isChat) {
@@ -4699,15 +5963,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
                     buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
                     buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                TVlog.i("ChatMainActivity::", "onResume() call seupUsbDevice() 1111");
+                TVlog.i("ChatMainActivity::", "onStart_TV() call seupUsbDevice() 1111");
                 mPermissionRequested = 0;
                 setupUsbDevice();
-                TVlog.i("ChatMainActivity::", "onResume() call seupUsbDevice() 2222");
+                TVlog.i("ChatMainActivity::", "onStart_TV() call seupUsbDevice() 2222");
                 if (mUsbFd == -1) {
                     TVlog.i("ChatMainActivity::", "usb dongle closed ! (by device not attached)");
                     //viewToastMSG("USB device not attached & TV close...", true);
-                    CustomToast toast = new CustomToast(getApplicationContext());
-                    toast.showToast(getApplicationContext(), "USB dongle was not attached.\nTV app was terminated.", Toast.LENGTH_LONG);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable("USB dongle was not attached.\nTV app was terminated."));
                     finish();
                 } else {
                     UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -4715,8 +5979,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (manager.hasPermission(mUsbDevice) != true) {
                             TVlog.i("ChatMainActivity::", "usb dongle closed ! (by permission not granted)");
                             //viewToastMSG("USB permission not granted & TV close...", true);
-                            CustomToast toast = new CustomToast(getApplicationContext());
-                            toast.showToast(getApplicationContext(), "USB permission was not granted.\nTV app was terminated.", Toast.LENGTH_LONG);
+                            //live modify for toast
+                            mHandler_toast.post(new ToastRunnable("USB permission was not granted.\nTV app was terminated."));
                             finish();
                         }
                         else {
@@ -4728,345 +5992,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             // ]]usbdongle
         }
 
-        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1) {
-            if (FCI_TVi.init(this.getPackageName(), null, mUsbFd, mUsbDeviceName, getVersionForDongle()) != 0) {
-                isBBFail = true;
-                TVlog.i("FCIISDBT::", "usb fd="+mUsbFd+", usb dev="+mUsbDeviceName);
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
-                            .theme(Theme.LIGHT)
-                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                            .title(R.string.alert)
-                            .titleColor(getResources().getColor(R.color.black))
-                            .content(R.string.japan_usb_dongle_not_attach_msg)
-                            .positiveText(R.string.exit)
-                            .positiveColor(getResources().getColor(R.color.blue3))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    sendEvent(TVEVENT.E_TERMINATE);
-                                }
-                            })
-                            .build();
-                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
-                    bb_fail_dialog.show();
-                    bb_fail_dialog.setCanceledOnTouchOutside(false);
-                } else if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
-                            .theme(Theme.LIGHT)
-                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                            .title(R.string.alert)
-                            .titleColor(getResources().getColor(R.color.black))
-                            .content(R.string.usb_dongle_not_attach_msg)
-                            .negativeText(R.string.continue_msg)
-                            .negativeColor(getResources().getColor(R.color.blue3))
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    bb_fail_dialog.dismiss();
-                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
-                                        ll_noChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_noSignal.getVisibility() == View.VISIBLE) {
-                                        ll_noSignal.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
-                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_file_play_mode_usb.getVisibility() == View.INVISIBLE) {
-                                        ll_file_play_mode_usb.setVisibility(View.VISIBLE);
-                                    }
-                                    // isWarmReset = true;
-                                    withoutUSB = true;
-                                }
-                            })
-                            .positiveText(R.string.exit)
-                            .positiveColor(getResources().getColor(R.color.blue3))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    sendEvent(TVEVENT.E_TERMINATE);
-                                }
-                            })
-                            .build();
-                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
-                    bb_fail_dialog.show();
-                    bb_fail_dialog.setCanceledOnTouchOutside(false);
-                } else {
-                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
-                            .theme(Theme.LIGHT)
-                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                            .title(R.string.alert)
-                            .titleColor(getResources().getColor(R.color.black))
-                            .content(R.string.bb_init_fail_msg)
-                            .negativeText(R.string.continue_msg)
-                            .negativeColor(getResources().getColor(R.color.blue3))
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    bb_fail_dialog.dismiss();
-                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
-                                        ll_noChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_noSignal.getVisibility() == View.VISIBLE) {
-                                        ll_noSignal.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
-                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_file_play_mode.getVisibility() == View.INVISIBLE) {
-                                        ll_file_play_mode.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            })
-                            .positiveText(R.string.exit)
-                            .positiveColor(getResources().getColor(R.color.blue3))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    sendEvent(TVEVENT.E_TERMINATE);
-                                }
-                            })
-                            .build();
-                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
-                    bb_fail_dialog.show();
-                    bb_fail_dialog.setCanceledOnTouchOutside(false);
-                }
-            }
-        } else {
-            getCurrentCapturePath();
-            recordAndCapturePath FixedRecPath=  getCurrentRecordingPath();
-
-            if (FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle()) != 0) {
-                isBBFail = true;
-                if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
-                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
-                            .theme(Theme.LIGHT)
-                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                            .title(R.string.alert)
-                            .titleColor(getResources().getColor(R.color.black))
-                            .content(R.string.japan_usb_dongle_not_attach_msg)
-                            .positiveText(R.string.exit)
-                            .positiveColor(getResources().getColor(R.color.blue3))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    sendEvent(TVEVENT.E_TERMINATE);
-                                }
-                            })
-                            .build();
-                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
-                    bb_fail_dialog.show();
-                    bb_fail_dialog.setCanceledOnTouchOutside(false);
-                } else if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
-                        buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
-                            .theme(Theme.LIGHT)
-                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                            .title(R.string.alert)
-                            .titleColor(getResources().getColor(R.color.black))
-                            .content(R.string.usb_dongle_not_attach_msg)
-                            .negativeText(R.string.continue_msg)
-                            .negativeColor(getResources().getColor(R.color.blue3))
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    bb_fail_dialog.dismiss();
-                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
-                                        ll_noChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_noSignal.getVisibility() == View.VISIBLE) {
-                                        ll_noSignal.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
-                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_file_play_mode_usb.getVisibility() == View.INVISIBLE) {
-                                        ll_file_play_mode_usb.setVisibility(View.VISIBLE);
-                                    }
-                                    //   isWarmReset = true;
-                                    withoutUSB = true;
-                                }
-                            })
-                            .positiveText(R.string.exit)
-                            .positiveColor(getResources().getColor(R.color.blue3))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    sendEvent(TVEVENT.E_TERMINATE);
-                                }
-                            })
-                            .build();
-                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
-                    bb_fail_dialog.show();
-                    bb_fail_dialog.setCanceledOnTouchOutside(false);
-                } else {
-                    bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
-                            .theme(Theme.LIGHT)
-                            .iconRes(R.drawable.ic_info_outline_gray_48dp)
-                            .title(R.string.alert)
-                            .titleColor(getResources().getColor(R.color.black))
-                            .content(R.string.bb_init_fail_msg)
-                            .negativeText(R.string.continue_msg)
-                            .negativeColor(getResources().getColor(R.color.blue3))
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    bb_fail_dialog.dismiss();
-                                    if (ll_noChannel.getVisibility() == View.VISIBLE) {
-                                        ll_noChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_noSignal.getVisibility() == View.VISIBLE) {
-                                        ll_noSignal.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
-                                        ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
-                                    }
-                                    if (ll_file_play_mode.getVisibility() == View.INVISIBLE) {
-                                        ll_file_play_mode.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            })
-                            .positiveText(R.string.exit)
-                            .positiveColor(getResources().getColor(R.color.blue3))
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    sendEvent(TVEVENT.E_TERMINATE);
-                                }
-                            })
-                            .build();
-                    bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
-                    bb_fail_dialog.show();
-                    bb_fail_dialog.setCanceledOnTouchOutside(false);
-                }
-            }
-        }
-
-        if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_EACHDIV) {
-            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-            int rc = 0;
-            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_EACHDIV);
-            if (rc == 0) {
-                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_EACHDIV);
-            }
-        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_BROADCAST) {
-            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-            int rc = 0;
-            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_BROADCAST);
-            if (rc == 0) {
-                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_BROADCAST);
-            }
-        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_OFF) {
-            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-            int rc = 0;
-            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_OFF);
-            if (rc == 0) {
-                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_OFF);
-            }
-        }
-        // showController();
-
-        if (buildOption.SKIP_AV_ERROR_DATA == false) {
-            FCI_TVi.setSkipAVErrorData((byte)0);
-            TVlog.i(TAG, "==== AV error data allowed ====");
-        } else {
-            FCI_TVi.setSkipAVErrorData((byte)1);
-            TVlog.i(TAG, "==== No AV error data allowed ====");
-        }
-
-        // live add
-        isdbMode = FCI_TVi.GetISDBMode();
-        if (isdbMode == FCI_TVi.ISDBT_MODE_FULLSEG) {
-            strISDBMode = "ISDBT Fullseg";
-        }
-        else if (isdbMode == FCI_TVi.ISDBT_MODE_ONESEG) {
-            strISDBMode = "ISDBT Oneseg";
-        }
-        else {
-            strISDBMode = "ISDBT None";
-        }
-        TVlog.i(TAG, "==== onStart  end====(mode: "+strISDBMode+")");
-        //
-
-        if (isMainActivity) {
-            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
-            removeEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
-            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME_USB);
-            } else {
-                postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME);
-            }
-        } else if (ChatMainActivity.isChat) {
-            removeEvent(TVEVENT.E_SIGNAL_MONITER);
-            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
-            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                if (ChatMainActivity.getInstance() != null) {
-                    ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME_USB);
-                }
-            } else {
-                if (ChatMainActivity.getInstance() != null) {
-                    ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME);
-                }
-            }
-        } else if (FloatingWindow.isFloating) {
-            removeEvent(TVEVENT.E_SIGNAL_MONITER);
-            removeEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
-            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
-                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                if (FloatingWindow.getInstance() != null) {
-                    FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME_USB);
-                }
-            } else {
-                if (FloatingWindow.getInstance() != null) {
-                    FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME);
-                }
-            }
-        }
-
-        /*
-        if (ChatMainActivity.isChat) {
-            ChatMainActivity.getInstance().sendEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
-        } else {
-        sendEvent(TVEVENT.E_SIGNAL_MONITER);
-        }*/
-
-        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+        if (buildOption.GUI_STYLE == 0 || buildOption.GUI_STYLE == 1 )  {
+                FCI_TVi.init(this.getPackageName(), null, mUsbFd, mUsbDeviceName, getVersionForDongle());
             getCurrentRecordingPath();
             thumbNailUpdate.getThhumbNailUpdateTask().sendEvent(TVEVENT.E_UPDATE_THUMBNAIL, 0);
+        } else {
+            recordAndCapturePath FixedRecPath = getCurrentRecordingPath();
+            FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle());
         }
 
-        if (buildOption.ADD_GINGA_NCL == true) {
-            //ToDo::Ginga
-            //Initialize Ginga view
-
-            if (CommonStaticData.interactiveSwitch==true) {
-                FCI_TVi.enableGingaNCL();
-            }
-            else {
-                FCI_TVi.disableGingaNCL();
-            }
-            TVlog.i(TAG, "==== ginga initialized end ====");
-        }
-        else {
-            FCI_TVi.disableGingaNCL();
-        }
-
-        // super.onStart();
+        TVlog.i("live", " >>> onStart_TV() :: end ");
     }
 
     // [ Nexell de-intelace 20170120
@@ -5185,16 +6120,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 String editReg = eResiter.getText().toString();
                 String editRegval = eResiterValue.getText().toString();
 
-                if ( editReg.length()==0)
+                if (editReg.length()==0)
                 {
-                    CustomToast toast = new CustomToast(getApplicationContext());
-                    toast.showToast(getApplicationContext(), "Please put register address " , Toast.LENGTH_LONG);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable("Please put register address "));
                     return;
                 }
-                if ( editRegval.length()==0)
+                if (editRegval.length()==0)
                 {
-                    CustomToast toast = new CustomToast(getApplicationContext());
-                    toast.showToast(getApplicationContext(), "Please put register value " , Toast.LENGTH_LONG);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable("Please put register value "));
                     return;
                 }
 
@@ -5218,8 +6153,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
                 if (editReg.length()==0)
                 {
-                    CustomToast toast = new CustomToast(getApplicationContext());
-                    toast.showToast(getApplicationContext(), "Please put register address " , Toast.LENGTH_LONG);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable("Please put register address "));
                     return;
                 }
 
@@ -5263,7 +6198,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         super.onCreate(savedInstanceState);
+
+        customToast = new CustomToast(getApplicationContext());
+        mHandler_toast = new Handler();
 
         isMainActivity = true;
         ChatMainActivity.isChat = false;
@@ -5272,7 +6211,25 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         // [[ solution switching mode 20170223
         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
         CommonStaticData.solutionMode = CommonStaticData.settings.getInt(CommonStaticData.solutionModeKey, cReleaseOption.FCI_SOLUTION_MODE);
+        if ((CommonStaticData.solutionMode >= buildOption.JAPAN && CommonStaticData.solutionMode <= buildOption.SRILANKA &&
+                cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA) ||
+                (CommonStaticData.solutionMode >= buildOption.JAPAN_ONESEG && CommonStaticData.solutionMode <= buildOption.SRILANKA_ONESEG &&
+                        cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_ONESEG && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_ONESEG) ||
+                (CommonStaticData.solutionMode >= buildOption.JAPAN_USB && CommonStaticData.solutionMode <= buildOption.SRILANKA_USB &&
+                        cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_USB && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.SRILANKA_USB) ||
+                (CommonStaticData.solutionMode >= buildOption.JAPAN_FILE && CommonStaticData.solutionMode <= buildOption.PHILIPPINES_FILE &&
+                        cReleaseOption.FCI_SOLUTION_MODE >= buildOption.JAPAN_FILE && cReleaseOption.FCI_SOLUTION_MODE <= buildOption.PHILIPPINES_FILE)) {
+            if (CommonStaticData.solutionMode != cReleaseOption.FCI_SOLUTION_MODE) {
+                TVlog.i(TAG, "build option::Locale changed " + cReleaseOption.FCI_SOLUTION_MODE + " into " + CommonStaticData.solutionMode);
+            } else {
+                TVlog.i(TAG, "build option: " + cReleaseOption.FCI_SOLUTION_MODE);
+            }
+        } else {
+            TVlog.i(TAG, "build option::recovered " + CommonStaticData.solutionMode + " to " + cReleaseOption.FCI_SOLUTION_MODE);
+            CommonStaticData.solutionMode = cReleaseOption.FCI_SOLUTION_MODE;
+        }
         buildOption.FCI_SOLUTION_MODE = CommonStaticData.solutionMode;
+        printSolutionMode();
         // ]]
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -5297,8 +6254,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         instance = this;
         TVlog.i(TAG, "==== onCreate ======");
-
-        customToast = new CustomToast(getApplicationContext());
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -5373,7 +6328,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
 
-                if (!isUiLocked) {
+                if (!isUiLocked && initDeviceView.getVisibility() == View.INVISIBLE) {
                     if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
 
                         //  showController();
@@ -5410,6 +6365,337 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     channelLayout.setVisibility(View.VISIBLE);
                                 }
 
+                                // for Broadcast Station Logo
+                                if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                                        && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                                    logoList = new ArrayList();
+                                    recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                                    if (mCursor != null) {
+                                        int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                                        int networkID = TVBridge.getNetworkID(serviceID);
+                                        int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                                        TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                                        if (networkID == 32391) {  // in case of TYKYO MX
+                                            if (type == 1) { // full-seg
+                                                if ((serviceID&7) == 0 | (serviceID&7) == 1) {
+                                                    TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                    logoFile = new File(logoDirPath);
+                                                    if (!logoFile.exists()) {
+                                                        logoFile.mkdirs();
+                                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                    }
+                                                    File[] list = logoFile.listFiles();
+                                                    for (int i=0; i <list.length; i++) {
+                                                        logoList.add(list[i].getName());
+                                                    }
+                                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                    if (iv_ChLogo != null) {
+                                                        if (file3.exists() && file3.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file5.exists() && file5.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file4.exists() && file4.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file2.exists() && file2.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file0.exists() && file0.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file1.exists() && file1.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                } else if ((serviceID&7) == 2) {
+                                                    TVlog.i(TAG, " >>> This channel is MX2");
+                                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                    logoFile = new File(logoDirPath);
+                                                    if (!logoFile.exists()) {
+                                                        logoFile.mkdirs();
+                                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                    }
+                                                    File[] list = logoFile.listFiles();
+                                                    for (int i=0; i <list.length; i++) {
+                                                        logoList.add(list[i].getName());
+                                                    }
+                                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                    if (iv_ChLogo != null) {
+                                                        if (file3.exists() && file3.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file5.exists() && file5.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file4.exists() && file4.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file2.exists() && file2.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file0.exists() && file0.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file1.exists() && file1.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else if (type == 0) {
+                                                if ((serviceID&7) == 0) {
+                                                    TVlog.i(TAG, " >>> This channel is MX1");
+
+                                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                    logoFile = new File(logoDirPath);
+                                                    if (!logoFile.exists()) {
+                                                        logoFile.mkdirs();
+                                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                    }
+                                                    File[] list = logoFile.listFiles();
+                                                    for (int i=0; i <list.length; i++) {
+                                                        logoList.add(list[i].getName());
+                                                    }
+                                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                                    if (iv_ChLogo != null) {
+                                                        if (file3.exists() && file3.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file5.exists() && file5.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file4.exists() && file4.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file2.exists() && file2.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file0.exists() && file0.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file1.exists() && file1.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                } else if ((serviceID&7) == 1) {
+                                                    TVlog.i(TAG, " >>> This channel is MX2");
+                                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                                    logoFile = new File(logoDirPath);
+                                                    if (!logoFile.exists()) {
+                                                        logoFile.mkdirs();
+                                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                                    }
+                                                    File[] list = logoFile.listFiles();
+                                                    for (int i=0; i <list.length; i++) {
+                                                        logoList.add(list[i].getName());
+                                                    }
+                                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+                                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                                    if (iv_ChLogo != null) {
+                                                        if (file3.exists() && file3.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file5.exists() && file5.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file4.exists() && file4.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file2.exists() && file2.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        if (file0.exists() && file0.length() > 200) {
+                                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                        } else {
+                                                                            if (file1.exists() && file1.length() > 200) {
+                                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                            } else {
+                                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            logoDirPath = filePath.fullPath+"TVLogos";
+                                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                            logoFile = new File(logoDirPath);
+                                            if (!logoFile.exists()) {
+                                                logoFile.mkdirs();
+                                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                            }
+                                            File[] list = logoFile.listFiles();
+                                            for (int i=0; i <list.length; i++) {
+                                                logoList.add(list[i].getName());
+                                            }
+                                            TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                            File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                                            String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                                            File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                                            String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                                            File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                                            String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                                            File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                                            String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                                            File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                                            String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                                            File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                                            String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                                            if (iv_ChLogo != null) {
+                                                if (file3.exists() && file3.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path3));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file5.exists() && file5.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file4.exists() && file4.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file2.exists() && file2.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                if (file0.exists() && file0.length() > 200) {
+                                                                    iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                } else {
+                                                                    if (file1.exists() && file1.length() > 200) {
+                                                                        iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                                    } else {
+                                                                        iv_ChLogo.setVisibility(View.GONE);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    iv_ChLogo.setVisibility(View.GONE);
+                                }
+                                //
                                 status_bar.setVisibility(View.VISIBLE);
                                 if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
                                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
@@ -5498,7 +6784,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
                         if (MainActivity.isMainActivity) {
                             removeEvent(TVEVENT.E_HIDE_CONTROLER);
-                            ll_uiLocked.setVisibility(View.VISIBLE);
+                            if (initDeviceView.getVisibility() == View.INVISIBLE) {
+                                ll_uiLocked.setVisibility(View.VISIBLE);
+                            }
                             postEvent(TVEVENT.E_HIDE_CONTROLER, CONTROLLER_HIDE_TIME);
                             removeStatusBar(false);
                         } else {
@@ -5574,6 +6862,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             } else {
                 ll_file_play_mode.setVisibility(View.INVISIBLE);
                 ll_file_play_mode_usb.setVisibility(View.VISIBLE);
+                ll_noChannel.setVisibility(View.INVISIBLE);  //live add
             }
         } else {
             if (FCI_TVi.initiatedSol) {
@@ -5582,6 +6871,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             } else {
                 ll_file_play_mode_usb.setVisibility(View.INVISIBLE);
                 ll_file_play_mode.setVisibility(View.VISIBLE);
+                ll_noChannel.setVisibility(View.INVISIBLE);  //live add
             }
         }
 
@@ -5656,9 +6946,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
                     // if (event.getAction() == MotionEvent.ACTION_UP) {
-                    CustomToast toast12 = new CustomToast(getApplicationContext());
-                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    // }
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 } else {
                     if (SystemClock.elapsedRealtime() - mLastClickTimeChat < DOUBLE_CLICK_TOLERANCE){
                         return;
@@ -5820,9 +7109,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
                     // if (event.getAction() == MotionEvent.ACTION_UP) {
-                    CustomToast toast12 = new CustomToast(getApplicationContext());
-                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                    // }
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 } else {
                     if (SystemClock.elapsedRealtime() - mLastClickTimeFloating < DOUBLE_CLICK_TOLERANCE) {
                         return;
@@ -5876,6 +7164,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (isServiceRunningCheck()) {
                             TVlog.i(TAG, " >>>>> FloatingWindow Service is running!! later finish");
                             //moveTaskToBack(true);
+                            if (SDK_INT >= 21) {
+                                finishAndRemoveTask();
+                            } else {
+                                finish();
+                            }
                         }
                     } else {
                         isMainActivity = false;
@@ -5910,6 +7203,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         if (isServiceRunningCheck()) {
                             TVlog.i(TAG, " >>>>> FloatingWindow Service is running!!  scanCHnum = 0");
 
+                            if (SDK_INT >= 21) {
+                                finishAndRemoveTask();
+                            } else {
+                                finish();
+                            }
                         }
 
                         new InputDialog(instance, InputDialog.TYPE_TV_NOCHANNELLIST, null, null, null);
@@ -5963,6 +7261,39 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             }
         });
 
+        ll_exit = (LinearLayout) findViewById(R.id.ll_exit);
+        if (buildOption.VIEW_EXIT_BUTTON == true) {
+            if (ll_uiLock != null) {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)ll_uiLock.getLayoutParams();
+                params.rightMargin = 0;
+                ll_uiLock.setLayoutParams(params);
+            }
+            if (ll_exit != null) {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)ll_exit.getLayoutParams();
+                params.rightMargin = 40;
+                ll_exit.setLayoutParams(params);
+                ll_exit.setVisibility(View.VISIBLE);
+                ll_exit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        InputDialog dig = new InputDialog(MainActivity.this, InputDialog.TYPE_TV_TERMINATE, null, null, null);
+                    }
+                });
+            }
+
+        } else {
+            if (ll_uiLock != null) {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)ll_uiLock.getLayoutParams();
+                params.rightMargin = 40;
+                ll_uiLock.setLayoutParams(params);
+            }
+            if (ll_exit != null) {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)ll_exit.getLayoutParams();
+                params.rightMargin = 0;
+                ll_exit.setLayoutParams(params);
+                ll_exit.setVisibility(View.GONE);
+            }
+        }
         // live add
         ll_scramble_msg = (LinearLayout) findViewById(R.id.ll_scramble_msg);
         tv_scramble_title = (TextView) findViewById(R.id.tv_scramble_title);
@@ -6016,6 +7347,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         rl_ChType = (RelativeLayout) findViewById(R.id.rl_ChType);
         iv_ChType = (ImageView) findViewById(R.id.iv_ChType);
         iv_ChFree = (ImageView) findViewById(R.id.iv_ChFree);
+        iv_ChLogo = (ImageView) findViewById(R.id.iv_ChLogo);
 
         if (CommonStaticData.scanCHnum > 0) {
             if (mCursor != null) {
@@ -6052,6 +7384,337 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         }
                     }
                 }
+
+                //for Broadcast Station Logo
+                if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                        && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                        || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                    logoList = new ArrayList();
+                    recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                    if (mCursor != null) {
+                        int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                        int networkID = TVBridge.getNetworkID(serviceID);
+                        TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                        if (networkID == 32391) {  // in case of TYKYO MX
+                            if (type == 1) { // full-seg
+                                if ((serviceID&7) == 0 | (serviceID&7) == 1) {
+                                    TVlog.i(TAG, " >>> This channel is MX1");
+
+                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                    logoFile = new File(logoDirPath);
+                                    if (!logoFile.exists()) {
+                                        logoFile.mkdirs();
+                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                    }
+                                    File[] list = logoFile.listFiles();
+                                    for (int i=0; i <list.length; i++) {
+                                        logoList.add(list[i].getName());
+                                    }
+                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                    if (iv_ChLogo != null) {
+                                        if (file3.exists() && file3.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file5.exists() && file5.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file4.exists() && file4.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file2.exists() && file2.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file0.exists() && file0.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file1.exists() && file1.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if ((serviceID&7) == 2) {
+                                    TVlog.i(TAG, " >>> This channel is MX2");
+                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                    logoFile = new File(logoDirPath);
+                                    if (!logoFile.exists()) {
+                                        logoFile.mkdirs();
+                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                    }
+                                    File[] list = logoFile.listFiles();
+                                    for (int i=0; i <list.length; i++) {
+                                        logoList.add(list[i].getName());
+                                    }
+                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                    if (iv_ChLogo != null) {
+                                        if (file3.exists() && file3.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file5.exists() && file5.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file4.exists() && file4.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file2.exists() && file2.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file0.exists() && file0.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file1.exists() && file1.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (type == 0) {
+                                if ((serviceID&7) == 0) {
+                                    TVlog.i(TAG, " >>> This channel is MX1");
+
+                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                    logoFile = new File(logoDirPath);
+                                    if (!logoFile.exists()) {
+                                        logoFile.mkdirs();
+                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                    }
+                                    File[] list = logoFile.listFiles();
+                                    for (int i=0; i <list.length; i++) {
+                                        logoList.add(list[i].getName());
+                                    }
+                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                    if (iv_ChLogo != null) {
+                                        if (file3.exists() && file3.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file5.exists() && file5.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file4.exists() && file4.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file2.exists() && file2.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file0.exists() && file0.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file1.exists() && file1.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if ((serviceID&7) == 1) {
+                                    TVlog.i(TAG, " >>> This channel is MX2");
+                                    logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                    TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                    logoFile = new File(logoDirPath);
+                                    if (!logoFile.exists()) {
+                                        logoFile.mkdirs();
+                                        TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                    }
+                                    File[] list = logoFile.listFiles();
+                                    for (int i=0; i <list.length; i++) {
+                                        logoList.add(list[i].getName());
+                                    }
+                                    TVlog.i(TAG, " >>> logoList = "+logoList);
+                                    File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                    String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                    File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                    String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                    File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                    String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                    File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                    String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                    File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                    String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                    File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                    String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                    if (iv_ChLogo != null) {
+                                        if (file3.exists() && file3.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path3));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file5.exists() && file5.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path5));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file4.exists() && file4.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file2.exists() && file2.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file0.exists() && file0.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            if (file1.exists() && file1.length() > 200) {
+                                                                iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                                            } else {
+                                                                iv_ChLogo.setVisibility(View.GONE);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            logoDirPath = filePath.fullPath+"TVLogos";
+                            TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                            logoFile = new File(logoDirPath);
+                            if (!logoFile.exists()) {
+                                logoFile.mkdirs();
+                                TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                            }
+                            File[] list = logoFile.listFiles();
+                            for (int i=0; i <list.length; i++) {
+                                logoList.add(list[i].getName());
+                            }
+                            TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                            File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                            String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                            File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                            String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                            File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                            String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                            File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                            String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                            File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                            String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                            File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                            String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                            if (iv_ChLogo != null) {
+                                if (file3.exists() && file3.length() > 200) {
+                                    iv_ChLogo.setImageURI(Uri.parse(path3));
+                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                } else {
+                                    if (file5.exists() && file5.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path5));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file4.exists() && file4.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path4));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file2.exists() && file2.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file0.exists() && file0.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file1.exists() && file1.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        iv_ChLogo.setVisibility(View.GONE);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    iv_ChLogo.setVisibility(View.GONE);
+                }
+                //
             }
         } else {
             rl_ChType.setVisibility(View.GONE);
@@ -6063,22 +7726,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
         CommonStaticData.scanCHnum = CommonStaticData.settings.getInt(CommonStaticData.scanedChannelsKey, 0);
-        if (CommonStaticData.scanCHnum > 0) {
-            ll_noChannel.setVisibility(View.INVISIBLE);
-        } else {
-            ll_noChannel.setVisibility(View.VISIBLE);
-            if (currChNo != null && currCH != null && currRemoteNo != null) {
-                currChNo.setText("- -ch");
-                currRemoteNo.setText("- - -");
-                currCH.setText(R.string.no_channel_title);
-            }
-            if (rl_ChType != null) {
-                rl_ChType.setVisibility(View.GONE);
-            }
-            if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
-                if (currProgram != null && currDuration != null) {
-                    currProgram.setText("- - -");
-                    currDuration.setText("--:--~--:--");
+        if (FCI_TVi.initiatedSol) {
+            if (CommonStaticData.scanCHnum > 0) {
+                ll_noChannel.setVisibility(View.INVISIBLE);
+            } else {
+                ll_noChannel.setVisibility(View.VISIBLE);
+                if (currChNo != null && currCH != null && currRemoteNo != null) {
+                    currChNo.setText("- -ch");
+                    currRemoteNo.setText("- - -");
+                    currCH.setText(R.string.no_channel_title);
+                }
+                if (rl_ChType != null) {
+                    rl_ChType.setVisibility(View.GONE);
+                }
+                if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+                    if (currProgram != null && currDuration != null) {
+                        currProgram.setText("- - -");
+                        currDuration.setText("--:--~--:--");
+                    }
                 }
             }
         }
@@ -6191,8 +7856,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    CustomToast toast12 = new CustomToast(getApplicationContext());
-                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 } else {
                     // mis-clicking prevention, using threshold of 1500 ms
                     if (SystemClock.elapsedRealtime() - mLastClickTimeScan < DOUBLE_CLICK_TOLERANCE){
@@ -6269,8 +7934,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    CustomToast toast12 = new CustomToast(getApplicationContext());
-                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 } else {
                     hideController();
                     // mis-clicking prevention, using threshold of 1500 ms
@@ -6315,8 +7980,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                     } else {
                         CommonStaticData.passwordVerifyFlag = false;
                         CommonStaticData.ageLimitFlag = false;
@@ -6361,8 +8026,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                     } else {
                         // justin DB
                         CommonStaticData.passwordVerifyFlag = false;
@@ -6412,8 +8077,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    CustomToast toast12 = new CustomToast(getApplicationContext());
-                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 } else {
                     hideController();
                     // mis-clicking prevention, using threshold of 1500 ms
@@ -6459,8 +8124,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    CustomToast toast12 = new CustomToast(getApplicationContext());
-                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 } else {
                     CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = CommonStaticData.settings.edit();
@@ -6468,7 +8133,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     if (currentVideoMode == SCALEMODE_NORMAL) {
                         TVlog.i(TAG, "video mode : Normal --> 16:9");
                         SetVideoScale(SCALEMODE_16_9);
-                        customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.scale_16_9), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.scale_16_9)));
                         CommonStaticData.currentScaleMode = 1;
                         editor.putInt(CommonStaticData.currentScaleModeKey, CommonStaticData.currentScaleMode);
                         editor.commit();
@@ -6476,14 +8142,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     } else if (currentVideoMode == SCALEMODE_16_9) {
                         TVlog.i(TAG, "video mode : 16:9 --> 4:3");
                         SetVideoScale(SCALEMODE_4_3);
-                        customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.scale_4_3), Toast.LENGTH_SHORT);
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.scale_4_3)));
                         CommonStaticData.currentScaleMode = 2;
                         editor.putInt(CommonStaticData.currentScaleModeKey, CommonStaticData.currentScaleMode);
                         editor.commit();
                     } else {
                         TVlog.i(TAG, "video mode : 4:3 --> Normal");
                         SetVideoScale(SCALEMODE_NORMAL);
-                        customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.scale_normal), Toast.LENGTH_SHORT);
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.scale_normal)));
                         CommonStaticData.currentScaleMode = 0;
                         editor.putInt(CommonStaticData.currentScaleModeKey, CommonStaticData.currentScaleMode);
                         editor.commit();
@@ -6533,8 +8199,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                 || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                            CustomToast toast12 = new CustomToast(getApplicationContext());
-                            toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                            //live modify for toast
+                            mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                         } else {
                             if (buildOption.VIDEO_CODEC_TYPE == buildOption.VIDEOCODEC_TYPE_SWCODEC) {
 
@@ -6584,47 +8250,46 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                                     || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                                                     || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                                                     || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
-                                                CustomToast toast = new CustomToast(getApplicationContext());
-                                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
+                                                //live modify for toast
+                                                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.captured_to_file) + "\n"
                                                         + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
-                                                        + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
+                                                        + sdf.format(now) + "_" + channelName + ".png"));
                                             } else {
                                                 if (SDK_INT < Build.VERSION_CODES.N) {
                                                     if (getExternalMounts().size() != 0) {
-
-                                                        CustomToast toast = new CustomToast(getApplicationContext());
-                                                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
+                                                        //live modify for toast
+                                                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.captured_to_file) + "\n"
                                                                 + getApplicationContext().getString(R.string.sd_storage_capture) + "\n"
-                                                                + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
+                                                                + sdf.format(now) + "_" + channelName + ".png"));
                                                     } else {
-                                                        CustomToast toast = new CustomToast(getApplicationContext());
-                                                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
+                                                        //live modify for toast
+                                                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.captured_to_file) + "\n"
                                                                 + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
-                                                                + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
+                                                                + sdf.format(now) + "_" + channelName + ".png"));
                                                     }
                                                 } else {
-                                                    CustomToast toast = new CustomToast(getApplicationContext());
-                                                    toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.captured_to_file) + "\n"
+                                                    //live modify for toast
+                                                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.captured_to_file) + "\n"
                                                             + getApplicationContext().getString(R.string.phone_storage_capture) + "\n"
-                                                            + sdf.format(now) + "_" + channelName + ".png", Toast.LENGTH_SHORT);
+                                                            + sdf.format(now) + "_" + channelName + ".png"));
                                                 }
                                             }
 
                                         } else {
-                                            CustomToast toast = new CustomToast(getApplicationContext());
-                                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.capture_fail), Toast.LENGTH_SHORT);
+                                            //live modify for toast
+                                            mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.capture_fail)));
                                         }
                                     } else {
-                                        CustomToast toast = new CustomToast(getApplicationContext());
-                                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_for_capture), Toast.LENGTH_SHORT);
+                                        //live modify for toast
+                                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.permission_for_capture)));
                                     }
 
                                 }
                             }
                         }
                     } else if (ll_age_limit.getVisibility() == View.VISIBLE) {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.age_limit_title), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.age_limit_title)));
                     }
                 }
             });
@@ -6656,10 +8321,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                        //if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                        // }
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                     } else {
                         if (changeChannelView.getVisibility() != View.VISIBLE) {
                             // mis-clicking prevention, using threshold of 1500 ms
@@ -6747,17 +8410,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     recordingStop(false);
                                 }
                             } else {
-                                CustomToast toast = new CustomToast(getApplicationContext());
-                                toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_need_recording), Toast.LENGTH_SHORT);
+                                //live modify for toast
+                                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.permission_need_recording)));
                             }
                         } else {
-                            CustomToast toast = new CustomToast(getApplicationContext());
-                            toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.recordNotSupportFormat), Toast.LENGTH_SHORT);
+                            //live modify for toast
+                            mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.recordNotSupportFormat)));
                         }
                     }
                 } else if (ll_age_limit.getVisibility() == View.VISIBLE) {
-                    CustomToast toast = new CustomToast(getApplicationContext());
-                    toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.age_limit_title), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.age_limit_title)));
                 }
             }
         });
@@ -6808,9 +8471,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         MainActivity.isMainActivity = true;
                         isPlayBackActivity = true;
                         startActivity(intent);
-                    } else {
-                        CustomToast toast = new CustomToast(getApplicationContext());
-                        toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.permission_need_play), Toast.LENGTH_SHORT);
+                } else {
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.permission_need_play)));
                 }
             }
         });
@@ -6843,8 +8506,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                         || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                    CustomToast toast12 = new CustomToast(getApplicationContext());
-                    toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                    //live modify for toast
+                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                 } else {
                     // mis-clicking prevention, using threshold of 1500 ms
                     if (SystemClock.elapsedRealtime() - mLastClickTimeSet < DOUBLE_CLICK_TOLERANCE){
@@ -6869,6 +8532,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
             int receiveMode = CommonStaticData.settings.getInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.RECEIVE_MODE_AUTO);  // auto
             receiveModeB.setText(arr_svcmodeswitch_jp[receiveMode]);
+            receiveModeB.setVisibility(View.VISIBLE);
+        } else {
+            receiveModeB.setVisibility(View.GONE);
         }
 
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
@@ -6880,7 +8546,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 setB.setLayoutParams(params);
             }
 
-            receiveModeB.setVisibility(View.VISIBLE);
 
             CommonStaticData.settings = getSharedPreferences(CommonStaticData.mSharedPreferencesName, Context.MODE_PRIVATE);
             CommonStaticData.scanCHnum = CommonStaticData.settings.getInt(CommonStaticData.scanedChannelsKey, 0);
@@ -6928,7 +8593,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 receiveModeB.setText(arr_svcmodeswitch_jp[2]);
                                 editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
                                 editor.commit();
-                                customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.switch_fail_SD), Toast.LENGTH_SHORT);
+                                //live modify for toast
+                                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.switch_fail_SD)));
                             }
 
                         } else if (CommonStaticData.receivemode == CommonStaticData.RECEIVE_MODE_1SEG) {  //1seg --> auto
@@ -6953,18 +8619,24 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 receiveModeB.setText(arr_svcmodeswitch_jp[0]);
                                 editor.putInt(CommonStaticData.receivemodeSwitchKey, CommonStaticData.receivemode);
                                 editor.commit();
-                                customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.switch_fail_HD), Toast.LENGTH_SHORT);
+                                //live modify for toast
+                                mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.switch_fail_HD)));
                             }
+
                         }
                     } else {
-                        customToast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.no_channel_tip), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.no_channel_tip)));
                     }
                 }
             });
         } else {
             if (setB != null) {
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)setB.getLayoutParams();
-                params.rightMargin=40;
+                DisplayMetrics dm = getResources().getDisplayMetrics();
+                int size = Math.round(40 * dm.density);
+                ImageButton setB = new ImageButton(mContext);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.rightMargin=size;
                 setB.setLayoutParams(params);
             }
             if (receiveModeB != null) {
@@ -7005,6 +8677,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         loadingChannel = (TextView)findViewById(R.id.loading_channel);
         loadingFilePlay = (TextView)findViewById(R.id.loading_fileplay);    // justin
+
+        initDevice = (TextView)findViewById(R.id.init_device);
+        initDevice.setText(getResources().getString(R.string.init_device));
+        initDeviceView = (LinearLayout) findViewById(R.id.ll_initDevice);
+        if (initDeviceView != null) {
+            initDeviceView.setVisibility(View.INVISIBLE);
+        }
 
         controllerLayout = (LinearLayout) findViewById(R.id.controllerLayout);
 
@@ -7047,7 +8726,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         animator.start();
                     }
 
-                    audioOut.setSpeakerMode(true);
+                    if (audioOut != null) {
+                        audioOut.setSpeakerMode(true);
+                    }
                     CommonStaticData.loudSpeaker = true;
 
                 }
@@ -7066,7 +8747,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         animator.start();
                     }
 
-                    audioOut.setSpeakerMode(false);
+                    if (audioOut != null) {
+                        audioOut.setSpeakerMode(false);
+                    }
                     CommonStaticData.loudSpeaker = false;
                 }
             });
@@ -7166,10 +8849,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                        // if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                        //  }
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                     } else {
                         // mis-clicking prevention, using threshold of 1500 ms
                         if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE) {
@@ -7198,10 +8879,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                        // if (event.getAction() == MotionEvent.ACTION_UP) {
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
-                        // }
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                     } else {
                         // mis-clicking prevention, using threshold of 1500 ms
                         if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < DOUBLE_CLICK_TOLERANCE) {
@@ -7258,8 +8937,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                     } else {
                         // mis-clicking prevention, using threshold of 1500 ms
                         if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < 500) {
@@ -7303,8 +8982,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
                         if (event.getAction() == MotionEvent.ACTION_UP) {
-                            CustomToast toast12 = new CustomToast(getApplicationContext());
-                            toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                            //live modify for toast
+                            mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                         }
                     } else {
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -7346,8 +9025,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
                         if (event.getAction() == MotionEvent.ACTION_UP) {
-                            CustomToast toast12 = new CustomToast(getApplicationContext());
-                            toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                            //live modify for toast
+                            mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                         }
                     } else {
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -7411,8 +9090,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                             || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                             || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) && (mUsbChipType == USB_CHIP_TYPE_NONE)) {          // justin add
-                        CustomToast toast12 = new CustomToast(getApplicationContext());
-                        toast12.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_dongle_not_attached), Toast.LENGTH_SHORT);
+                        //live modify for toast
+                        mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_dongle_not_attached)));
                     } else {
                         // mis-clicking prevention, using threshold of 1500 ms
                         if (SystemClock.elapsedRealtime() - mLastClickTimeCHMenu < 500) {
@@ -7832,6 +9511,338 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     private void showController() {
         if (!isUiLocked) {
+            //if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 2 || buildOption.GUI_STYLE == 3) {
+
+            //for Broadcast Station Logo
+            if ((buildOption.VIEW_BROADCAT_STATION_LOGO == true)
+                    && (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE)) {
+                logoList = new ArrayList();
+                recordAndCapturePath filePath = MainActivity.getInstance().getCurrentRecordingPath();
+
+                if (mCursor != null) {
+                    int serviceID = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_NUMBER);
+                    int networkID = TVBridge.getNetworkID(serviceID);
+                    int type = (int) mCursor.getInt(CommonStaticData.COLUMN_INDEX_SERVICE_MTV);
+                    TVlog.i(TAG, " >>> serviceID = "+serviceID+" , networkID = "+networkID);
+
+                    if (networkID == 32391) {  // in case of TYKYO MX
+                        if (type == 1) { // full-seg
+                            if ((serviceID&7) == 0 | (serviceID&7) == 1) {
+                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if ((serviceID&7) == 2) {
+                                TVlog.i(TAG, " >>> This channel is MX2");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (type == 0) {
+                            if ((serviceID&7) == 0) {
+                                TVlog.i(TAG, " >>> This channel is MX1");
+
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX1";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"1"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"1"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"1"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"1"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"1"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"1"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if ((serviceID&7) == 1) {
+                                TVlog.i(TAG, " >>> This channel is MX2");
+                                logoDirPath = filePath.fullPath+"TVLogos"+"/"+"TOKYO MX2";
+                                TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                                logoFile = new File(logoDirPath);
+                                if (!logoFile.exists()) {
+                                    logoFile.mkdirs();
+                                    TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                                }
+                                File[] list = logoFile.listFiles();
+                                for (int i=0; i <list.length; i++) {
+                                    logoList.add(list[i].getName());
+                                }
+                                TVlog.i(TAG, " >>> logoList = "+logoList);
+                                File file0 = new File(logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png");
+                                String path0 = logoDirPath+"/"+networkID+"_0"+"_"+"2"+".png";
+                                File file1 = new File(logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png");
+                                String path1 = logoDirPath+"/"+networkID+"_1"+"_"+"2"+".png";
+                                File file2 = new File(logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png");
+                                String path2 = logoDirPath+"/"+networkID+"_2"+"_"+"2"+".png";
+                                File file3 = new File(logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png");
+                                String path3 = logoDirPath+"/"+networkID+"_3"+"_"+"2"+".png";
+                                File file4 = new File(logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png");
+                                String path4 = logoDirPath+"/"+networkID+"_4"+"_"+"2"+".png";
+                                File file5 = new File(logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png");
+                                String path5 = logoDirPath+"/"+networkID+"_5"+"_"+"2"+".png";
+
+                                if (iv_ChLogo != null) {
+                                    if (file3.exists() && file3.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path3));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file5.exists() && file5.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path5));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file4.exists() && file4.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path4));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file2.exists() && file2.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path2));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    if (file0.exists() && file0.length() > 200) {
+                                                        iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        if (file1.exists() && file1.length() > 200) {
+                                                            iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                                        } else {
+                                                            iv_ChLogo.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        logoDirPath = filePath.fullPath+"TVLogos";
+                        TVlog.i(TAG, " >>> Path for TVLogo = "+logoDirPath);
+                        logoFile = new File(logoDirPath);
+                        if (!logoFile.exists()) {
+                            logoFile.mkdirs();
+                            TVlog.i(TAG, "==== make new folder for TVLogo ====  "+logoDirPath);
+                        }
+                        File[] list = logoFile.listFiles();
+                        for (int i=0; i <list.length; i++) {
+                            logoList.add(list[i].getName());
+                        }
+                        TVlog.i(TAG, " >>> logoList = "+logoList);
+
+                        File file0 = new File(logoDirPath+"/"+networkID+"_0"+".png");
+                        String path0 = logoDirPath+"/"+networkID+"_0"+".png";
+                        File file1 = new File(logoDirPath+"/"+networkID+"_1"+".png");
+                        String path1 = logoDirPath+"/"+networkID+"_1"+".png";
+                        File file2 = new File(logoDirPath+"/"+networkID+"_2"+".png");
+                        String path2 = logoDirPath+"/"+networkID+"_2"+".png";
+                        File file3 = new File(logoDirPath+"/"+networkID+"_3"+".png");
+                        String path3 = logoDirPath+"/"+networkID+"_3"+".png";
+                        File file4 = new File(logoDirPath+"/"+networkID+"_4"+".png");
+                        String path4 = logoDirPath+"/"+networkID+"_4"+".png";
+                        File file5 = new File(logoDirPath+"/"+networkID+"_5"+".png");
+                        String path5 = logoDirPath+"/"+networkID+"_5"+".png";
+
+                        if (iv_ChLogo != null) {
+                            if (file3.exists() && file3.length() > 200) {
+                                iv_ChLogo.setImageURI(Uri.parse(path3));
+                                iv_ChLogo.setVisibility(View.VISIBLE);
+                            } else {
+                                if (file5.exists() && file5.length() > 200) {
+                                    iv_ChLogo.setImageURI(Uri.parse(path5));
+                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                } else {
+                                    if (file4.exists() && file4.length() > 200) {
+                                        iv_ChLogo.setImageURI(Uri.parse(path4));
+                                        iv_ChLogo.setVisibility(View.VISIBLE);
+                                    } else {
+                                        if (file2.exists() && file2.length() > 200) {
+                                            iv_ChLogo.setImageURI(Uri.parse(path2));
+                                            iv_ChLogo.setVisibility(View.VISIBLE);
+                                        } else {
+                                            if (file0.exists() && file0.length() > 200) {
+                                                iv_ChLogo.setImageURI(Uri.parse(path0));
+                                                iv_ChLogo.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (file1.exists() && file1.length() > 200) {
+                                                    iv_ChLogo.setImageURI(Uri.parse(path1));
+                                                    iv_ChLogo.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    iv_ChLogo.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                iv_ChLogo.setVisibility(View.GONE);
+            }
             status_bar.setVisibility(View.VISIBLE);
 
             if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN
@@ -8107,11 +10118,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 earphone.setVisibility(View.VISIBLE);
                 speaker.setVisibility(View.INVISIBLE);
             }
-            audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
-        }
-        else {
+            if (audioOut != null) {
+                audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+            }
+        } else {
             CommonStaticData.loudSpeaker = true;
-            audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+            if (audioOut != null) {
+                audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+            }
         }
 
         // sleep timer init for none set
@@ -8150,9 +10164,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                     earphone.setVisibility(View.VISIBLE);
                                     speaker.setVisibility(View.INVISIBLE);
                                 }
-                                audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+                                if (audioOut != null) {
+                                    audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+                                }
                             } else {
-                                audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+                                if (audioOut != null) {
+                                    audioOut.setSpeakerMode(CommonStaticData.loudSpeaker);
+                                }
                             }
                             break;
                         }
@@ -8228,9 +10246,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                                 // call your method that cleans up and closes communication with the device
                                 if (mUsbChipType == USB_CHIP_TYPE_NXP || mUsbChipType == USB_CHIP_TYPE_ITE || (mUsbChipType == USB_CHIP_TYPE_LME && mUsbLMEMode == USB_LME_MODE_WARM)) {
                                     TVlog.i("FCIISDBT::", "usb dongle closed ! (by device detached)");
-                                    //viewToastMSG("USB Dongle was detached!\n" + "TV app is terminated.", true);
-                                    CustomToast toast = new CustomToast(getApplicationContext());
-                                    toast.showToast(getApplicationContext(), getApplicationContext().getString(R.string.usb_detached_app_terminated), Toast.LENGTH_LONG);
+                                    // live modify for toast
+                                    mHandler_toast.post(new ToastRunnable(getApplicationContext().getString(R.string.usb_detached_app_terminated)));
                                     sendEvent(TVEVENT.E_TERMINATE);
                                 }
                             }
@@ -10958,7 +12975,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     // for Android M Permission
 
-    public  boolean isStoragePermissionGranted() {
+    public boolean isStoragePermissionGranted() {
         if (SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                     && checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -10966,7 +12983,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 return true;
             } else {
                 TVlog.i(TAG, " >>>>> Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
                 return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
@@ -11378,6 +13395,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
         FCI_TVi.deInit();
 
+        //usbdongle[[  usbdongle[[   add for dongle by justin  20180329
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+            closeUsbDevice();
+        }
+        //]]usbdongle
+
         if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
                 || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
@@ -11386,37 +13412,36 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             envSet_Normal();
         }
 
+        //usbdongle[[   add for dongle by justin 20180329
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB)
+        {
+            mPermissionRequested = 0;
+            setupUsbDevice();
+            if (mUsbFd == -1) {
+                TVlog.i("Restart_TV", "usb dongle closed ! (by device not attached)");
+            }
+            else {
+                UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+                if (manager != null && mUsbDevice != null) {
+                    if (manager.hasPermission(mUsbDevice) != true) {
+                        TVlog.i("Restart_TV", "usb dongle closed ! (by permission not granted)");
+                    }
+                    else {
+                        openUsbDevice(mUsbDevice);
+                    }
+                }
+            }
+        }
+        //]]usbdongle
+
         if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1)  {
             FCI_TVi.init(this.getPackageName(), null, mUsbFd, mUsbDeviceName, getVersionForDongle());
         } else {
             recordAndCapturePath FixedRecPath=  getCurrentRecordingPath();
             FCI_TVi.init(this.getPackageName(),FixedRecPath.fullPath, mUsbFd, mUsbDeviceName, getVersionForDongle());
-        }
-
-        if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_EACHDIV) {
-            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-            int rc = 0;
-            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_EACHDIV);
-            if (rc == 0) {
-                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_EACHDIV);
-            }
-        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_BROADCAST) {
-            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-            int rc = 0;
-            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_BROADCAST);
-            if (rc == 0) {
-                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_BROADCAST);
-            }
-        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_OFF) {
-            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
-            int rc = 0;
-            TVlog.i("fciisdbt", ": current MFD mode="+mfdMon);
-            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_OFF);
-            if (rc == 0) {
-                TVlog.i("fciisdbt", ": changed MFD mode="+FCI_TVi.BB_MFD_MON_OFF);
-            }
         }
     }
     // ]]
@@ -11426,78 +13451,483 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
-
-    /*
-    public String[] getExternalStorageDirectories() {
-
-        List<String> results = new ArrayList<>();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //Method 1 for KitKat & above
-            File[] externalDirs = getExternalFilesDirs(null);
-
-            for (File file : externalDirs) {
-                String path = file.getPath().split("/Android")[0];
-
-                boolean addPath = false;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    addPath = Environment.isExternalStorageRemovable(file);
-                }
-                else {
-                    addPath = Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file));
-                }
-
-                if (addPath){
-                    results.add(path);
-                }
+    private class ToastRunnable implements Runnable {
+        String mText;
+        public ToastRunnable(String text) {
+            mText = text;
+        } @Override public void run(){
+            //Toast.makeText(getApplicationContext(), mText, Toast.LENGTH_SHORT).show();
+            if (customToast != null) {
+                customToast.showToast(getApplicationContext(), mText, Toast.LENGTH_SHORT);
             }
         }
+    }
 
-        if (results.isEmpty()) { //Method 2 for all versions
-            // better variation of: http://stackoverflow.com/a/40123073/5002496
-            String output = "";
-            try {
-                final Process process = new ProcessBuilder().command("mount | grep /dev/block/vold")
-                        .redirectErrorStream(true).start();
-                process.waitFor();
-                final InputStream is = process.getInputStream();
-                final byte[] buffer = new byte[1024];
-                while (is.read(buffer) != -1) {
-                    output = output + new String(buffer);
-                }
-                is.close();
-            } catch (final Exception e) {
-                e.printStackTrace();
-            }
-            if (!output.trim().isEmpty()) {
-                String devicePoints[] = output.split("\n");
-                for(String voldPoint: devicePoints) {
-                    results.add(voldPoint.split(" ")[2]);
-                }
-            }
-        }
-
-        //Below few lines is to remove paths which may not be external memory card, like OTG (feel free to comment them out)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            for (int i = 0; i < results.size(); i++) {
-                if (!results.get(i).toLowerCase().matches(".*[0-9a-f]{4}[-][0-9a-f]{4}")) {
-                    Log.d(TAG, results.get(i) + " might not be extSDcard");
-                    results.remove(i--);
-                }
+    private void showBBInitFailDialog() {
+        if (buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1) {
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.japan_usb_dongle_not_attach_msg)
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
+            } else if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                    buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                    buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.usb_dongle_not_attach_msg)
+                        .negativeText(R.string.continue_msg)
+                        .negativeColor(getResources().getColor(R.color.blue3))
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                bb_fail_dialog.dismiss();
+                                if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                    ll_noChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_noSignal.getVisibility() == View.VISIBLE) {
+                                    ll_noSignal.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_file_play_mode_usb.getVisibility() == View.INVISIBLE) {
+                                    ll_file_play_mode_usb.setVisibility(View.VISIBLE);
+                                }
+                                withoutUSB = true;
+                            }
+                        })
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
+            } else if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN) {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.bb_init_fail_msg)
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
+            } else {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.bb_init_fail_msg)
+                        .negativeText(R.string.continue_msg)
+                        .negativeColor(getResources().getColor(R.color.blue3))
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                bb_fail_dialog.dismiss();
+                                if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                    ll_noChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_noSignal.getVisibility() == View.VISIBLE) {
+                                    ll_noSignal.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_file_play_mode.getVisibility() == View.INVISIBLE) {
+                                    ll_file_play_mode.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        })
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
             }
         } else {
-            for (int i = 0; i < results.size(); i++) {
-                if (!results.get(i).toLowerCase().contains("ext") && !results.get(i).toLowerCase().contains("sdcard")) {
-                    Log.d(TAG, results.get(i)+" might not be extSDcard");
-                    results.remove(i--);
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB) {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.japan_usb_dongle_not_attach_msg)
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
+            } else if (buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                    buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                    buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.usb_dongle_not_attach_msg)
+                        .negativeText(R.string.continue_msg)
+                        .negativeColor(getResources().getColor(R.color.blue3))
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                bb_fail_dialog.dismiss();
+                                if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                    ll_noChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_noSignal.getVisibility() == View.VISIBLE) {
+                                    ll_noSignal.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_file_play_mode_usb.getVisibility() == View.INVISIBLE) {
+                                    ll_file_play_mode_usb.setVisibility(View.VISIBLE);
+                                }
+                                //   isWarmReset = true;
+                                withoutUSB = true;
+                            }
+                        })
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
+            } else if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN) {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.bb_init_fail_msg)
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
+            } else {
+                bb_fail_dialog = new MaterialDialog.Builder(MainActivity.this)
+                        .theme(Theme.LIGHT)
+                        .iconRes(R.drawable.ic_info_outline_gray_48dp)
+                        .title(R.string.alert)
+                        .titleColor(getResources().getColor(R.color.black))
+                        .content(R.string.bb_init_fail_msg)
+                        .negativeText(R.string.continue_msg)
+                        .negativeColor(getResources().getColor(R.color.blue3))
+                        .onNegative(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                bb_fail_dialog.dismiss();
+                                if (ll_noChannel.getVisibility() == View.VISIBLE) {
+                                    ll_noChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_noSignal.getVisibility() == View.VISIBLE) {
+                                    ll_noSignal.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+                                    ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+                                }
+                                if (ll_file_play_mode.getVisibility() == View.INVISIBLE) {
+                                    ll_file_play_mode.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        })
+                        .positiveText(R.string.exit)
+                        .positiveColor(getResources().getColor(R.color.blue3))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                sendEvent(TVEVENT.E_TERMINATE);
+                            }
+                        })
+                        .build();
+                bb_fail_dialog.getWindow().setGravity(Gravity.CENTER);
+                bb_fail_dialog.show();
+                bb_fail_dialog.setCanceledOnTouchOutside(false);
+            }
+        }
+    }
+
+    private void doProcessAfterInitBB()
+    {
+        if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_EACHDIV) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i(TAG, ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+            if (rc==0) {
+                TVlog.i(TAG, ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_EACHDIV);
+            }
+        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_ON_BROADCAST) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i(TAG, ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+            if (rc==0) {
+                TVlog.i(TAG, ": changed MFD mode="+FCI_TVi.BB_MFD_MON_ON_BROADCAST);
+            }
+        } else if (buildOption.BB_MFD_MON_MODE == buildOption.BB_MFD_MON_OFF) {
+            int mfdMon = FCI_TVi.devGetMFDMonitorMode();
+            int rc = 0;
+            TVlog.i(TAG, ": current MFD mode="+mfdMon);
+            rc = FCI_TVi.devSetMFDMonitorMode(FCI_TVi.BB_MFD_MON_OFF);
+            if (rc==0) {
+                TVlog.i(TAG, ": changed MFD mode="+FCI_TVi.BB_MFD_MON_OFF);
+            }
+        }
+
+        if (buildOption.SKIP_AV_ERROR_DATA == false) {
+            FCI_TVi.setSkipAVErrorData((byte)0);
+            TVlog.i(TAG, "==== AV error data allowed ====");
+        } else {
+            FCI_TVi.setSkipAVErrorData((byte)1);
+            TVlog.i(TAG, "==== No AV error data allowed ====");
+        }
+
+        // live add
+        isdbMode = FCI_TVi.GetISDBMode();
+        if (isdbMode == FCI_TVi.ISDBT_MODE_FULLSEG) {
+            strISDBMode = "ISDBT Fullseg";
+        } else if (isdbMode == FCI_TVi.ISDBT_MODE_ONESEG) {
+            strISDBMode = "ISDBT Oneseg";
+        } else {
+            strISDBMode = "ISDBT None";
+        }
+        TVlog.i(TAG, "==== doProcessAfterInitBB ====(mode: "+strISDBMode+")");
+
+        if (isMainActivity) {
+            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
+            removeEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME_USB);
+            } else {
+                postEvent(TVEVENT.E_SIGNAL_MONITER, SIGNAL_MONITER_TIME);
+            }
+        } else if (ChatMainActivity.isChat) {
+            removeEvent(TVEVENT.E_SIGNAL_MONITER);
+            removeEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING);
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                if (ChatMainActivity.getInstance() != null) {
+                    ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME_USB);
+                }
+            } else {
+                if (ChatMainActivity.getInstance() != null) {
+                    ChatMainActivity.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_CHAT, SIGNAL_MONITER_TIME);
+                }
+            }
+        } else if (FloatingWindow.isFloating) {
+            removeEvent(TVEVENT.E_SIGNAL_MONITER);
+            removeEvent(TVEVENT.E_SIGNAL_MONITER_CHAT);
+            if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB
+                    || buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+                if (FloatingWindow.getInstance() != null) {
+                    FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME_USB);
+                }
+            } else {
+                if (FloatingWindow.getInstance() != null) {
+                    FloatingWindow.getInstance().postEvent(TVEVENT.E_SIGNAL_MONITER_FLOATING, SIGNAL_MONITER_TIME);
                 }
             }
         }
 
-        String[] storageDirectories = new String[results.size()];
-        for(int i=0; i<results.size(); ++i) storageDirectories[i] = results.get(i);
+        if(buildOption.GUI_STYLE == 0 ||buildOption.GUI_STYLE == 1 )  {
+            getCurrentRecordingPath();
+            thumbNailUpdate.getThhumbNailUpdateTask().sendEvent(TVEVENT.E_UPDATE_THUMBNAIL, 0);
+        }
 
-        return storageDirectories;
-    }*/
+        if (buildOption.ADD_GINGA_NCL == true) {
+            if (CommonStaticData.interactiveSwitch==true) {
+                FCI_TVi.enableGingaNCL();
+            } else {
+                FCI_TVi.disableGingaNCL();
+            }
+            TVlog.i(TAG, "==== ginga initialized end ====");
+        } else {
+            FCI_TVi.disableGingaNCL();
+        }
+    }
+
+    private void hideAllViewDisplay()
+    {
+        hideController();
+
+        if (ll_noChannel.getVisibility() == View.VISIBLE) {
+            ll_noChannel.setVisibility(View.INVISIBLE);
+        }
+        if (ll_noSignal.getVisibility() == View.VISIBLE) {
+            ll_noSignal.setVisibility(View.INVISIBLE);
+        }
+        if (ll_scramble_msg.getVisibility() == View.VISIBLE) {
+            ll_scramble_msg.setVisibility(View.INVISIBLE);
+        }
+        if (ll_mainAutoSearch.getVisibility() == View.VISIBLE) {
+            ll_mainAutoSearch.setVisibility(View.INVISIBLE);
+        }
+        if (ll_audioOnlyChannel.getVisibility() == View.VISIBLE) {
+            ll_audioOnlyChannel.setVisibility(View.INVISIBLE);
+        }
+
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.BRAZIL_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.PHILIPPINES_USB ||
+                buildOption.FCI_SOLUTION_MODE == buildOption.SRILANKA_USB) {
+            if (ll_file_play_mode_usb.getVisibility() == View.VISIBLE) {
+                ll_file_play_mode_usb.setVisibility(View.INVISIBLE);
+            }
+        } else {
+            if (ll_file_play_mode.getVisibility() == View.VISIBLE) {
+                ll_file_play_mode.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        if (bb_fail_dialog != null) {
+            if (bb_fail_dialog.getView().getVisibility() == View.VISIBLE) {
+                bb_fail_dialog.dismiss();
+            }
+        }
+
+        if (buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_ONESEG
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_USB
+                || buildOption.FCI_SOLUTION_MODE == buildOption.JAPAN_FILE) {
+            if (mCaptionView != null) {
+                mCaptionView.setText("");
+                mCaptionView.invalidate();
+            }
+            if (mSuperimposeView != null) {
+                mSuperimposeView.setText("");
+                mSuperimposeView.invalidate();
+            }
+        } else {
+            if (subTitleView != null) {
+                subTitleView.setText(Html.fromHtml(""));
+            }
+            if (superImposeView != null) {
+                superImposeView.setText(Html.fromHtml(""));
+            }
+        }
+    }
+
+    private void printSolutionMode()
+    {
+        switch (buildOption.FCI_SOLUTION_MODE) {
+        case buildOption.JAPAN:
+            TVlog.i(TAG, "solution mode: Japan Air");
+            break;
+        case buildOption.JAPAN_ONESEG:
+            TVlog.i(TAG, "solution mode: Japan Air(forced oneseg)");
+            break;
+        case buildOption.JAPAN_USB:
+            TVlog.i(TAG, "solution mode: Japan Dongle");
+            break;
+        case buildOption.JAPAN_FILE:
+            TVlog.i(TAG, "solution mode: Japan File");
+            break;
+        case buildOption.BRAZIL:
+            TVlog.i(TAG, "solution mode: Brazil Air");
+            break;
+        case buildOption.BRAZIL_ONESEG:
+            TVlog.i(TAG, "solution mode: Brazil Air(forced oneseg)");
+            break;
+        case buildOption.BRAZIL_USB:
+            TVlog.i(TAG, "solution mode: Brazil Dongle");
+            break;
+        case buildOption.BRAZIL_FILE:
+            TVlog.i(TAG, "solution mode: Brazil File");
+            break;
+        case buildOption.PHILIPPINES:
+            TVlog.i(TAG, "solution mode: Philippines Air");
+            break;
+        case buildOption.PHILIPPINES_ONESEG:
+            TVlog.i(TAG, "solution mode: Philippines Air(forced oneseg)");
+            break;
+        case buildOption.PHILIPPINES_USB:
+            TVlog.i(TAG, "solution mode: Philippines Dongle");
+            break;
+        case buildOption.PHILIPPINES_FILE:
+            TVlog.i(TAG, "solution mode: Philippines File");
+            break;
+        case buildOption.SRILANKA:
+            TVlog.i(TAG, "solution mode: Srilanka Air");
+            break;
+        case buildOption.SRILANKA_ONESEG:
+            TVlog.i(TAG, "solution mode: Srilanka Air(forced oneseg)");
+            break;
+        case buildOption.SRILANKA_USB:
+            TVlog.i(TAG, "solution mode: Srilanka Dongle");
+            break;
+        default:
+            TVlog.i(TAG, "solution mode: not supported");
+            break;
+        }
+    }
 }
-

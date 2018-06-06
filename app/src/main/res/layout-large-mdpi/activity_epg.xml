@@ -15,7 +15,8 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/tab_bg_selector"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <ImageButton
                 android:id="@+id/btn_back_epg"
@@ -35,8 +36,28 @@
                 android:background="@color/transparent"
                 android:gravity="center_vertical"
                 android:textColor="@color/white"
-                android:textSize="24dp"
+                android:textSize="15dp"
                 android:visibility="visible" />
+
+            <RelativeLayout
+                android:id="@+id/rl_ChType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp">
+                <ImageView
+                    android:id="@+id/iv_ChType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"/>
+                <ImageView
+                    android:id="@+id/iv_ChFree"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/tv_free"
+                    android:visibility="gone" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_remoteNo"
@@ -49,7 +70,23 @@
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
                 android:textColor="@color/white"
-                android:textSize="18dp" />
+                android:textSize="15dp" />
+
+            <LinearLayout
+                android:id="@+id/ll_ChLogo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/iv_ChLogo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:visibility="gone"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/epg_program"
@@ -63,7 +100,7 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
                 android:textColor="@color/white"
-                android:textSize="18dp" />
+                android:textSize="15dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -153,7 +190,7 @@
         <ImageView
             android:layout_width="2dp"
             android:layout_height="match_parent"
-            android:background="@color/black"/>
+            android:background="@color/white"/>
 
         <RelativeLayout
             android:id="@+id/centerlayout"

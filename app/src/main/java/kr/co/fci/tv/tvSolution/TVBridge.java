@@ -33,7 +33,15 @@ public class TVBridge {
 
     private static Context mContext;
 
-    private static final int MAX_REGION_SCAN_CH_NUM = 12;
+    private static final int MAX_REGION_SCAN_CH_NUM = 50;
+
+    // handover mode
+    public static final byte HANDOVER_RELAY_N_AFFILIATION = 0;
+    public static final byte HANDOVER_RELAY_ONLY = 1;
+    public static final byte HANDOVER_AFFILIATION_ONLY = 2;
+    public static final byte HANDOVER_RELAY_ONLY_ONESHOT = 3;
+    public static final byte HANDOVER_AFFILIATION_ONLY_ONESHOT = 4;
+    public static final byte HANDOVER_RELAY_ONLY_ONESHOT_FULLSCAN = 5;
 
     public static int getCurrentChannel()
     {
@@ -104,8 +112,12 @@ public class TVBridge {
 
     public static void scan(int[] _freqCh)
     {
-        if (_freqCh.length < MAX_REGION_SCAN_CH_NUM) {
-            TVlog.i(TAG, "Channel Scan(Region) Error...incorrect array number");
+        if (_freqCh.length > MAX_REGION_SCAN_CH_NUM) {
+            TVlog.i(TAG, "Channel Scan(Region) Error...incorrect array number(>"+MAX_REGION_SCAN_CH_NUM+")");
+            return;
+        }
+        if (MAX_REGION_SCAN_CH_NUM > 50) {
+            TVlog.i(TAG, "Channel Scan(Region) Error...Max resion channel number invalid(>50)");
             return;
         }
 
@@ -118,7 +130,17 @@ public class TVBridge {
         found=0;
         isScanning = true;
 
-        int nRet = FCI_TVi.ScanStart(_freqCh);
+        int[] _freqCh2 = new int[MAX_REGION_SCAN_CH_NUM];
+        if (_freqCh.length <= MAX_REGION_SCAN_CH_NUM) {
+            int i=0;
+            for (i=0; i <_freqCh.length; i++) {
+                _freqCh2[i] = _freqCh[i];
+            }
+            for (; i< MAX_REGION_SCAN_CH_NUM; i++) {
+                _freqCh2[i] = 0;
+            }
+        }
+        int nRet = FCI_TVi.ScanStart(_freqCh2);
         if (nRet != 0) {
             TVlog.i(TAG, "Channel Scan(Region) Error...");
         }
@@ -127,7 +149,7 @@ public class TVBridge {
     public static void scan(byte _opMode)
     {
         stop();
-        TVlog.i(TAG, "do scan (handover)...");
+        TVlog.i(TAG, "do scan (handover)... _opMode = " + _opMode);
 /*
         FCI_TVi.RemoveAllChannel();
 
@@ -602,6 +624,7 @@ public class TVBridge {
 
     public static void serviceID_start(int _id)
     {
+        TVlog.i(TAG, " >>> serviceID_start()");
         if (_id <0 || _id >= found  || found==0)
         {
             TVlog.i(TAG, "no channel");
@@ -1208,10 +1231,11 @@ public class TVBridge {
         return scanServiceName;
     }
 
-    public static void handoverProgress(int _progressPercent, int _found, int _freqKHz, String _svcName)
+    public static void handoverProgress(int _progressPercent, int _found, int _freqKHz, String _svcName, int _loopCount)
     {
-        TVlog.i(TAG, " handoverProgress  percent = " + _progressPercent + ",  found " + _found + ", service name " + _svcName + ", len " + _svcName.length());
-        ((MainActivity)mContext).sendEvent(TVEVENT.E_SCAN_HANDOVER_PROCESS, _progressPercent, _found, (int)_freqKHz);
+
+        TVlog.i(TAG, " handoverProgress  loop count = " + _loopCount + ", percent = " + _progressPercent + ", freq(KHz) = " + _freqKHz + ",  found " + _found + ", service name " + _svcName + ", len " + _svcName.length());
+        ((MainActivity)mContext).sendEvent(TVEVENT.E_SCAN_HANDOVER_PROCESS, _progressPercent, _found, (int)_freqKHz, (int)_loopCount);
 /*
         progressPercent=_progressPercent;
         found = _found;
@@ -1223,6 +1247,12 @@ public class TVBridge {
     {
         TVlog.i(TAG, " handoverSuccess : service index = " + _index + ",  total service count =  " + _total + ", update mode = " + _updateMode);
         ((MainActivity)mContext).sendEvent(TVEVENT.E_SCAN_HANDOVER_SUCCESS, _index, _total, _updateMode);
+    }
+
+    public static void handoverFailure(int _arg1, int _arg2, int _arg3)
+    {
+        TVlog.i(TAG, " handoverFailure ");
+        ((MainActivity)mContext).sendEvent(TVEVENT.E_SCAN_HANDOVER_FAILURE, _arg1, _arg2, _arg3);
     }
 
     public static void scanProgress(int _progressPercent, int _found, int _freqKHz, String _svcName)
@@ -1566,6 +1596,25 @@ public class TVBridge {
         ((MainActivity) mContext).sendEvent(TVEVENT.E_EWS_RECEIVED, startEndFlag, signalLevel, areaCodes);
     }
 
+    public static void logoInfoNoti(int logoLen, byte[] logoData, int[] logoInfo)
+    {
+        ((MainActivity) mContext).sendEvent(TVEVENT.E_LOGO_UPDATE, logoLen, logoData, logoInfo);
+    }
+
+    public static void logoInfoNotiFloating(int logoLen, byte[] logoData, int[] logoInfo)
+    {
+        if (FloatingWindow.getInstance() != null) {
+            FloatingWindow.getInstance().sendEvent(TVEVENT.E_LOGO_UPDATE_FLOATING, logoLen, logoData, logoInfo);
+        }
+    }
+
+    public static void logoInfoNotiChat(int logoLen, byte[] logoData, int[] logoInfo)
+    {
+        if (ChatMainActivity.getInstance() != null) {
+            ChatMainActivity.getInstance().sendEvent(TVEVENT.E_LOGO_UPDATE_CHAT, logoLen, logoData, logoInfo);
+        }
+    }
+
     public static void epgUpdateNoti(int epgType)
     {
         ((MainActivity) mContext).removeEvent(TVEVENT.E_EPG_UPDATE);
@@ -1608,4 +1657,24 @@ public class TVBridge {
         ((MainActivity) mContext).processGingaNCL(dataGinga);
     }
     //]]ADD_GINGA_NCL
+
+    public static int getNetworkID(int _svcNum)
+    {
+        int region_id;
+        int region_broadcaster_id;
+        int second_TS_flag;
+        int ts_id;
+
+        if (_svcNum <= 0) {
+            TVlog.e(TAG, "passed service num(id) invalid");
+            return -1;
+        } else {
+            region_id = (_svcNum >> 10) & 0x3F;
+            region_broadcaster_id = (_svcNum >> 3) & 0x0F;
+            second_TS_flag = (_svcNum >> 9) & 0x01;
+
+            ts_id = 0x7FF0 - (0x0010 * region_id) + region_broadcaster_id - (0x400 * second_TS_flag);
+            return ts_id;
+        }
+    }
 }

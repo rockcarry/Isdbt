@@ -1,6 +1,7 @@
 package kr.co.fci.tv.activity;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
 import kr.co.fci.tv.R;
 import kr.co.fci.tv.buildOption;
 import kr.co.fci.tv.saves.CommonStaticData;
@@ -31,9 +33,8 @@ import kr.co.fci.tv.util.CustomToast;
  * Created by live.kim on 2015-08-15.
  */
 public class AboutActivity extends Activity {
-
-    //ActionBar abar;
-
+    // ActionBar abar;
+    private final static String TAG = "AboutActivity";
     ImageButton imageButton_open;
     TextView versionTextView;
     private Handler mSignalHandler = null;
@@ -55,7 +56,7 @@ public class AboutActivity extends Activity {
     int mSizeToDump = 0;
     String aboutVersion;
 
-		public static AboutActivity instance;
+    public static AboutActivity instance;
     public static AboutActivity getInstance()
     {
         return instance;
@@ -84,7 +85,7 @@ public class AboutActivity extends Activity {
         title_about.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-            		CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
+                CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
                 finish();
                 Intent intent = new Intent(AboutActivity.this, SettingActivity.class);
                 startActivity(intent);
@@ -95,7 +96,7 @@ public class AboutActivity extends Activity {
         btn_back_about.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            		CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
+                CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
                 finish();
                 Intent intent = new Intent(AboutActivity.this, SettingActivity.class);
                 startActivity(intent);
@@ -106,7 +107,7 @@ public class AboutActivity extends Activity {
         imageButton_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            		CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
+                CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
                 Intent intent = new Intent(AboutActivity.this, OpenActivity.class);
                 startActivity(intent);
                 finish();
@@ -264,7 +265,7 @@ public class AboutActivity extends Activity {
                         isFreqSet = true;
                         }
                         if (isFreqSet == true) {
-                            //FCI_TVi.AVStart(0); //play first index :just test
+//                          TVBridge.dualAV_start(0, true); //play first index :just test
                         }
                         mSignalHandler.postDelayed(mSignalHandlerTask, 1000);
                     }
@@ -331,7 +332,7 @@ public class AboutActivity extends Activity {
         button_extra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            		CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
+                CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
                 finish();
             }
         });
@@ -349,8 +350,8 @@ public class AboutActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-    
-     @Override
+
+    @Override
     public void onBackPressed() {
         CommonStaticData.aboutActivityShow = false;   // justin add for dongle detached
         finish();
@@ -379,4 +380,14 @@ public class AboutActivity extends Activity {
         }
     }
 
+    protected boolean isRunningInForeground() {
+        ActivityManager manager =
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = manager.getRunningTasks(1);
+        if (tasks.isEmpty()) {
+            return false;
+        }
+        String topActivityName = tasks.get(0).topActivity.getPackageName();
+        return topActivityName.equalsIgnoreCase(getPackageName());
+    }
 }
